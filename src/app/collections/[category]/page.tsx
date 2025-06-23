@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 
 interface Product {
   id: number;
@@ -19,65 +20,65 @@ interface Category {
   id: number;
   name: string;
   slug: string;
+  description: string;
 }
 
 const getApiUrl = () => {
   if (typeof window === "undefined") {
     return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
   }
-  return "/api";
+  return process.env.NEXT_PUBLIC_API_URL || "/api";
 };
 
-// Fetches all subcategories for a given category slug
-async function getSubcategoriesByCategorySlug(
-  categorySlug: string
-): Promise<Subcategory[]> {
-  try {
-    const apiUrl = getApiUrl();
-    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`, {
-      next: { revalidate: 3600 },
-    });
-    if (!catRes.ok) throw new Error("Failed to fetch categories");
-    const categories: Category[] = await catRes.json();
-    const category = categories[0];
-    if (!category) return [];
+async function getCategoryPageData(categorySlug: string) {
+  const apiUrl = getApiUrl();
+  let category: Category | null = null;
+  let subcategories: Subcategory[] = [];
+  let products: Product[] = [];
 
+  try {
+    // 1. Fetch the category by slug
+    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`, {
+      next: { revalidate: 60 },
+    });
+    if (!catRes.ok)
+      throw new Error(`Failed to fetch category with slug: ${categorySlug}`);
+    const categories: Category[] = await catRes.json();
+    if (!categories[0]) {
+      notFound();
+    }
+    category = categories[0];
+
+    // 2. Fetch its subcategories
     const subCatRes = await fetch(
-      `${apiUrl}/subcategories?categoryId=${category.id}`,
-      { next: { revalidate: 3600 } }
+      `${apiUrl}/subcategories?category_id=${category.id}`,
+      { next: { revalidate: 60 } }
     );
-    if (!subCatRes.ok) throw new Error("Failed to fetch subcategories");
-    return subCatRes.json();
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
+    if (!subCatRes.ok)
+      throw new Error(
+        `Failed to fetch subcategories for category ID: ${category.id}`
+      );
+    subcategories = await subCatRes.json();
 
-// Fetches products for a category that has NO subcategories
-async function getProductsForCategory(
-  categorySlug: string
-): Promise<Product[]> {
-  try {
-    const apiUrl = getApiUrl();
-    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`, {
-      next: { revalidate: 3600 },
-    });
-    if (!catRes.ok) throw new Error("Failed to fetch category");
-    const categories: Category[] = await catRes.json();
-    const category = categories[0];
-    if (!category) return [];
-
-    const prodRes = await fetch(
-      `${apiUrl}/products?categoryId=${category.id}`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!prodRes.ok) throw new Error("Failed to fetch products for category");
-    return prodRes.json();
+    // 3. If NO subcategories exist, fetch products for this category directly
+    if (subcategories.length === 0) {
+      const prodRes = await fetch(
+        `${apiUrl}/products?category_id=${category.id}`,
+        { next: { revalidate: 60 } }
+      );
+      if (!prodRes.ok)
+        throw new Error(
+          `Failed to fetch products for category ID: ${category.id}`
+        );
+      products = await prodRes.json();
+    }
   } catch (error) {
-    console.error(error);
-    return [];
+    console.error("Error fetching category page data:", error);
+    // If anything fails, especially finding the category, treat as not found
+    notFound();
   }
+
+  return { category, subcategories, products };
 }
 
 export default async function CategoryPage({
@@ -86,27 +87,20 @@ export default async function CategoryPage({
   params: Promise<{ category: string }>;
 }) {
   const { category: categorySlug } = await params;
-  const subcategories = await getSubcategoriesByCategorySlug(categorySlug);
-
-  let products: Product[] = [];
-  if (subcategories.length === 0) {
-    products = await getProductsForCategory(categorySlug);
-  }
-
-  const categoryName =
-    categorySlug.charAt(0).toUpperCase() +
-    categorySlug.slice(1).replace(/-/g, " ");
+  const { category, subcategories, products } = await getCategoryPageData(
+    categorySlug
+  );
 
   return (
     <div className="bg-white">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
         <div className="text-center">
           <h1 className="text-4xl font-serif text-gray-900 sm:text-5xl">
-            {categoryName} Hampers
+            {category.name}
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
-            Browse our exclusive selection of {categoryName.toLowerCase()} gift
-            hampers.
+            {category.description ||
+              `Browse our exclusive selection of ${category.name.toLowerCase()} gift hampers.`}
           </p>
         </div>
 
@@ -147,7 +141,7 @@ export default async function CategoryPage({
               >
                 <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
                   <Image
-                    src={product.image}
+                    src={product.image || "/images/placeholder.webp"}
                     alt={product.name}
                     width={500}
                     height={500}
@@ -159,9 +153,6 @@ export default async function CategoryPage({
                     <h3 className="text-2xl font-serif text-white">
                       {product.name}
                     </h3>
-                    <p className="mt-2 text-sm font-medium text-gray-300">
-                      Price on request
-                    </p>
                   </div>
                 </div>
               </Link>
@@ -170,7 +161,7 @@ export default async function CategoryPage({
         ) : (
           <div className="text-center mt-16">
             <p className="text-lg text-gray-600">
-              No products or subcategories found in this category.
+              No items found in this collection yet.
             </p>
             <Link
               href="/collections"
