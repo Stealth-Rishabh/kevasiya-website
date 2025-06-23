@@ -26,7 +26,7 @@ interface Category {
 
 const getApiUrl = () => {
   // Use absolute URL on the server, relative on the client
-  return typeof window === "undefined" ? "http://localhost:5001/api" : "/api";
+  return process.env.NEXT_PUBLIC_API_URL;
 };
 
 // Fetches a single subcategory by its slug and its parent category's slug
@@ -160,7 +160,7 @@ export default async function SubCategoryPage({
 // This function helps Next.js know which subcategory pages to generate at build time.
 export async function generateStaticParams() {
   try {
-    const apiUrl = "http://localhost:5001/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const subCatRes = await fetch(`${apiUrl}/subcategories`);
     const subcategories: Subcategory[] = await subCatRes.json();
 

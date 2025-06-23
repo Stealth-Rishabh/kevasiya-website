@@ -10,10 +10,7 @@ interface Collection {
 
 async function getCollections(): Promise<Collection[]> {
   try {
-    // On the server, we need the full internal URL.
-    // 'typeof window === "undefined"' is true on the server and false in the browser.
-    const apiUrl =
-      typeof window === "undefined" ? "http://localhost:5001/api" : "/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     const res = await fetch(`${apiUrl}/categories`, {
       next: { revalidate: 3600 },

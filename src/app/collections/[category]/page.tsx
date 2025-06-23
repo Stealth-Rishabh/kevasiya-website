@@ -23,7 +23,7 @@ interface Category {
 }
 
 const getApiUrl = () => {
-  return typeof window === "undefined" ? "http://localhost:5001/api" : "/api";
+  return process.env.NEXT_PUBLIC_API_URL;
 };
 
 // Fetches all products for a given subcategory ID
