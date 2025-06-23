@@ -3,13 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -21,7 +15,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -46,52 +39,53 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
+// --- Helper to get full image URL ---
 function getImageUrl(path?: string) {
   if (!path) return "/placeholder.svg";
   if (path.startsWith("http") || path.startsWith("/uploads")) return path;
-  // This logic might need adjustment if API_URL is a full URL in production
   return `${API_URL}/${path.replace(/^\//, "")}`;
 }
 
+// --- Type Definitions ---
 interface Product {
   id: number;
   name: string;
-  slug: string;
   description: string;
   price: number | string;
-  subcategory_id?: number; // from DB
-  category_id: number; // from DB
+  category_id: number;
+  subcategory_id?: number;
   image?: string;
-  images?: string[] | string;
-  included_items?: string[] | string;
+  images?: string[];
+  included_items?: string[];
   packaging?: string;
   category_name?: string;
   subcategory_name?: string;
 }
-
 interface Category {
   id: number;
   name: string;
 }
-
 interface SubCategory {
   id: number;
   name: string;
   category_id: number;
 }
 
+// =================================================================
+// --- Product Dialog Component (Corrected and Final Version) ---
+// =================================================================
 function ProductDialog({
-  product,
   open,
   onOpenChange,
   onSave,
+  product,
   categories,
   allSubCategories,
 }: {
-  product?: Product | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: () => void;
+  product?: Product | null;
   categories: Category[];
   allSubCategories: SubCategory[];
 }) {
@@ -116,7 +110,6 @@ function ProductDialog({
   );
   const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
 
-  // Memoized list of available sub-categories based on the selected category
   const availableSubCategories = useMemo(() => {
     if (!formData.categoryId) return [];
     return allSubCategories.filter(
@@ -124,7 +117,6 @@ function ProductDialog({
     );
   }, [formData.categoryId, allSubCategories]);
 
-  // Effect to populate form when editing a product
   useEffect(() => {
     if (product) {
       setFormData({
@@ -142,17 +134,13 @@ function ProductDialog({
       });
       setExistingMainImage(product.image || null);
 
-      // --- THIS IS THE FIX ---
-      // It now safely handles cases where product.images might not be an array
       const galleryImagesData = product.images;
       if (Array.isArray(galleryImagesData)) {
         setExistingGalleryImages(galleryImagesData);
       } else {
         setExistingGalleryImages([]);
       }
-      // --- END OF FIX ---
     } else {
-      // Reset form for new product
       setFormData({
         name: "",
         description: "",
@@ -165,7 +153,6 @@ function ProductDialog({
       setExistingMainImage(null);
       setExistingGalleryImages([]);
     }
-    // Reset file inputs and removal list on open/close or product change
     setMainImageFile(null);
     setGalleryImageFiles([]);
     setImagesToRemove([]);
@@ -183,7 +170,6 @@ function ProductDialog({
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-        // Reset sub-category if category changes
         ...(name === "categoryId" && { subCategoryId: "" }),
       }));
     };
@@ -217,10 +203,8 @@ function ProductDialog({
     submissionData.append("packaging", formData.packaging);
     submissionData.append("category_id", formData.categoryId);
 
-    // Only append subcategory if one is selected
-    if (formData.subCategoryId) {
+    if (formData.subCategoryId)
       submissionData.append("subcategory_id", formData.subCategoryId);
-    }
 
     submissionData.append(
       "included_items",
@@ -232,21 +216,17 @@ function ProductDialog({
       )
     );
 
-    // Append new image files
     if (mainImageFile) submissionData.append("image", mainImageFile);
     galleryImageFiles.forEach((file) => submissionData.append("images", file));
 
-    // Append existing image URLs that are being kept
     if (existingMainImage)
       submissionData.append("existing_images", existingMainImage);
     existingGalleryImages.forEach((url) =>
       submissionData.append("existing_images", url)
     );
 
-    // Append images to remove
-    if (imagesToRemove.length > 0) {
+    if (imagesToRemove.length > 0)
       submissionData.append("images_to_remove", JSON.stringify(imagesToRemove));
-    }
 
     const url = product
       ? `${API_URL}/products/${product.id}`
@@ -273,168 +253,149 @@ function ProductDialog({
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="name" className="text-right">
-              Name
-            </label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="col-span-3"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="description" className="text-right">
-              Description
-            </label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="col-span-3"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="price" className="text-right">
-              Price
-            </label>
-            <Input
-              id="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              className="col-span-3"
-              placeholder="e.g., 29.99 or 'Price on Request'"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="category" className="text-right">
-              Category
-            </label>
+          <Input
+            name="name"
+            placeholder="Name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
+          <Textarea
+            name="description"
+            placeholder="Description"
+            value={formData.description}
+            onChange={handleInputChange}
+          />
+          <Input
+            name="price"
+            placeholder="e.g., 29.99 or 'Price on Request'"
+            value={formData.price}
+            onChange={handleInputChange}
+            required
+          />
+
+          <div className="grid grid-cols-2 gap-4">
             <Select
               value={formData.categoryId}
               onValueChange={handleSelectChange("categoryId")}
+              required
             >
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger>
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={String(cat.id)}>
-                    {cat.name}
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={formData.subCategoryId}
+              onValueChange={handleSelectChange("subCategoryId")}
+              disabled={availableSubCategories.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a sub-category" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableSubCategories.map((sc) => (
+                  <SelectItem key={sc.id} value={String(sc.id)}>
+                    {sc.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          {availableSubCategories.length > 0 && (
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="subcategory" className="text-right">
-                Sub Category
-              </label>
-              <Select
-                value={formData.subCategoryId}
-                onValueChange={handleSelectChange("subCategoryId")}
-                disabled={availableSubCategories.length === 0}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a sub-category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableSubCategories.map((subCat) => (
-                    <SelectItem key={subCat.id} value={String(subCat.id)}>
-                      {subCat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="packaging" className="text-right">
-              Packaging
-            </label>
+
+          <Input
+            name="packaging"
+            placeholder="Packaging"
+            value={formData.packaging}
+            onChange={handleInputChange}
+          />
+          <Input
+            name="included_items"
+            placeholder="Included Items (comma-separated)"
+            value={formData.included_items}
+            onChange={handleInputChange}
+          />
+
+          <div>
+            <label className="font-medium">Main Image</label>
             <Input
-              id="packaging"
-              value={formData.packaging}
-              onChange={handleInputChange}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="includedItems" className="text-right">
-              Included Items
-            </label>
-            <Input
-              id="includedItems"
-              value={formData.included_items}
-              onChange={handleInputChange}
-              className="col-span-3"
-              placeholder="item1, item2, item3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="mainImage" className="text-right">
-              Main Image
-            </label>
-            <Input
-              id="mainImage"
               type="file"
               accept="image/*"
               onChange={(e) =>
                 setMainImageFile(e.target.files ? e.target.files[0] : null)
               }
-              className="col-span-3"
             />
           </div>
-          {existingMainImage && (
-            <div className="grid grid-cols-4 items-center gap-4">
-              <div className="col-start-2 col-span-3">
-                <Image
-                  src={getImageUrl(existingMainImage)}
-                  alt="Existing main image"
-                  width={80}
-                  height={80}
-                  className="rounded-md"
-                />
-              </div>
-            </div>
-          )}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="galleryImages" className="text-right">
-              Gallery Images
-            </label>
+          <div>
+            <label className="font-medium">Gallery Images</label>
             <Input
-              id="galleryImages"
               type="file"
               accept="image/*"
               multiple
               onChange={(e) =>
                 setGalleryImageFiles(Array.from(e.target.files || []))
               }
-              className="col-span-3"
             />
           </div>
-          {existingGalleryImages.length > 0 && (
-            <div className="grid grid-cols-4 items-center gap-4">
-              <div className="col-start-2 col-span-3 flex gap-2 flex-wrap">
-                {existingGalleryImages.map((url, index) => (
-                  <Image
-                    key={index}
-                    src={getImageUrl(url)}
-                    alt={`Existing gallery image ${index + 1}`}
-                    width={80}
-                    height={80}
-                    className="rounded-md"
-                  />
+
+          {(existingMainImage || existingGalleryImages.length > 0) && (
+            <div>
+              <h4 className="font-medium mb-2">Current Images</h4>
+              <div className="flex flex-wrap gap-2">
+                {existingMainImage && (
+                  <div className="relative w-24 h-24 border rounded">
+                    <Image
+                      src={getImageUrl(existingMainImage)}
+                      alt="Main"
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleRemoveExistingImage(existingMainImage)
+                      }
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-0.5"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </div>
+                )}
+                {existingGalleryImages.map((url) => (
+                  <div key={url} className="relative w-24 h-24 border rounded">
+                    <Image
+                      src={getImageUrl(url)}
+                      alt="Gallery"
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveExistingImage(url)}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-0.5"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
           )}
+
           <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
             <Button type="submit">
               {product ? "Save Changes" : "Create Product"}
             </Button>
@@ -445,40 +406,9 @@ function ProductDialog({
   );
 }
 
-function DeleteConfirmationDialog({
-  open,
-  onOpenChange,
-  onConfirm,
-  productName,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
-  productName: string;
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Are you absolutely sure?</DialogTitle>
-          <DialogDescription>
-            This action cannot be undone. This will permanently delete the
-            product &quot;{productName}&quot;.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Delete
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
+// =================================================================
+// --- Main Products Page Component ---
+// =================================================================
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -486,8 +416,6 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -500,13 +428,9 @@ export default function ProductsPage() {
       if (!prodRes.ok || !catRes.ok || !subCatRes.ok)
         throw new Error("Failed to fetch initial data");
 
-      const productsData = await prodRes.json();
-      const categoriesData = await catRes.json();
-      const subCategoriesData = await subCatRes.json();
-
-      setProducts(productsData);
-      setCategories(categoriesData);
-      setAllSubCategories(subCategoriesData);
+      setProducts(await prodRes.json());
+      setCategories(await catRes.json());
+      setAllSubCategories(await subCatRes.json());
     } catch (error) {
       console.error("Fetch data error:", error);
       alert("Failed to load data. Please refresh the page.");
@@ -524,43 +448,38 @@ export default function ProductsPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDeleteClick = (product: Product) => {
-    setProductToDelete(product);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!productToDelete) return;
+  const handleDelete = async (productId: number) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this product? This action cannot be undone."
+      )
+    )
+      return;
     try {
-      const res = await fetch(`${API_URL}/products/${productToDelete.id}`, {
+      const res = await fetch(`${API_URL}/products/${productId}`, {
         method: "DELETE",
       });
-      if (res.ok) {
-        fetchData();
-        setIsDeleteDialogOpen(false);
-        setProductToDelete(null);
-      } else {
-        alert("Failed to delete product.");
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_error) {
-      alert("An error occurred while deleting the product.");
+      if (!res.ok) throw new Error(await res.text());
+      fetchData();
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      alert("Failed to delete product.");
     }
   };
 
   return (
-    <>
+    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <div className="flex items-center">
+        <h1 className="text-lg font-semibold md:text-2xl">Products</h1>
+        <div className="ml-auto flex items-center gap-2">
+          <Button size="sm" onClick={() => handleOpenDialog()}>
+            Add Product
+          </Button>
+        </div>
+      </div>
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Products</CardTitle>
-              <CardDescription>
-                Manage your products and view their sales performance.
-              </CardDescription>
-            </div>
-            <Button onClick={() => handleOpenDialog()}>Add New Product</Button>
-          </div>
+          <CardTitle>Product List</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -570,8 +489,9 @@ export default function ProductsPage() {
                   Image
                 </TableHead>
                 <TableHead>Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Sub-Category</TableHead>
                 <TableHead>Price</TableHead>
-                <TableHead>Category / Path</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -599,16 +519,12 @@ export default function ProductsPage() {
                     <TableCell className="font-medium">
                       {product.name}
                     </TableCell>
+                    <TableCell>{product.category_name}</TableCell>
+                    <TableCell>{product.subcategory_name || "N/A"}</TableCell>
                     <TableCell>
                       {typeof product.price === "number"
-                        ? `$${product.price.toFixed(2)}`
+                        ? `₹${product.price}`
                         : product.price}
-                    </TableCell>
-                    <TableCell>
-                      {product.category_name}
-                      {product.subcategory_name
-                        ? ` / ${product.subcategory_name}`
-                        : ""}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -619,19 +535,19 @@ export default function ProductsPage() {
                             variant="ghost"
                           >
                             <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem
-                            onClick={() => handleOpenDialog(product)}
+                            onSelect={() => handleOpenDialog(product)}
                           >
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleDeleteClick(product)}
+                            onSelect={() => handleDelete(product.id)}
+                            className="text-red-600"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
@@ -652,22 +568,14 @@ export default function ProductsPage() {
           </Table>
         </CardContent>
       </Card>
-
       <ProductDialog
-        product={selectedProduct}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onSave={fetchData}
+        product={selectedProduct}
         categories={categories}
         allSubCategories={allSubCategories}
       />
-
-      <DeleteConfirmationDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleDeleteConfirm}
-        productName={productToDelete?.name || ""}
-      />
-    </>
+    </main>
   );
 }
