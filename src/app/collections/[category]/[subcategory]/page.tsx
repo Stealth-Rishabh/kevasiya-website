@@ -25,8 +25,10 @@ interface Category {
 }
 
 const getApiUrl = () => {
-  // Use absolute URL on the server, relative on the client
-  return process.env.NEXT_PUBLIC_API_URL || "/api";
+  if (typeof window === "undefined") {
+    return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
+  }
+  return "/api";
 };
 
 // Fetches a single subcategory by its slug and its parent category's slug
@@ -36,19 +38,14 @@ async function getSubcategoryInfo(
 ): Promise<Subcategory | undefined> {
   try {
     const apiUrl = getApiUrl();
-    // First, get the category ID from the category slug
-    const catRes = await fetch(`${apiUrl}/categories`, {
-      next: { revalidate: 60 },
-    });
+    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`);
     if (!catRes.ok) return undefined;
     const categories: Category[] = await catRes.json();
-    const parentCategory = categories.find((c) => c.slug === categorySlug);
+    const parentCategory = categories[0];
     if (!parentCategory) return undefined;
 
-    // Then, get all subcategories for that category and find the correct one by slug
     const subCatRes = await fetch(
-      `${apiUrl}/subcategories?categoryId=${parentCategory.id}`,
-      { next: { revalidate: 60 } }
+      `${apiUrl}/subcategories?categoryId=${parentCategory.id}`
     );
     if (!subCatRes.ok) return undefined;
     const subcategories: Subcategory[] = await subCatRes.json();
@@ -148,7 +145,7 @@ export default async function SubCategoryPage({
               href={`/collections/${categorySlug}`}
               className="mt-4 inline-block text-lg font-medium text-gray-900 hover:text-gray-700"
             >
-              &larr; Back to all {categorySlug}
+              &larr; Back to all {categorySlug.replace(/-/g, " ")}
             </Link>
           </div>
         )}
@@ -160,11 +157,10 @@ export default async function SubCategoryPage({
 // This function helps Next.js know which subcategory pages to generate at build time.
 export async function generateStaticParams() {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const apiUrl = process.env.INTERNAL_API_URL || "http://localhost:5001/api";
     const subCatRes = await fetch(`${apiUrl}/subcategories`);
     const subcategories: Subcategory[] = await subCatRes.json();
 
-    // We need to get the parent category slug for each subcategory
     const catRes = await fetch(`${apiUrl}/categories`);
     const categories: Category[] = await catRes.json();
 

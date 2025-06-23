@@ -12,7 +12,6 @@ interface Subcategory {
   id: number;
   name: string;
   slug: string;
-  // Assuming subcategories might not have images, we'll use a default
   image?: string;
 }
 
@@ -23,7 +22,10 @@ interface Category {
 }
 
 const getApiUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL || "/api";
+  if (typeof window === "undefined") {
+    return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
+  }
+  return "/api";
 };
 
 // Fetches all subcategories for a given category slug
@@ -32,12 +34,12 @@ async function getSubcategoriesByCategorySlug(
 ): Promise<Subcategory[]> {
   try {
     const apiUrl = getApiUrl();
-    const catRes = await fetch(`${apiUrl}/categories`, {
+    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`, {
       next: { revalidate: 3600 },
     });
     if (!catRes.ok) throw new Error("Failed to fetch categories");
     const categories: Category[] = await catRes.json();
-    const category = categories.find((c) => c.slug === categorySlug);
+    const category = categories[0];
     if (!category) return [];
 
     const subCatRes = await fetch(
@@ -56,13 +58,26 @@ async function getSubcategoriesByCategorySlug(
 async function getProductsForCategory(
   categorySlug: string
 ): Promise<Product[]> {
-  // This function needs to be implemented based on your API's capabilities.
-  // For now, we return an empty array.
-  // A potential API endpoint could be `${getApiUrl()}/products?categorySlug=${categorySlug}`
-  console.log(
-    `Fetching products for category: ${categorySlug}. This needs a proper API endpoint.`
-  );
-  return [];
+  try {
+    const apiUrl = getApiUrl();
+    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!catRes.ok) throw new Error("Failed to fetch category");
+    const categories: Category[] = await catRes.json();
+    const category = categories[0];
+    if (!category) return [];
+
+    const prodRes = await fetch(
+      `${apiUrl}/products?categoryId=${category.id}`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!prodRes.ok) throw new Error("Failed to fetch products for category");
+    return prodRes.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
 
 export default async function CategoryPage({
@@ -74,13 +89,13 @@ export default async function CategoryPage({
   const subcategories = await getSubcategoriesByCategorySlug(categorySlug);
 
   let products: Product[] = [];
-  // If there are no subcategories, fetch products for the main category.
   if (subcategories.length === 0) {
     products = await getProductsForCategory(categorySlug);
   }
 
   const categoryName =
-    categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1);
+    categorySlug.charAt(0).toUpperCase() +
+    categorySlug.slice(1).replace(/-/g, " ");
 
   return (
     <div className="bg-white">
@@ -96,18 +111,15 @@ export default async function CategoryPage({
         </div>
 
         {subcategories.length > 0 ? (
-          // Render Subcategories
           <div className="mt-16 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
             {subcategories.map((sub) => (
               <Link
                 key={sub.id}
-                // TODO: This href should eventually point to a page for this subcategory's products
                 href={`/collections/${categorySlug}/${sub.slug}`}
                 className="group block"
               >
                 <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
                   <Image
-                    // Using a placeholder image since subcategories might not have one
                     src={sub.image || "/images/placeholder.webp"}
                     alt={sub.name}
                     width={500}
@@ -126,7 +138,6 @@ export default async function CategoryPage({
             ))}
           </div>
         ) : products.length > 0 ? (
-          // Render Products
           <div className="mt-16 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
             {products.map((product) => (
               <Link
@@ -157,7 +168,6 @@ export default async function CategoryPage({
             ))}
           </div>
         ) : (
-          // Nothing found
           <div className="text-center mt-16">
             <p className="text-lg text-gray-600">
               No products or subcategories found in this category.
