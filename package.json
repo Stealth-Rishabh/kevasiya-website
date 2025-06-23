@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 3000",
-    "build": "NEXT_PUBLIC_API_URL='/api' next build",
+    "build": "cross-env NEXT_PUBLIC_API_URL='/api' next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -34,6 +34,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "tailwindcss": "^4",
