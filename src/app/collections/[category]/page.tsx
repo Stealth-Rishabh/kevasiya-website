@@ -26,23 +26,6 @@ const getApiUrl = () => {
   return process.env.NEXT_PUBLIC_API_URL;
 };
 
-// Fetches all products for a given subcategory ID
-async function getProductsBySubcategoryId(
-  subcategoryId: number
-): Promise<Product[]> {
-  try {
-    const res = await fetch(
-      `${getApiUrl()}/products?subCategoryId=${subcategoryId}`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) throw new Error("Failed to fetch products");
-    return res.json();
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
-
 // Fetches all subcategories for a given category slug
 async function getSubcategoriesByCategorySlug(
   categorySlug: string

@@ -25,15 +25,17 @@ const PrivacyPolicyPage = () => {
 
           <div className="prose prose-lg max-w-none prose-stone prose-a:text-pink-600 hover:prose-a:text-pink-500">
             <p>
-              This Privacy Policy describes how Kevasiya (the "Site", "we",
-              "us", or "our") collects, uses, and discloses your personal
-              information when you visit, use our services, or make a purchase
-              from <Link href="/">kevasiya.com</Link> (the "Site") or otherwise
-              communicate with us regarding the Site (collectively, the
-              "Services"). For purposes of this Privacy Policy, "you" and "your"
-              means you as the user of the Services, whether you are a customer,
-              website visitor, or another individual whose information we have
-              collected pursuant to this Privacy Policy.
+              This Privacy Policy describes how Kevasiya (the &quot;Site&quot;,
+              &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects,
+              uses, and discloses your personal information when you visit, use
+              our services, or make a purchase from{" "}
+              <Link href="/">kevasiya.com</Link> (the &quot;Site&quot;) or
+              otherwise communicate with us regarding the Site (collectively,
+              the &quot;Services&quot;). For purposes of this Privacy Policy,
+              &quot;you&quot; and &quot;your&quot; means you as the user of the
+              Services, whether you are a customer, website visitor, or another
+              individual whose information we have collected pursuant to this
+              Privacy Policy.
             </p>
             <p>
               Please read this Privacy Policy carefully. By using and accessing
@@ -50,8 +52,8 @@ const PrivacyPolicyPage = () => {
               We may update this Privacy Policy from time to time, including to
               reflect changes to our practices or for other operational, legal,
               or regulatory reasons. We will post the revised Privacy Policy on
-              the Site, update the "Last updated" date and take any other steps
-              required by applicable law.
+              the Site, update the &quot;Last updated&quot; date and take any
+              other steps required by applicable law.
             </p>
 
             <h2 className="text-3xl bold font-serif pt-8 pb-4">
@@ -73,10 +75,10 @@ const PrivacyPolicyPage = () => {
             <p>
               The types of personal information we obtain about you depends on
               how you interact with our Site and use our Services. When we use
-              the term "personal information", we are referring to information
-              that identifies, relates to, describes or can be associated with
-              you. The following sections describe the categories and specific
-              types of personal information we collect.
+              the term &quot;personal information&quot;, we are referring to
+              information that identifies, relates to, describes or can be
+              associated with you. The following sections describe the
+              categories and specific types of personal information we collect.
             </p>
 
             <h4>Information We Collect Directly from You</h4>
@@ -114,13 +116,13 @@ const PrivacyPolicyPage = () => {
             <h4>Information We Collect about Your Usage</h4>
             <p>
               We may also automatically collect certain information about your
-              interaction with the Services ("Usage Data"). To do this, we may
-              use cookies, pixels and similar technologies ("Cookies"). Usage
-              Data may include information about how you access and use our Site
-              and your account, including device information, browser
-              information, information about your network connection, your IP
-              address and other information regarding your interaction with the
-              Services.
+              interaction with the Services (&quot;Usage Data&quot;). To do
+              this, we may use cookies, pixels and similar technologies
+              (&quot;Cookies&quot;). Usage Data may include information about
+              how you access and use our Site and your account, including device
+              information, browser information, information about your network
+              connection, your IP address and other information regarding your
+              interaction with the Services.
             </p>
 
             <h4>Information We Obtain from Third Parties</h4>
@@ -250,8 +252,8 @@ const PrivacyPolicyPage = () => {
                 login integrations, with your consent.
               </li>
               <li>
-                With our affiliates or otherwise within our corporate group, in
-                our legitimate interests to run a successful business.
+                With our affiliates and within our corporate group, in our
+                legitimate interest to run a successful business.
               </li>
               <li>
                 In connection with a business transaction such as a merger or
@@ -263,7 +265,9 @@ const PrivacyPolicyPage = () => {
               </li>
             </ul>
 
-            <h2 className="text-3xl bold font-serif pt-8 pb-4">Your Rights</h2>
+            <h2 className="text-3xl bold font-serif pt-8 pb-4">
+              Your Rights and Choices
+            </h2>
             <p>
               Depending on where you live, you may have some or all of the
               rights listed below in relation to your personal information.
@@ -273,71 +277,98 @@ const PrivacyPolicyPage = () => {
             </p>
             <ul>
               <li>
-                <strong>Right to Access / Know:</strong> You may have a right to
+                <strong>Right to Access / Know.</strong> You may have a right to
                 request access to personal information that we hold about you,
                 including details relating to the ways in which we use and share
                 your information.
               </li>
               <li>
-                <strong>Right to Delete:</strong> You may have a right to
+                <strong>Right to Delete.</strong> You may have a right to
                 request that we delete personal information we maintain about
                 you.
               </li>
               <li>
-                <strong>Right to Correct:</strong> You may have a right to
+                <strong>Right to Correct.</strong> You may have a right to
                 request that we correct inaccurate personal information we
                 maintain about you.
               </li>
               <li>
-                <strong>Right of Portability:</strong> You may have a right to
+                <strong>Right of Portability.</strong> You may have a right to
                 receive a copy of the personal information we hold about you and
                 to request that we transfer it to a third party, in certain
                 circumstances and with certain exceptions.
               </li>
-              <li>
-                <strong>Restriction of Processing:</strong> You may have the
-                right to ask us to stop or restrict our processing of personal
-                information.
-              </li>
-              <li>
-                <strong>Withdrawal of Consent:</strong> Where we rely on consent
-                to process your personal information, you may have the right to
-                withdraw this consent.
-              </li>
-              <li>
-                <strong>Appeal:</strong> You may have a right to appeal our
-                decision if we decline to process your request. You can do so by
-                replying directly to our denial.
-              </li>
-              <li>
-                <strong>Managing Communication Preferences:</strong> We may send
-                you promotional emails, and you may opt out of receiving these
-                at any time by using the unsubscribe option displayed in our
-                emails to you. If you opt out, we may still send you
-                non-promotional emails, such as those about your account or
-                orders that you have made.
-              </li>
             </ul>
+            <p>
+              You may exercise any of these rights where indicated on our Site
+              or by contacting us using the contact details provided below. We
+              will not discriminate against you for exercising any of these
+              rights. We may need to collect information from you to verify your
+              identity, such as your email address or account information,
+              before providing a substantive response to the request.
+            </p>
 
-            <h2 className="text-3xl bold font-serif pt-8 pb-4">Contact</h2>
+            <h2 className="text-3xl bold font-serif pt-8 pb-4">Complaints</h2>
+            <p>
+              If you have complaints about how we process your personal
+              information, please contact us using the contact details provided
+              below. If you are not satisfied with our response to your
+              complaint, depending on where you live you may have the right to
+              appeal our decision by contacting us using the contact details set
+              out below, or lodge your complaint with your local data protection
+              authority.
+            </p>
+
+            <h2 className="text-3xl bold font-serif pt-8 pb-4">
+              Third Party Websites and Links
+            </h2>
+            <p>
+              Our Site may provide links to websites or other online platforms
+              operated by third parties. If you follow links to sites not
+              affiliated or controlled by us, you should review their privacy
+              and security policies and other terms and conditions. We do not
+              guarantee and are not responsible for the privacy or security of
+              such sites, including the accuracy, completeness, or reliability
+              of information found on these sites. Information you provide on
+              public or semi-public venues, including information you share on
+              third-party social networking platforms may also be viewable by
+              other users of the Services and/or users of those third-party
+              platforms without limitation as to its use by us or by a third
+              party. Our inclusion of such links does not, by itself, imply any
+              endorsement of the content on such platforms or of their owners or
+              operators, except as disclosed on the Services.
+            </p>
+
+            <h2 className="text-3xl bold font-serif pt-8 pb-4">
+              Children&apos;s Data
+            </h2>
+            <p>
+              The Services are not intended to be used by children, and we do
+              not knowingly collect any personal information about children. If
+              you are the parent or guardian of a child who has provided us with
+              their personal information, you may contact us using the contact
+              details set out below to request that it be deleted. As of the
+              Effective Date of this Privacy Policy, we do not have actual
+              knowledge that we &quot;share&quot; or &quot;sell&quot; (as those
+              terms are defined in applicable law) personal information of
+              individuals under 16 years of age.
+            </p>
+
+            <h2 className="text-3xl bold font-serif pt-8 pb-4">
+              Contact Information
+            </h2>
             <p>
               Should you have any questions about our privacy practices or this
               Privacy Policy, or if you would like to exercise any of the rights
-              available to you, please call or email us or contact us at:
+              available to you, please email us at{" "}
+              <a
+                href="mailto:info@kevasiya.com"
+                className="text-pink-600 hover:text-pink-500"
+              >
+                info@kevasiya.com
+              </a>
+              .
             </p>
-            <address className="not-italic p-4 border-l-4 border-stone-200 bg-stone-50 rounded-md">
-              <strong>Kevasiya</strong>
-              <br />
-              52, North Ave, near South Indian Bank, North Avenue
-              <br />
-              West Punjabi Bagh, Punjabi Bagh, Delhi, 110026
-              <br />
-              <br />
-              <strong>Phone:</strong> <a href="tel:09310010810">093100 10810</a>
-              <br />
-              <strong>Email:</strong>{" "}
-              <a href="mailto:contact@kevasiya.com">contact@kevasiya.com</a>
-            </address>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,10 +25,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -399,10 +398,12 @@ export default function ProductsPage() {
               {products.map((prod) => (
                 <TableRow key={prod.id}>
                   <TableCell>
-                    <img
-                      src={prod.image || `https://via.placeholder.com/40`}
+                    <Image
                       alt={prod.name}
-                      className="h-10 w-10 object-cover rounded-md"
+                      className="aspect-square rounded-md object-cover"
+                      height="64"
+                      src={prod.image || "/placeholder.svg"}
+                      width="64"
                     />
                   </TableCell>
                   <TableCell className="font-medium">{prod.name}</TableCell>
