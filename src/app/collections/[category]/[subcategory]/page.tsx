@@ -2,6 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
+// Define a specific type for the resolved params
+interface SubCategoryPageParams {
+  category: string;
+  subcategory: string;
+}
+
 // Define the types for our data
 interface Product {
   id: number;
@@ -24,11 +30,19 @@ interface Category {
   slug: string;
 }
 
+// Following your guidance, type the params prop as a Promise
+// that resolves to our params object.
+interface PageProps {
+  params: Promise<SubCategoryPageParams>;
+}
+
 const getApiUrl = () => {
   if (typeof window === "undefined") {
+    // For server-side rendering (build time), use the internal URL.
     return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
   }
-  return "/api";
+  // For client-side, the browser will use the relative path.
+  return process.env.NEXT_PUBLIC_API_URL || "/api";
 };
 
 // Fetches a single subcategory by its slug and its parent category's slug
@@ -75,12 +89,9 @@ async function getProductsBySubcategoryId(
   }
 }
 
-export default async function SubCategoryPage({
-  params,
-}: {
-  params: { category: string; subcategory: string };
-}) {
-  const { category: categorySlug, subcategory: subcategorySlug } = params;
+export default async function SubCategoryPage({ params }: PageProps) {
+  // Await the params promise to get the resolved values
+  const { category: categorySlug, subcategory: subcategorySlug } = await params;
 
   const subcategory = await getSubcategoryInfo(categorySlug, subcategorySlug);
 
@@ -155,23 +166,31 @@ export default async function SubCategoryPage({
 }
 
 // This function helps Next.js know which subcategory pages to generate at build time.
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<SubCategoryPageParams[]> {
   try {
     const apiUrl = process.env.INTERNAL_API_URL || "http://localhost:5001/api";
     const subCatRes = await fetch(`${apiUrl}/subcategories`);
+    if (!subCatRes.ok) return [];
     const subcategories: Subcategory[] = await subCatRes.json();
 
     const catRes = await fetch(`${apiUrl}/categories`);
+    if (!catRes.ok) return [];
     const categories: Category[] = await catRes.json();
 
     const categoryMap = new Map(categories.map((c) => [c.id, c.slug]));
 
     return subcategories
-      .map((sub) => ({
-        category: categoryMap.get(sub.category_id) || "",
-        subcategory: sub.slug,
-      }))
-      .filter((params) => params.category); // Filter out any with no parent
+      .map((sub) => {
+        const categorySlug = categoryMap.get(sub.category_id);
+        if (!categorySlug) {
+          return null; // Return null for invalid entries
+        }
+        return {
+          category: categorySlug,
+          subcategory: sub.slug,
+        };
+      })
+      .filter((params): params is SubCategoryPageParams => params !== null); // Use a type guard to filter out nulls and satisfy TypeScript
   } catch (error) {
     console.error("Could not generate static params for subcategories:", error);
     return [];
