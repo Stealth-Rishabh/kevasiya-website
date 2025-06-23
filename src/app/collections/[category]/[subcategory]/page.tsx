@@ -45,7 +45,7 @@ async function getSubcategoryInfo(
     if (!parentCategory) return undefined;
 
     const subCatRes = await fetch(
-      `${apiUrl}/subcategories?categoryId=${parentCategory.id}`
+      `${apiUrl}/subcategories?category_id=${parentCategory.id}`
     );
     if (!subCatRes.ok) return undefined;
     const subcategories: Subcategory[] = await subCatRes.json();
@@ -62,7 +62,7 @@ async function getProductsBySubcategoryId(
 ): Promise<Product[]> {
   try {
     const res = await fetch(
-      `${getApiUrl()}/products?subCategoryId=${subcategoryId}`,
+      `${getApiUrl()}/products?subcategory_id=${subcategoryId}`,
       {
         next: { revalidate: 60 },
       }
@@ -78,9 +78,9 @@ async function getProductsBySubcategoryId(
 export default async function SubCategoryPage({
   params,
 }: {
-  params: Promise<{ category: string; subcategory: string }>;
+  params: { category: string; subcategory: string };
 }) {
-  const { category: categorySlug, subcategory: subcategorySlug } = await params;
+  const { category: categorySlug, subcategory: subcategorySlug } = params;
 
   const subcategory = await getSubcategoryInfo(categorySlug, subcategorySlug);
 
