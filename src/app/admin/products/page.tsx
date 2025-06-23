@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { MoreHorizontal, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit, X as XIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,9 +48,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 function getImageUrl(path?: string) {
   if (!path) return "/placeholder.svg";
-  if (path.startsWith("http")) return path;
-  const cleanedPath = path.startsWith("/") ? path.substring(1) : path;
-  return `${API_URL}/${cleanedPath}`;
+  if (path.startsWith("http") || path.startsWith("/uploads")) return path;
+  // This logic might need adjustment if API_URL is a full URL in production
+  return `${API_URL}/${path.replace(/^\//, "")}`;
 }
 
 interface Product {
@@ -77,6 +77,7 @@ interface Category {
 interface SubCategory {
   id: number;
   name: string;
+  category_id: number;
 }
 
 function ProductDialog({
@@ -85,169 +86,166 @@ function ProductDialog({
   onOpenChange,
   onSave,
   categories,
+  allSubCategories,
 }: {
   product?: Product | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: () => void;
   categories: Category[];
+  allSubCategories: SubCategory[];
 }) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
-  const [subCategoryId, setSubCategoryId] = useState<string | undefined>(
-    undefined
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    categoryId: "",
+    subCategoryId: "",
+    packaging: "",
+    included_items: "",
+  });
+
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([]);
+
+  const [existingMainImage, setExistingMainImage] = useState<string | null>(
+    null
   );
-  const [availableSubCategories, setAvailableSubCategories] = useState<
-    SubCategory[]
-  >([]);
-  const [packaging, setPackaging] = useState("");
-  const [includedItems, setIncludedItems] = useState("");
-  const [mainImage, setMainImage] = useState<File | null>(null);
-  const [galleryImages, setGalleryImages] = useState<FileList | null>(null);
+  const [existingGalleryImages, setExistingGalleryImages] = useState<string[]>(
+    []
+  );
+  const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
 
-  const [existingMainImageUrl, setExistingMainImageUrl] = useState<
-    string | undefined
-  >(undefined);
-  const [existingGalleryImageUrls, setExistingGalleryImageUrls] = useState<
-    string[]
-  >([]);
-  const [isFetchingSubcategories, setIsFetchingSubcategories] = useState(false);
+  // Memoized list of available sub-categories based on the selected category
+  const availableSubCategories = useMemo(() => {
+    if (!formData.categoryId) return [];
+    return allSubCategories.filter(
+      (sc) => String(sc.category_id) === formData.categoryId
+    );
+  }, [formData.categoryId, allSubCategories]);
 
-  const fetchSubCategories = useCallback(async (selectedCategoryId: string) => {
-    if (!selectedCategoryId) {
-      setAvailableSubCategories([]);
-      return;
-    }
-    setIsFetchingSubcategories(true);
-    try {
-      const res = await fetch(
-        `${API_URL}/subcategories?categoryId=${selectedCategoryId}`
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setAvailableSubCategories(data);
-      } else {
-        setAvailableSubCategories([]);
-      }
-    } catch (error) {
-      console.error("Failed to fetch sub-categories:", error);
-      setAvailableSubCategories([]);
-    } finally {
-      setIsFetchingSubcategories(false);
-    }
-  }, []);
-
+  // Effect to populate form when editing a product
   useEffect(() => {
-    const initializeForm = async () => {
-      if (product) {
-        setName(product.name);
-        setDescription(product.description);
-        setPrice(String(product.price));
-        setPackaging(product.packaging || "");
-        setIncludedItems(
-          Array.isArray(product.included_items)
-            ? product.included_items.join(", ")
-            : ""
-        );
+    if (product) {
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: String(product.price),
+        categoryId: String(product.category_id),
+        subCategoryId: product.subcategory_id
+          ? String(product.subcategory_id)
+          : "",
+        packaging: product.packaging || "",
+        included_items: Array.isArray(product.included_items)
+          ? product.included_items.join(", ")
+          : "",
+      });
+      setExistingMainImage(product.image || null);
 
-        const currentCategoryId = String(product.category_id);
-        setCategoryId(currentCategoryId);
-
-        await fetchSubCategories(currentCategoryId);
-
-        const currentSubCategoryId = product.subcategory_id;
-        if (currentSubCategoryId) {
-          setSubCategoryId(String(currentSubCategoryId));
-        } else {
-          setSubCategoryId(undefined);
-        }
-
-        setExistingMainImageUrl(product.image);
-        setExistingGalleryImageUrls(
-          Array.isArray(product.images) ? product.images : []
-        );
+      // --- THIS IS THE FIX ---
+      // It now safely handles cases where product.images might not be an array
+      const galleryImagesData = product.images;
+      if (Array.isArray(galleryImagesData)) {
+        setExistingGalleryImages(galleryImagesData);
       } else {
-        // Reset form for new product
-        setName("");
-        setDescription("");
-        setPrice("");
-        setCategoryId(undefined);
-        setSubCategoryId(undefined);
-        setAvailableSubCategories([]);
-        setPackaging("");
-        setIncludedItems("");
-        setExistingMainImageUrl(undefined);
-        setExistingGalleryImageUrls([]);
+        setExistingGalleryImages([]);
       }
-      setMainImage(null);
-      setGalleryImages(null);
+      // --- END OF FIX ---
+    } else {
+      // Reset form for new product
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        categoryId: "",
+        subCategoryId: "",
+        packaging: "",
+        included_items: "",
+      });
+      setExistingMainImage(null);
+      setExistingGalleryImages([]);
+    }
+    // Reset file inputs and removal list on open/close or product change
+    setMainImageFile(null);
+    setGalleryImageFiles([]);
+    setImagesToRemove([]);
+  }, [product, open]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange =
+    (name: "categoryId" | "subCategoryId") => (value: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        // Reset sub-category if category changes
+        ...(name === "categoryId" && { subCategoryId: "" }),
+      }));
     };
 
-    if (open) {
-      initializeForm();
+  const handleRemoveExistingImage = (imageUrl: string) => {
+    if (imageUrl === existingMainImage) {
+      setExistingMainImage(null);
+    } else {
+      setExistingGalleryImages((prev) =>
+        prev.filter((url) => url !== imageUrl)
+      );
     }
-  }, [product, open, fetchSubCategories]);
-
-  const handleCategoryChange = (selectedCategoryId: string) => {
-    setCategoryId(selectedCategoryId);
-    setSubCategoryId(undefined); // Reset subcategory when category changes
-    fetchSubCategories(selectedCategoryId);
+    setImagesToRemove((prev) => [...prev, imageUrl]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = name.toLowerCase().replace(/ /g, "-").replace(/[?']/g, "");
-    if (!categoryId) {
+    if (!formData.categoryId) {
       alert("Please select a category.");
       return;
     }
-    if (availableSubCategories.length > 0 && !subCategoryId) {
+    if (availableSubCategories.length > 0 && !formData.subCategoryId) {
       alert("This category has sub-categories. Please select one.");
       return;
     }
 
-    const isPriceValid =
-      !isNaN(Number(price)) ||
-      price.trim().toLowerCase() === "price on request";
-    if (!isPriceValid || price.trim() === "") {
-      alert("Price must be a number or the exact text 'Price on Request'.");
-      return;
+    const submissionData = new FormData();
+    submissionData.append("name", formData.name);
+    submissionData.append("description", formData.description);
+    submissionData.append("price", formData.price);
+    submissionData.append("packaging", formData.packaging);
+    submissionData.append("category_id", formData.categoryId);
+
+    // Only append subcategory if one is selected
+    if (formData.subCategoryId) {
+      submissionData.append("subcategory_id", formData.subCategoryId);
     }
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("slug", slug);
-    formData.append("description", description);
-    formData.append("price", price);
-
-    formData.append("category_id", categoryId);
-    if (subCategoryId) {
-      formData.append("subcategory_id", subCategoryId);
-    }
-
-    formData.append("packaging", packaging);
-    formData.append(
+    submissionData.append(
       "included_items",
-      JSON.stringify(includedItems.split(",").map((s) => s.trim()))
+      JSON.stringify(
+        formData.included_items
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      )
     );
 
-    if (mainImage) {
-      formData.append("image", mainImage);
-    } else if (product?.id && existingMainImageUrl) {
-      // For updates, if no new image is selected, send back the existing path
-      formData.append("image", existingMainImageUrl);
-    }
+    // Append new image files
+    if (mainImageFile) submissionData.append("image", mainImageFile);
+    galleryImageFiles.forEach((file) => submissionData.append("images", file));
 
-    if (galleryImages) {
-      Array.from(galleryImages).forEach((file) => {
-        formData.append("images", file);
-      });
-    }
-    if (product?.id && !galleryImages && existingGalleryImageUrls.length > 0) {
-      // For updates, send back existing gallery if no new ones are added
-      formData.append("images", JSON.stringify(existingGalleryImageUrls));
+    // Append existing image URLs that are being kept
+    if (existingMainImage)
+      submissionData.append("existing_images", existingMainImage);
+    existingGalleryImages.forEach((url) =>
+      submissionData.append("existing_images", url)
+    );
+
+    // Append images to remove
+    if (imagesToRemove.length > 0) {
+      submissionData.append("images_to_remove", JSON.stringify(imagesToRemove));
     }
 
     const url = product
@@ -255,17 +253,14 @@ function ProductDialog({
       : `${API_URL}/products`;
     const method = product ? "PUT" : "POST";
 
-    const res = await fetch(url, { method, body: formData });
-
-    if (res.ok) {
+    try {
+      const res = await fetch(url, { method, body: submissionData });
+      if (!res.ok) throw new Error(await res.text());
       onSave();
       onOpenChange(false);
-    } else {
-      const errorData = await res.json();
-      console.error("Failed to save product:", errorData);
-      alert(
-        `Failed to save product. Error: ${errorData.message || "Unknown error"}`
-      );
+    } catch (error) {
+      console.error("Failed to save product:", error);
+      alert("Failed to save product. Check the console for details.");
     }
   };
 
@@ -284,8 +279,8 @@ function ProductDialog({
             </label>
             <Input
               id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={formData.name}
+              onChange={handleInputChange}
               className="col-span-3"
               required
             />
@@ -296,8 +291,8 @@ function ProductDialog({
             </label>
             <Textarea
               id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={formData.description}
+              onChange={handleInputChange}
               className="col-span-3"
               required
             />
@@ -308,8 +303,8 @@ function ProductDialog({
             </label>
             <Input
               id="price"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              value={formData.price}
+              onChange={handleInputChange}
               className="col-span-3"
               placeholder="e.g., 29.99 or 'Price on Request'"
               required
@@ -319,7 +314,10 @@ function ProductDialog({
             <label htmlFor="category" className="text-right">
               Category
             </label>
-            <Select value={categoryId} onValueChange={handleCategoryChange}>
+            <Select
+              value={formData.categoryId}
+              onValueChange={handleSelectChange("categoryId")}
+            >
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -332,32 +330,28 @@ function ProductDialog({
               </SelectContent>
             </Select>
           </div>
-          {isFetchingSubcategories ? (
+          {availableSubCategories.length > 0 && (
             <div className="grid grid-cols-4 items-center gap-4">
-              <div className="col-start-2 col-span-3">
-                Loading subcategories...
-              </div>
+              <label htmlFor="subcategory" className="text-right">
+                Sub Category
+              </label>
+              <Select
+                value={formData.subCategoryId}
+                onValueChange={handleSelectChange("subCategoryId")}
+                disabled={availableSubCategories.length === 0}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a sub-category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableSubCategories.map((subCat) => (
+                    <SelectItem key={subCat.id} value={String(subCat.id)}>
+                      {subCat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          ) : (
-            availableSubCategories.length > 0 && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="subcategory" className="text-right">
-                  Sub Category
-                </label>
-                <Select value={subCategoryId} onValueChange={setSubCategoryId}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a sub-category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableSubCategories.map((subCat) => (
-                      <SelectItem key={subCat.id} value={String(subCat.id)}>
-                        {subCat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )
           )}
           <div className="grid grid-cols-4 items-center gap-4">
             <label htmlFor="packaging" className="text-right">
@@ -365,8 +359,8 @@ function ProductDialog({
             </label>
             <Input
               id="packaging"
-              value={packaging}
-              onChange={(e) => setPackaging(e.target.value)}
+              value={formData.packaging}
+              onChange={handleInputChange}
               className="col-span-3"
             />
           </div>
@@ -376,8 +370,8 @@ function ProductDialog({
             </label>
             <Input
               id="includedItems"
-              value={includedItems}
-              onChange={(e) => setIncludedItems(e.target.value)}
+              value={formData.included_items}
+              onChange={handleInputChange}
               className="col-span-3"
               placeholder="item1, item2, item3"
             />
@@ -389,15 +383,18 @@ function ProductDialog({
             <Input
               id="mainImage"
               type="file"
-              onChange={(e) => setMainImage(e.target.files?.[0] || null)}
+              accept="image/*"
+              onChange={(e) =>
+                setMainImageFile(e.target.files ? e.target.files[0] : null)
+              }
               className="col-span-3"
             />
           </div>
-          {existingMainImageUrl && (
+          {existingMainImage && (
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="col-start-2 col-span-3">
                 <Image
-                  src={getImageUrl(existingMainImageUrl)}
+                  src={getImageUrl(existingMainImage)}
                   alt="Existing main image"
                   width={80}
                   height={80}
@@ -413,15 +410,18 @@ function ProductDialog({
             <Input
               id="galleryImages"
               type="file"
+              accept="image/*"
               multiple
-              onChange={(e) => setGalleryImages(e.target.files)}
+              onChange={(e) =>
+                setGalleryImageFiles(Array.from(e.target.files || []))
+              }
               className="col-span-3"
             />
           </div>
-          {existingGalleryImageUrls.length > 0 && (
+          {existingGalleryImages.length > 0 && (
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="col-start-2 col-span-3 flex gap-2 flex-wrap">
-                {existingGalleryImageUrls.map((url, index) => (
+                {existingGalleryImages.map((url, index) => (
                   <Image
                     key={index}
                     src={getImageUrl(url)}
@@ -482,43 +482,42 @@ function DeleteConfirmationDialog({
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [allSubCategories, setAllSubCategories] = useState<SubCategory[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/products`);
-      if (res.ok) {
-        const data = await res.json();
-        setProducts(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
-    }
-  }, []);
+      const [prodRes, catRes, subCatRes] = await Promise.all([
+        fetch(`${API_URL}/products`),
+        fetch(`${API_URL}/categories`),
+        fetch(`${API_URL}/subcategories`),
+      ]);
+      if (!prodRes.ok || !catRes.ok || !subCatRes.ok)
+        throw new Error("Failed to fetch initial data");
 
-  const fetchCategories = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_URL}/categories`);
-      if (res.ok) {
-        const data = await res.json();
-        setCategories(data);
-      }
+      const productsData = await prodRes.json();
+      const categoriesData = await catRes.json();
+      const subCategoriesData = await subCatRes.json();
+
+      setProducts(productsData);
+      setCategories(categoriesData);
+      setAllSubCategories(subCategoriesData);
     } catch (error) {
-      console.error("Failed to fetch categories:", error);
+      console.error("Fetch data error:", error);
+      alert("Failed to load data. Please refresh the page.");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, [fetchProducts, fetchCategories]);
-
-  const handleSave = () => {
-    fetchProducts(); // Refetch products after saving
-  };
+    fetchData();
+  }, [fetchData]);
 
   const handleOpenDialog = (product: Product | null = null) => {
     setSelectedProduct(product);
@@ -537,7 +536,7 @@ export default function ProductsPage() {
         method: "DELETE",
       });
       if (res.ok) {
-        fetchProducts();
+        fetchData();
         setIsDeleteDialogOpen(false);
         setProductToDelete(null);
       } else {
@@ -579,60 +578,76 @@ export default function ProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="hidden sm:table-cell">
-                    <Image
-                      alt={product.name}
-                      className="aspect-square rounded-md object-cover"
-                      height="64"
-                      src={getImageUrl(product.image)}
-                      width="64"
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>
-                    {typeof product.price === "number"
-                      ? `$${product.price.toFixed(2)}`
-                      : product.price}
-                  </TableCell>
-                  <TableCell>
-                    {product.category_name}
-                    {product.subcategory_name
-                      ? ` / ${product.subcategory_name}`
-                      : ""}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={() => handleOpenDialog(product)}
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteClick(product)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    Loading...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : products.length > 0 ? (
+                products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="hidden sm:table-cell">
+                      <Image
+                        alt={product.name}
+                        className="aspect-square rounded-md object-cover"
+                        height="64"
+                        src={getImageUrl(product.image)}
+                        width="64"
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {product.name}
+                    </TableCell>
+                    <TableCell>
+                      {typeof product.price === "number"
+                        ? `$${product.price.toFixed(2)}`
+                        : product.price}
+                    </TableCell>
+                    <TableCell>
+                      {product.category_name}
+                      {product.subcategory_name
+                        ? ` / ${product.subcategory_name}`
+                        : ""}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            aria-haspopup="true"
+                            size="icon"
+                            variant="ghost"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={() => handleOpenDialog(product)}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteClick(product)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    No products found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -642,8 +657,9 @@ export default function ProductsPage() {
         product={selectedProduct}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        onSave={handleSave}
+        onSave={fetchData}
         categories={categories}
+        allSubCategories={allSubCategories}
       />
 
       <DeleteConfirmationDialog
