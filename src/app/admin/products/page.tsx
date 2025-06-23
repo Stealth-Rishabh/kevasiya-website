@@ -53,7 +53,7 @@ interface Product {
   description: string;
   price: number | string;
   subCategoryId?: number;
-  categoryId: number;
+  categoryId: number; // This is now required
   image?: string;
   images?: string[] | string;
   included_items?: string[] | string;
@@ -112,11 +112,6 @@ function ProductDialog({
       if (prod.subCategoryId) {
         setSubCategoryId(String(prod.subCategoryId));
       }
-      setExistingMainImageUrl(prod.image);
-      setExistingGalleryImageUrls(
-        Array.isArray(prod.images) ? prod.images : []
-      );
-      setFormForProduct(prod);
     };
 
     if (product) {
@@ -128,6 +123,10 @@ function ProductDialog({
         Array.isArray(product.included_items)
           ? product.included_items.join(", ")
           : ""
+      );
+      setExistingMainImageUrl(product.image);
+      setExistingGalleryImageUrls(
+        Array.isArray(product.images) ? product.images : []
       );
       setFormForProduct(product);
     } else {
@@ -197,12 +196,10 @@ function ProductDialog({
     formData.append("slug", slug);
     formData.append("description", description);
     formData.append("price", price);
-
     formData.append("categoryId", categoryId);
     if (subCategoryId) {
       formData.append("subCategoryId", subCategoryId);
     }
-
     formData.append("packaging", packaging);
     formData.append(
       "included_items",
@@ -372,6 +369,46 @@ function ProductDialog({
   );
 }
 
+function DeleteConfirmationDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  productName,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  productName: string;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete the
+            product: <strong>{productName}</strong>.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              onConfirm();
+              onOpenChange(false);
+            }}
+          >
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -428,10 +465,18 @@ export default function ProductsPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+  const handleOpenDeleteDialog = (product: Product) => {
+    setProductToDelete(product);
+    setIsDeleteOpen(true);
+  };
 
-    const res = await fetch(`${API_URL}/products/${id}`, { method: "DELETE" });
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
+
+    const res = await fetch(`${API_URL}/products/${productToDelete.id}`, {
+      method: "DELETE",
+    });
+
     if (res.ok) {
       fetchProducts();
     } else {
@@ -448,6 +493,12 @@ export default function ProductsPage() {
         onOpenChange={setIsDialogOpen}
         onSave={fetchProducts}
         categories={categories}
+      />
+      <DeleteConfirmationDialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        onConfirm={handleDeleteConfirm}
+        productName={productToDelete?.name || ""}
       />
 
       <Card>
@@ -512,7 +563,7 @@ export default function ProductsPage() {
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => handleDelete(prod.id)}
+                          onClick={() => handleOpenDeleteDialog(prod)}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
