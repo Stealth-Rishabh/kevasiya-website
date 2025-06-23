@@ -23,7 +23,7 @@ interface Category {
 }
 
 const getApiUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL;
+  return process.env.NEXT_PUBLIC_API_URL || "/api";
 };
 
 // Fetches all subcategories for a given category slug

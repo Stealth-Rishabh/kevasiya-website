@@ -26,7 +26,7 @@ interface Category {
 
 const getApiUrl = () => {
   // Use absolute URL on the server, relative on the client
-  return process.env.NEXT_PUBLIC_API_URL;
+  return process.env.NEXT_PUBLIC_API_URL || "/api";
 };
 
 // Fetches a single subcategory by its slug and its parent category's slug

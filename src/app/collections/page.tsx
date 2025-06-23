@@ -10,7 +10,7 @@ interface Collection {
 
 async function getCollections(): Promise<Collection[]> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 
     const res = await fetch(`${apiUrl}/categories`, {
       next: { revalidate: 3600 },

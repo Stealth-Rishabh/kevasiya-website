@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import ProductDetailsClient from "./product-details-client";
 import { Product } from "@/types/product"; // Centralized type definition
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 async function getProductBySlug(slug: string): Promise<Product | undefined> {
   try {
