@@ -59,9 +59,8 @@ interface Product {
   slug: string;
   description: string;
   price: number | string;
-  subCategoryId?: number;
-  subcategory_id?: number; // Handle both from different API responses
-  categoryId: number;
+  subcategory_id?: number; // from DB
+  category_id: number; // from DB
   image?: string;
   images?: string[] | string;
   included_items?: string[] | string;
@@ -153,13 +152,12 @@ function ProductDialog({
             : ""
         );
 
-        const currentCategoryId = String(product.categoryId);
+        const currentCategoryId = String(product.category_id);
         setCategoryId(currentCategoryId);
 
         await fetchSubCategories(currentCategoryId);
 
-        const currentSubCategoryId =
-          product.subCategoryId ?? product.subcategory_id;
+        const currentSubCategoryId = product.subcategory_id;
         if (currentSubCategoryId) {
           setSubCategoryId(String(currentSubCategoryId));
         } else {
@@ -224,9 +222,9 @@ function ProductDialog({
     formData.append("description", description);
     formData.append("price", price);
 
-    formData.append("categoryId", categoryId);
+    formData.append("category_id", categoryId);
     if (subCategoryId) {
-      formData.append("subCategoryId", subCategoryId);
+      formData.append("subcategory_id", subCategoryId);
     }
 
     formData.append("packaging", packaging);

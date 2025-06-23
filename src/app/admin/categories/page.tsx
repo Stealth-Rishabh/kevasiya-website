@@ -186,7 +186,7 @@ function SubCategoryDialog({
   selectedCategoryId: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: () => void;
+  onSave: (newSubCategory?: SubCategory) => void; // Allow passing back new item
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -235,7 +235,8 @@ function SubCategoryDialog({
     });
 
     if (res.ok) {
-      onSave();
+      const savedData = await res.json();
+      onSave(savedData); // Pass back the new/updated subcategory
       onOpenChange(false);
     } else {
       console.error("Failed to save subcategory");
@@ -320,9 +321,8 @@ function DeleteDialog({
         <DialogHeader>
           <DialogTitle>Are you absolutely sure?</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete the{" "}
-            <strong>{name}</strong> category and all its related sub-categories
-            and products.
+            This action cannot be undone. This will permanently delete the item:{" "}
+            <strong>{name}</strong>.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -341,28 +341,42 @@ function DeleteDialog({
 // --- Main Page Component ---
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  // Use a map to store subcategories per category ID for efficient lookup
+  const [subCategoriesMap, setSubCategoriesMap] = useState<
+    Map<number, SubCategory[]>
+  >(new Map());
+
+  // --- Dialog States ---
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [isSubCategoryDialogOpen, setIsSubCategoryDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // --- Data for Dialogs ---
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
-
-  // Dialog states
-  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [isSubCategoryDialogOpen, setIsSubCategoryDialogOpen] = useState(false);
-  const [editingSubCategory, setEditingSubCategory] =
+  const [selectedSubCategory, setSelectedSubCategory] =
     useState<SubCategory | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{
+  const [deleteTarget, setDeleteTarget] = useState<{
     type: "categories" | "subcategories";
     id: number;
     name: string;
   } | null>(null);
 
+  // --- Fetching Data ---
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const fetchCategories = async () => {
     try {
       const res = await fetch(`${API_URL}/categories`);
-      if (res.ok) setCategories(await res.json());
+      if (res.ok) {
+        const cats: Category[] = await res.json();
+        setCategories(cats);
+        // After fetching categories, fetch subcategories for each one
+        cats.forEach((cat) => fetchSubCategories(cat.id));
+      }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
     }
@@ -371,35 +385,34 @@ export default function CategoriesPage() {
   const fetchSubCategories = async (categoryId: number) => {
     try {
       const res = await fetch(
-        `${API_URL}/subcategories?categoryId=${categoryId}`
+        `${API_URL}/subcategories?category_id=${categoryId}`
       );
-      if (res.ok) setSubCategories(await res.json());
+      if (res.ok) {
+        const subs: SubCategory[] = await res.json();
+        setSubCategoriesMap((prevMap) => {
+          const newMap = new Map(prevMap);
+          newMap.set(categoryId, subs);
+          return newMap;
+        });
+      }
     } catch (error) {
-      console.error("Failed to fetch subcategories:", error);
+      console.error(`Failed to fetch subcategories for ${categoryId}:`, error);
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    if (selectedCategory) {
-      fetchSubCategories(selectedCategory.id);
-    } else {
-      setSubCategories([]);
-    }
-  }, [selectedCategory]);
+  // --- Dialog Handlers ---
 
   const handleOpenCategoryDialog = (category: Category | null = null) => {
-    setEditingCategory(category);
+    setSelectedCategory(category);
     setIsCategoryDialogOpen(true);
   };
 
   const handleOpenSubCategoryDialog = (
-    subcategory: SubCategory | null = null
+    subcategory: SubCategory | null = null,
+    categoryId: number
   ) => {
-    setEditingSubCategory(subcategory);
+    setSelectedCategory({ id: categoryId } as Category); // Ensure we know the parent
+    setSelectedSubCategory(subcategory);
     setIsSubCategoryDialogOpen(true);
   };
 
@@ -407,163 +420,182 @@ export default function CategoriesPage() {
     type: "categories" | "subcategories",
     item: Category | SubCategory
   ) => {
-    setItemToDelete({ type, id: item.id, name: item.name });
+    setDeleteTarget({ type, id: item.id, name: item.name });
     setIsDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (!itemToDelete) return;
-    const { type, id } = itemToDelete;
+    if (!deleteTarget) return;
 
-    const res = await fetch(`${API_URL}/${type}/${id}`, { method: "DELETE" });
+    const { type, id } = deleteTarget;
+    const url = `${API_URL}/${type}/${id}`;
 
-    if (res.ok) {
-      if (type === "categories") {
-        fetchCategories();
-        setSelectedCategory(null);
-      } else if (selectedCategory) {
-        fetchSubCategories(selectedCategory.id);
+    try {
+      const res = await fetch(url, { method: "DELETE" });
+      if (res.ok) {
+        if (type === "categories") {
+          // Refetch all categories if one is deleted
+          fetchCategories();
+        } else {
+          // Refetch subcategories for the affected category
+          const affectedCategoryId = categories.find((cat) =>
+            subCategoriesMap.get(cat.id)?.some((sub) => sub.id === id)
+          )?.id;
+          if (affectedCategoryId) {
+            fetchSubCategories(affectedCategoryId);
+          }
+        }
+      } else {
+        console.error(`Failed to delete ${type}`);
       }
-    } else {
-      console.error("Failed to delete item");
+    } catch (error) {
+      console.error(`Error deleting ${type}:`, error);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setDeleteTarget(null);
     }
+  };
 
-    setIsDeleteDialogOpen(false);
-    setItemToDelete(null);
+  const handleCategorySave = () => {
+    fetchCategories(); // Refetch all categories on save
+  };
+
+  const handleSubCategorySave = () => {
+    if (selectedCategory) {
+      fetchSubCategories(selectedCategory.id); // Only refetch subcats for the relevant category
+    }
   };
 
   return (
-    <>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Categories & Sub-Categories</h1>
+          <p className="text-muted-foreground">
+            Manage your store's structure.
+          </p>
+        </div>
+        <Button onClick={() => handleOpenCategoryDialog()}>
+          Add New Category
+        </Button>
+      </div>
+
+      {categories.map((category) => (
+        <Card key={category.id}>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>{category.name}</CardTitle>
+                <CardDescription>{category.description}</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOpenSubCategoryDialog(null, category.id)}
+                >
+                  Add Sub-Category
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem
+                      onClick={() => handleOpenCategoryDialog(category)}
+                    >
+                      Edit Category
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-500"
+                      onClick={() =>
+                        handleOpenDeleteDialog("categories", category)
+                      }
+                    >
+                      Delete Category
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {/* List Sub-Categories */}
+            <h4 className="text-md font-semibold mb-2">Sub-Categories</h4>
+            <div className="border rounded-md p-4 space-y-3">
+              {(subCategoriesMap.get(category.id) || []).length > 0 ? (
+                (subCategoriesMap.get(category.id) || []).map((sub) => (
+                  <div
+                    key={sub.id}
+                    className="flex justify-between items-center"
+                  >
+                    <p>{sub.name}</p>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleOpenSubCategoryDialog(sub, category.id)
+                          }
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-red-500"
+                          onClick={() =>
+                            handleOpenDeleteDialog("subcategories", sub)
+                          }
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No sub-categories yet.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* Dialogs */}
       <CategoryDialog
+        category={selectedCategory}
         open={isCategoryDialogOpen}
         onOpenChange={setIsCategoryDialogOpen}
-        onSave={fetchCategories}
-        category={editingCategory}
+        onSave={handleCategorySave}
       />
-      {selectedCategory && (
+
+      {isSubCategoryDialogOpen && selectedCategory && (
         <SubCategoryDialog
+          subcategory={selectedSubCategory}
+          selectedCategoryId={selectedCategory.id}
           open={isSubCategoryDialogOpen}
           onOpenChange={setIsSubCategoryDialogOpen}
-          onSave={() => fetchSubCategories(selectedCategory.id)}
-          subcategory={editingSubCategory}
-          selectedCategoryId={selectedCategory.id}
+          onSave={handleSubCategorySave}
         />
       )}
-      <DeleteDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleDeleteConfirm}
-        name={itemToDelete?.name || ""}
-      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Manage Categories</CardTitle>
-            <CardDescription>Add, edit, or select a category.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => handleOpenCategoryDialog()} className="mb-4">
-              Add Category
-            </Button>
-            <div className="flex flex-col gap-2">
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className={`flex items-center justify-between p-2 rounded-lg ${
-                    selectedCategory?.id === cat.id ? "bg-muted" : ""
-                  }`}
-                >
-                  <Button
-                    variant="ghost"
-                    onClick={() => setSelectedCategory(cat)}
-                    className="flex-grow justify-start"
-                  >
-                    {cat.name}
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => handleOpenCategoryDialog(cat)}
-                      >
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleOpenDeleteDialog("categories", cat)
-                        }
-                        className="text-red-600"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Manage Sub-Categories</CardTitle>
-            <CardDescription>
-              {selectedCategory
-                ? `For ${selectedCategory.name}`
-                : "Select a category first"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {selectedCategory && (
-              <Button
-                onClick={() => handleOpenSubCategoryDialog()}
-                className="mb-4"
-              >
-                Add Sub-Category
-              </Button>
-            )}
-            <div className="flex flex-col gap-2">
-              {subCategories.map((sub) => (
-                <div
-                  key={sub.id}
-                  className="flex items-center justify-between p-2 border rounded-lg"
-                >
-                  <span>{sub.name}</span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => handleOpenSubCategoryDialog(sub)}
-                      >
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleOpenDeleteDialog("subcategories", sub)
-                        }
-                        className="text-red-600"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </>
+      {deleteTarget && (
+        <DeleteDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeleteConfirm}
+          name={deleteTarget.name}
+        />
+      )}
+    </div>
   );
 }
