@@ -537,15 +537,14 @@ export default function ProductsPage() {
         method: "DELETE",
       });
       if (res.ok) {
-        setProducts(products.filter((p) => p.id !== productToDelete.id));
+        fetchProducts();
         setIsDeleteDialogOpen(false);
         setProductToDelete(null);
       } else {
-        console.error("Failed to delete product");
         alert("Failed to delete product.");
       }
-    } catch (error) {
-      console.error("Error deleting product:", error);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       alert("An error occurred while deleting the product.");
     }
   };

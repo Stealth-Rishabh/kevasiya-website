@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,7 +30,6 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
-// --- Interfaces matching the database ---
 interface Category {
   id: number;
   name: string;
@@ -44,13 +43,10 @@ interface SubCategory {
   name: string;
   slug: string;
   description: string;
-  categoryId: number;
-  image?: string; // Image is optional for subcategories
+  category_id: number;
+  image?: string;
 }
 
-// --- Reusable Dialog Components ---
-
-// Dialog for Adding / Editing a Category
 function CategoryDialog({
   category,
   open,
@@ -74,19 +70,17 @@ function CategoryDialog({
       setName(category.name);
       setDescription(category.description);
       setExistingImageUrl(category.image);
-      setImage(null);
     } else {
       setName("");
       setDescription("");
       setExistingImageUrl(undefined);
-      setImage(null);
     }
+    setImage(null);
   }, [category, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[?']/g, "");
-
     const formData = new FormData();
     formData.append("name", name);
     formData.append("slug", slug);
@@ -96,23 +90,16 @@ function CategoryDialog({
     } else if (existingImageUrl) {
       formData.append("image", existingImageUrl);
     }
-
     const url = category
       ? `${API_URL}/categories/${category.id}`
       : `${API_URL}/categories`;
     const method = category ? "PUT" : "POST";
-
-    const res = await fetch(url, {
-      method,
-      body: formData, // No 'Content-Type' header needed; browser sets it for FormData
-    });
-
+    const res = await fetch(url, { method, body: formData });
     if (res.ok) {
       onSave();
       onOpenChange(false);
     } else {
       console.error("Failed to save category");
-      // You can add a user-facing error message here
     }
   };
 
@@ -147,14 +134,14 @@ function CategoryDialog({
           />
           {existingImageUrl && !image && (
             <div className="text-sm text-muted-foreground">
-              Current image:{" "}
+              Current:{" "}
               <a
                 href={existingImageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
               >
-                {existingImageUrl}
+                {existingImageUrl.split("/").pop()}
               </a>
             </div>
           )}
@@ -174,7 +161,6 @@ function CategoryDialog({
   );
 }
 
-// Dialog for Adding / Editing a SubCategory
 function SubCategoryDialog({
   subcategory,
   selectedCategoryId,
@@ -186,7 +172,7 @@ function SubCategoryDialog({
   selectedCategoryId: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (newSubCategory?: SubCategory) => void; // Allow passing back new item
+  onSave: () => void;
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -200,43 +186,34 @@ function SubCategoryDialog({
       setName(subcategory.name);
       setDescription(subcategory.description);
       setExistingImageUrl(subcategory.image);
-      setImage(null);
     } else {
       setName("");
       setDescription("");
       setExistingImageUrl(undefined);
-      setImage(null);
     }
+    setImage(null);
   }, [subcategory, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[?']/g, "");
-
     const formData = new FormData();
     formData.append("name", name);
     formData.append("slug", slug);
     formData.append("description", description);
-    formData.append("categoryId", String(selectedCategoryId));
+    formData.append("category_id", String(selectedCategoryId));
     if (image) {
       formData.append("image", image);
     } else if (existingImageUrl) {
       formData.append("image", existingImageUrl);
     }
-
     const url = subcategory
       ? `${API_URL}/subcategories/${subcategory.id}`
       : `${API_URL}/subcategories`;
     const method = subcategory ? "PUT" : "POST";
-
-    const res = await fetch(url, {
-      method,
-      body: formData,
-    });
-
+    const res = await fetch(url, { method, body: formData });
     if (res.ok) {
-      const savedData = await res.json();
-      onSave(savedData); // Pass back the new/updated subcategory
+      onSave();
       onOpenChange(false);
     } else {
       console.error("Failed to save subcategory");
@@ -274,14 +251,14 @@ function SubCategoryDialog({
           />
           {existingImageUrl && !image && (
             <div className="text-sm text-muted-foreground">
-              Current image:{" "}
+              Current:{" "}
               <a
                 href={existingImageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
               >
-                {existingImageUrl}
+                {existingImageUrl.split("/").pop()}
               </a>
             </div>
           )}
@@ -308,7 +285,6 @@ interface DeleteDialogProps {
   name: string;
 }
 
-// Reusable component for Delete confirmation
 function DeleteDialog({
   open,
   onOpenChange,
@@ -338,24 +314,18 @@ function DeleteDialog({
   );
 }
 
-// --- Main Page Component ---
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  // Use a map to store subcategories per category ID for efficient lookup
   const [subCategoriesMap, setSubCategoriesMap] = useState<
     Map<number, SubCategory[]>
   >(new Map());
-
-  // --- Dialog States ---
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [isSubCategoryDialogOpen, setIsSubCategoryDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  // --- Data for Dialogs ---
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
-  const [selectedSubCategory, setSelectedSubCategory] =
+  const [selectedCategoryForSub, setSelectedCategoryForSub] =
+    useState<Category | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingSubCategory, setEditingSubCategory] =
     useState<SubCategory | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "categories" | "subcategories";
@@ -363,56 +333,53 @@ export default function CategoriesPage() {
     name: string;
   } | null>(null);
 
-  // --- Fetching Data ---
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch(`${API_URL}/categories`);
-      if (res.ok) {
-        const cats: Category[] = await res.json();
-        setCategories(cats);
-        // After fetching categories, fetch subcategories for each one
-        cats.forEach((cat) => fetchSubCategories(cat.id));
-      }
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-    }
-  };
-
-  const fetchSubCategories = async (categoryId: number) => {
+  const fetchSubCategories = useCallback(async (categoryId: number) => {
     try {
       const res = await fetch(
         `${API_URL}/subcategories?category_id=${categoryId}`
       );
       if (res.ok) {
         const subs: SubCategory[] = await res.json();
-        setSubCategoriesMap((prevMap) => {
-          const newMap = new Map(prevMap);
-          newMap.set(categoryId, subs);
-          return newMap;
-        });
+        setSubCategoriesMap((prevMap) =>
+          new Map(prevMap).set(categoryId, subs)
+        );
+      } else {
+        setSubCategoriesMap((prevMap) => new Map(prevMap).set(categoryId, []));
       }
     } catch (error) {
       console.error(`Failed to fetch subcategories for ${categoryId}:`, error);
+      setSubCategoriesMap((prevMap) => new Map(prevMap).set(categoryId, []));
     }
-  };
+  }, []);
 
-  // --- Dialog Handlers ---
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/categories`);
+      if (res.ok) {
+        const cats: Category[] = await res.json();
+        setCategories(cats);
+        cats.forEach((cat) => fetchSubCategories(cat.id));
+      }
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    }
+  }, [fetchSubCategories]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleOpenCategoryDialog = (category: Category | null = null) => {
-    setSelectedCategory(category);
+    setEditingCategory(category);
     setIsCategoryDialogOpen(true);
   };
 
   const handleOpenSubCategoryDialog = (
-    subcategory: SubCategory | null = null,
+    subcategory: SubCategory | null,
     categoryId: number
   ) => {
-    setSelectedCategory({ id: categoryId } as Category); // Ensure we know the parent
-    setSelectedSubCategory(subcategory);
+    setSelectedCategoryForSub({ id: categoryId } as Category);
+    setEditingSubCategory(subcategory);
     setIsSubCategoryDialogOpen(true);
   };
 
@@ -426,25 +393,11 @@ export default function CategoriesPage() {
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
-
     const { type, id } = deleteTarget;
-    const url = `${API_URL}/${type}/${id}`;
-
     try {
-      const res = await fetch(url, { method: "DELETE" });
+      const res = await fetch(`${API_URL}/${type}/${id}`, { method: "DELETE" });
       if (res.ok) {
-        if (type === "categories") {
-          // Refetch all categories if one is deleted
-          fetchCategories();
-        } else {
-          // Refetch subcategories for the affected category
-          const affectedCategoryId = categories.find((cat) =>
-            subCategoriesMap.get(cat.id)?.some((sub) => sub.id === id)
-          )?.id;
-          if (affectedCategoryId) {
-            fetchSubCategories(affectedCategoryId);
-          }
-        }
+        fetchCategories();
       } else {
         console.error(`Failed to delete ${type}`);
       }
@@ -456,14 +409,8 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleCategorySave = () => {
-    fetchCategories(); // Refetch all categories on save
-  };
-
-  const handleSubCategorySave = () => {
-    if (selectedCategory) {
-      fetchSubCategories(selectedCategory.id); // Only refetch subcats for the relevant category
-    }
+  const handleSave = () => {
+    fetchCategories();
   };
 
   return (
@@ -472,7 +419,7 @@ export default function CategoriesPage() {
         <div>
           <h1 className="text-2xl font-bold">Categories & Sub-Categories</h1>
           <p className="text-muted-foreground">
-            Manage your store's structure.
+            Manage your store&apos;s structure.
           </p>
         </div>
         <Button onClick={() => handleOpenCategoryDialog()}>
@@ -523,7 +470,6 @@ export default function CategoriesPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {/* List Sub-Categories */}
             <h4 className="text-md font-semibold mb-2">Sub-Categories</h4>
             <div className="border rounded-md p-4 space-y-3">
               {(subCategoriesMap.get(category.id) || []).length > 0 ? (
@@ -570,21 +516,20 @@ export default function CategoriesPage() {
         </Card>
       ))}
 
-      {/* Dialogs */}
       <CategoryDialog
-        category={selectedCategory}
+        category={editingCategory}
         open={isCategoryDialogOpen}
         onOpenChange={setIsCategoryDialogOpen}
-        onSave={handleCategorySave}
+        onSave={handleSave}
       />
 
-      {isSubCategoryDialogOpen && selectedCategory && (
+      {selectedCategoryForSub && (
         <SubCategoryDialog
-          subcategory={selectedSubCategory}
-          selectedCategoryId={selectedCategory.id}
+          subcategory={editingSubCategory}
+          selectedCategoryId={selectedCategoryForSub.id}
           open={isSubCategoryDialogOpen}
           onOpenChange={setIsSubCategoryDialogOpen}
-          onSave={handleSubCategorySave}
+          onSave={handleSave}
         />
       )}
 
