@@ -52,11 +52,17 @@ interface Product {
   slug: string;
   description: string;
   price: number | string;
-  subCategoryId: number;
+  subCategoryId?: number;
+  categoryId: number;
   image?: string;
-  images?: string[] | string; // Can be string from server
-  included_items?: string[] | string; // Can be string from server
+  images?: string[] | string;
+  included_items?: string[] | string;
   packaging?: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
 }
 
 interface SubCategory {
@@ -69,20 +75,24 @@ function ProductDialog({
   open,
   onOpenChange,
   onSave,
-  subCategories,
+  categories,
 }: {
   product?: Product | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: () => void;
-  subCategories: SubCategory[];
+  categories: Category[];
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
   const [subCategoryId, setSubCategoryId] = useState<string | undefined>(
     undefined
   );
+  const [availableSubCategories, setAvailableSubCategories] = useState<
+    SubCategory[]
+  >([]);
   const [packaging, setPackaging] = useState("");
   const [includedItems, setIncludedItems] = useState("");
   const [mainImage, setMainImage] = useState<File | null>(null);
@@ -96,29 +106,37 @@ function ProductDialog({
   >([]);
 
   useEffect(() => {
+    const setFormForProduct = async (prod: Product) => {
+      setCategoryId(String(prod.categoryId));
+      await fetchSubCategories(String(prod.categoryId));
+      if (prod.subCategoryId) {
+        setSubCategoryId(String(prod.subCategoryId));
+      }
+      setExistingMainImageUrl(prod.image);
+      setExistingGalleryImageUrls(
+        Array.isArray(prod.images) ? prod.images : []
+      );
+      setFormForProduct(prod);
+    };
+
     if (product) {
       setName(product.name);
       setDescription(product.description);
       setPrice(String(product.price));
-      setSubCategoryId(String(product.subCategoryId));
       setPackaging(product.packaging || "");
-      // Ensure included_items is always an array before joining
       setIncludedItems(
         Array.isArray(product.included_items)
           ? product.included_items.join(", ")
           : ""
       );
-      setExistingMainImageUrl(product.image);
-      // Ensure images is always an array
-      setExistingGalleryImageUrls(
-        Array.isArray(product.images) ? product.images : []
-      );
+      setFormForProduct(product);
     } else {
-      // Reset form
       setName("");
       setDescription("");
       setPrice("");
+      setCategoryId(undefined);
       setSubCategoryId(undefined);
+      setAvailableSubCategories([]);
       setPackaging("");
       setIncludedItems("");
       setExistingMainImageUrl(undefined);
@@ -128,11 +146,42 @@ function ProductDialog({
     setGalleryImages(null);
   }, [product, open]);
 
+  const fetchSubCategories = async (selectedCategoryId: string) => {
+    if (!selectedCategoryId) {
+      setAvailableSubCategories([]);
+      return;
+    }
+    try {
+      const res = await fetch(
+        `${API_URL}/subcategories?categoryId=${selectedCategoryId}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setAvailableSubCategories(data);
+      } else {
+        setAvailableSubCategories([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch sub-categories:", error);
+      setAvailableSubCategories([]);
+    }
+  };
+
+  const handleCategoryChange = (selectedCategoryId: string) => {
+    setCategoryId(selectedCategoryId);
+    setSubCategoryId(undefined);
+    fetchSubCategories(selectedCategoryId);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[?']/g, "");
-    if (!subCategoryId) {
-      alert("Please select a sub-category.");
+    if (!categoryId) {
+      alert("Please select a category.");
+      return;
+    }
+    if (availableSubCategories.length > 0 && !subCategoryId) {
+      alert("This category has sub-categories. Please select one.");
       return;
     }
 
@@ -148,7 +197,12 @@ function ProductDialog({
     formData.append("slug", slug);
     formData.append("description", description);
     formData.append("price", price);
-    formData.append("subCategoryId", subCategoryId);
+
+    formData.append("categoryId", categoryId);
+    if (subCategoryId) {
+      formData.append("subCategoryId", subCategoryId);
+    }
+
     formData.append("packaging", packaging);
     formData.append(
       "included_items",
@@ -166,7 +220,6 @@ function ProductDialog({
         formData.append("images", file);
       });
     }
-    // When updating, we need to inform the backend about existing images
     if (!galleryImages && existingGalleryImageUrls.length > 0) {
       formData.append("images", JSON.stringify(existingGalleryImageUrls));
     }
@@ -182,8 +235,9 @@ function ProductDialog({
       onSave();
       onOpenChange(false);
     } else {
-      console.error("Failed to save product");
-      alert("Failed to save product. Check console for details.");
+      const errorData = await res.json();
+      console.error("Failed to save product:", errorData);
+      alert(`Failed to save product. Error: ${errorData.message}`);
     }
   };
 
@@ -210,18 +264,34 @@ function ProductDialog({
             onChange={(e) => setName(e.target.value)}
             required
           />
-          <Select onValueChange={setSubCategoryId} value={subCategoryId}>
+          <Select onValueChange={handleCategoryChange} value={categoryId}>
             <SelectTrigger>
-              <SelectValue placeholder="Select a Sub-Category" />
+              <SelectValue placeholder="Select a Category" />
             </SelectTrigger>
             <SelectContent>
-              {subCategories.map((sub) => (
-                <SelectItem key={sub.id} value={String(sub.id)}>
-                  {sub.name}
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={String(cat.id)}>
+                  {cat.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+
+          {availableSubCategories.length > 0 && (
+            <Select onValueChange={setSubCategoryId} value={subCategoryId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a Sub-Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableSubCategories.map((sub) => (
+                  <SelectItem key={sub.id} value={String(sub.id)}>
+                    {sub.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           <Textarea
             placeholder="Description"
             value={description}
@@ -304,50 +374,57 @@ function ProductDialog({
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+    fetchAllSubCategories();
+  }, []);
 
   const fetchProducts = async () => {
     try {
       const res = await fetch(`${API_URL}/products`);
       if (res.ok) {
-        const data: Product[] = await res.json();
-        // Safely parse JSON string fields into arrays
-        const parsedProducts = data.map((p) => ({
-          ...p,
-          included_items:
-            typeof p.included_items === "string"
-              ? JSON.parse(p.included_items)
-              : p.included_items || [],
-          images:
-            typeof p.images === "string"
-              ? JSON.parse(p.images)
-              : p.images || [],
-        }));
-        setProducts(parsedProducts);
+        const data = await res.json();
+        setProducts(data);
       }
     } catch (error) {
       console.error("Failed to fetch products:", error);
     }
   };
 
-  const fetchSubCategories = async () => {
+  const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API_URL}/subcategories`);
-      if (res.ok) setSubCategories(await res.json());
+      const res = await fetch(`${API_URL}/categories`);
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
     } catch (error) {
-      console.error("Failed to fetch subcategories:", error);
+      console.error("Failed to fetch categories:", error);
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-    fetchSubCategories();
-  }, []);
+  const fetchAllSubCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/subcategories`);
+      if (res.ok) {
+        const data = await res.json();
+        setSubCategories(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch all sub-categories:", error);
+    }
+  };
 
   const handleOpenDialog = (product: Product | null = null) => {
-    setEditingProduct(product);
+    setSelectedProduct(product);
     setIsDialogOpen(true);
   };
 
@@ -356,7 +433,7 @@ export default function ProductsPage() {
 
     const res = await fetch(`${API_URL}/products/${id}`, { method: "DELETE" });
     if (res.ok) {
-      fetchProducts(); // Refresh list
+      fetchProducts();
     } else {
       console.error("Failed to delete product");
       alert("Failed to delete product.");
@@ -366,11 +443,11 @@ export default function ProductsPage() {
   return (
     <>
       <ProductDialog
+        product={selectedProduct}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onSave={fetchProducts}
-        product={editingProduct}
-        subCategories={subCategories}
+        categories={categories}
       />
 
       <Card>
@@ -390,7 +467,7 @@ export default function ProductsPage() {
                 <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Price</TableHead>
-                <TableHead>Sub-Category</TableHead>
+                <TableHead>Category / Path</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -413,8 +490,11 @@ export default function ProductsPage() {
                       : prod.price}
                   </TableCell>
                   <TableCell>
-                    {subCategories.find((s) => s.id === prod.subCategoryId)
-                      ?.name || "N/A"}
+                    {prod.subCategoryId
+                      ? subCategories.find((s) => s.id === prod.subCategoryId)
+                          ?.name
+                      : categories.find((c) => c.id === prod.categoryId)
+                          ?.name || "N/A"}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
