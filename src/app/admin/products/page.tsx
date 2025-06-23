@@ -465,7 +465,7 @@ function DeleteConfirmationDialog({
           <DialogTitle>Are you absolutely sure?</DialogTitle>
           <DialogDescription>
             This action cannot be undone. This will permanently delete the
-            product "{productName}".
+            product &quot;{productName}&quot;.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
