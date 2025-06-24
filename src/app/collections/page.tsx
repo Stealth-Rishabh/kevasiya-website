@@ -17,24 +17,12 @@ async function getCollections(): Promise<Collection[]> {
       next: { tags: ["categories"] },
     });
     if (!res.ok) {
-      // Throwing an error will be caught by the nearest error boundary
       throw new Error(`Failed to fetch collections: ${res.statusText}`);
     }
-    // The data from the API should already be in the correct format
-    const collections: Collection[] = await res.json();
-    const createAbsoluteUrl = (url: string | null) => {
-      if (!url) return "";
-      if (url.startsWith("http")) return url;
-      return `${apiUrl}${url}`;
-    };
 
-    return collections.map((collection) => ({
-      ...collection,
-      image: createAbsoluteUrl(collection.image),
-    }));
+    return res.json();
   } catch (error) {
     console.error("Error fetching collections:", error);
-    // In case of an error, return an empty array to prevent the page from crashing
     return [];
   }
 }

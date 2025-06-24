@@ -169,27 +169,8 @@ export default function CategoriesPage() {
         fetch(`${apiUrl}/subcategories`),
       ]);
 
-      const rawCategories = await catRes.json();
-      const rawSubCategories = await subCatRes.json();
-
-      const createAbsoluteUrl = (url: string | undefined | null) => {
-        if (!url) return "";
-        if (url.startsWith("http")) return url;
-        return `${apiUrl}${url}`;
-      };
-
-      setCategories(
-        rawCategories.map((cat: Category) => ({
-          ...cat,
-          image: createAbsoluteUrl(cat.image),
-        }))
-      );
-      setSubCategories(
-        rawSubCategories.map((sub: SubCategory) => ({
-          ...sub,
-          image: createAbsoluteUrl(sub.image),
-        }))
-      );
+      setCategories(await catRes.json());
+      setSubCategories(await subCatRes.json());
     } catch (error) {
       console.error("Failed to fetch data:", error);
     }

@@ -56,23 +56,8 @@ export async function getProducts() {
 
     const apiProducts: ApiProduct[] = await res.json();
 
-    const createAbsoluteUrl = (url: string | null) => {
-      if (!url) return "";
-      if (url.startsWith("http")) return url;
-      return `${apiUrl}${url}`;
-    };
-
-    return apiProducts.map((p) => ({
-      ...p,
-      thumbnail: createAbsoluteUrl(p.image),
-      image: createAbsoluteUrl(p.image),
-      images: p.images ? p.images.map(createAbsoluteUrl) : [],
-      category: {
-        id: p.category_id,
-        name: p.category_name,
-        slug: slugify(p.category_name),
-      },
-      subcategory:
+    return apiProducts.map((p) => {
+      const subcategory =
         p.subcategory_id && p.subcategory_name
           ? {
               id: p.subcategory_id,
@@ -80,8 +65,29 @@ export async function getProducts() {
               slug: slugify(p.subcategory_name),
               category_id: p.category_id,
             }
-          : null,
-    }));
+          : null;
+
+      return {
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        description: p.description,
+        price: p.price,
+        included_items: p.included_items,
+        packaging: p.packaging,
+        image: p.image,
+        images: p.images,
+        thumbnail: p.image,
+        category: {
+          id: p.category_id,
+          name: p.category_name,
+          slug: slugify(p.category_name),
+        },
+        subcategory: subcategory,
+        category_id: p.category_id,
+        subcategory_id: p.subcategory_id ?? undefined,
+      };
+    });
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
