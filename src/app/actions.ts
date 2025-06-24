@@ -26,7 +26,17 @@ export async function getProducts() {
       );
       return [];
     }
-    return res.json();
+    const products = await res.json();
+
+    // Map over products to create absolute URLs for images
+    return products.map((product: any) => ({
+      ...product,
+      thumbnail: product.thumbnail ? `${apiUrl}${product.thumbnail}` : "",
+      image: product.image ? `${apiUrl}${product.image}` : "",
+      images: product.images
+        ? product.images.map((img: string) => `${apiUrl}${img}`)
+        : [],
+    }));
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];

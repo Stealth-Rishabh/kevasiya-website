@@ -168,8 +168,23 @@ export default function CategoriesPage() {
         fetch(`${apiUrl}/api/categories`),
         fetch(`${apiUrl}/api/subcategories`),
       ]);
-      setCategories(await catRes.json());
-      setSubCategories(await subCatRes.json());
+
+      const rawCategories = await catRes.json();
+      const rawSubCategories = await subCatRes.json();
+
+      // Create absolute URLs for images
+      setCategories(
+        rawCategories.map((cat: Category) => ({
+          ...cat,
+          image: cat.image ? `${apiUrl}${cat.image}` : "",
+        }))
+      );
+      setSubCategories(
+        rawSubCategories.map((sub: SubCategory) => ({
+          ...sub,
+          image: sub.image ? `${apiUrl}${sub.image}` : "",
+        }))
+      );
     } catch (error) {
       console.error("Failed to fetch data:", error);
     }
