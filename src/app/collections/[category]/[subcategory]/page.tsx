@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getApiUrl } from "@/lib/utils";
 
 // Define a specific type for the resolved params
 interface SubCategoryPageParams {
@@ -43,15 +44,6 @@ function getImageUrl(path: string) {
   return `${baseUrl}?v=${new Date().getTime()}`;
 }
 
-const getApiUrl = () => {
-  if (typeof window === "undefined") {
-    // For server-side rendering (build time), use the internal URL.
-    return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
-  }
-  // For client-side, the browser will use the relative path.
-  return process.env.NEXT_PUBLIC_API_URL || "/api";
-};
-
 // Fetches a single subcategory by its slug and its parent category's slug
 async function getSubcategoryInfo(
   categorySlug: string,
@@ -59,14 +51,14 @@ async function getSubcategoryInfo(
 ): Promise<Subcategory | undefined> {
   try {
     const apiUrl = getApiUrl();
-    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`);
+    const catRes = await fetch(`${apiUrl}/api/categories?slug=${categorySlug}`);
     if (!catRes.ok) return undefined;
     const categories: Category[] = await catRes.json();
     const parentCategory = categories[0];
     if (!parentCategory) return undefined;
 
     const subCatRes = await fetch(
-      `${apiUrl}/subcategories?category_id=${parentCategory.id}`
+      `${apiUrl}/api/subcategories?category_id=${parentCategory.id}`
     );
     if (!subCatRes.ok) return undefined;
     const subcategories: Subcategory[] = await subCatRes.json();
@@ -82,8 +74,9 @@ async function getProductsBySubcategoryId(
   subcategoryId: number
 ): Promise<Product[]> {
   try {
+    const apiUrl = getApiUrl();
     const res = await fetch(
-      `${getApiUrl()}/products?subcategory_id=${subcategoryId}`,
+      `${apiUrl}/api/products?subcategory_id=${subcategoryId}`,
       {
         next: { tags: ["products"] },
       }
@@ -131,7 +124,7 @@ export default async function SubCategoryPage({ params }: PageProps) {
             >
               <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
                 <Image
-                  src={getImageUrl(product.image)}
+                  src={product.image || "/images/placeholder.svg"}
                   alt={product.name}
                   width={500}
                   height={500}
@@ -175,12 +168,12 @@ export default async function SubCategoryPage({ params }: PageProps) {
 // This function helps Next.js know which subcategory pages to generate at build time.
 export async function generateStaticParams(): Promise<SubCategoryPageParams[]> {
   try {
-    const apiUrl = process.env.INTERNAL_API_URL || "http://localhost:5001/api";
-    const subCatRes = await fetch(`${apiUrl}/subcategories`);
+    const apiUrl = getApiUrl();
+    const subCatRes = await fetch(`${apiUrl}/api/subcategories`);
     if (!subCatRes.ok) return [];
     const subcategories: Subcategory[] = await subCatRes.json();
 
-    const catRes = await fetch(`${apiUrl}/categories`);
+    const catRes = await fetch(`${apiUrl}/api/categories`);
     if (!catRes.ok) return [];
     const categories: Category[] = await catRes.json();
 
