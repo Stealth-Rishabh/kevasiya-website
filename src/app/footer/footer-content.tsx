@@ -57,7 +57,6 @@ export function FooterContent() {
     },
   };
 
-
   const socialLinks = [
     {
       icon: FiInstagram,
