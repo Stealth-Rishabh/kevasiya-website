@@ -15,26 +15,28 @@ import Image from "next/image";
 export function BestChoicesSection() {
   const choices = [
     {
-      title: "Premium Organic Essentials",
+      title: "Gifts for Baby Boys",
       description:
-        "Soft, safe, and sustainable basics for baby's delicate skin",
-      image: "/images/organic-essentials.png",
-      badge: "Organic",
-      features: ["100% Organic Cotton", "Hypoallergenic", "GOTS Certified"],
+        "Delight him with our curated gift hampers, toy-filled showcases, and custom options present.",
+      image: "/images/baby/boy/boy (1).jpeg",
+      badge: "For Boys",
+      features: ["Boyish Hampers", "Toy-filled Showcases", "Custom Hampers"],
     },
     {
-      title: "Smart Nursery Solutions",
-      description: "Technology meets comfort in our modern nursery setup",
-      image: "/images/smart-nursery.png",
-      badge: "Smart Tech",
-      features: ["Sleep Monitoring", "Temperature Control", "App Connected"],
+      title: "Gifts for Baby Girls",
+      description:
+        "Find charming hampers, beautiful showcases, and personalized gifts to celebrate her.",
+      image: "/images/baby/girl/girl (1).jpeg",
+      badge: "For Girls",
+      features: ["Girly Hampers", "Elegant Showcases", "Custom Hampers"],
     },
     {
-      title: "Luxury Travel System",
-      description: "Premium mobility solutions for adventures big and small",
-      image: "/images/travel-system.png",
-      badge: "Premium",
-      features: ["5-Star Safety", "All-Terrain", "Grows with Baby"],
+      title: "Circus Themed Gifts",
+      description:
+        "Bring on the fun with playful circus hampers, toyish showcases, and custom-themed gifts.",
+      image: "/images/baby/circus/asset 2.jpeg",
+      badge: "Circus Fun",
+      features: ["Themed Hampers", "Toyish Showcases", "Custom Circus Gifts"],
     },
   ];
 
@@ -43,12 +45,12 @@ export function BestChoicesSection() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-[#3A5A40] mb-6">
-            Carefully Curated for Our Little One
+            Gifts for Every Little One
           </h2>
           <p className="text-xl text-[#AE8F65] max-w-3xl mx-auto leading-relaxed">
-            Every parent&apos;s journey begins with choosing the very best.
-            We&apos;ve handpicked these exceptional items that combine safety,
-            comfort, and style for our precious bundle of joy.
+            Explore our delightful collection of gifts for boys, girls, and fun
+            circus-themed presents. Perfect for any occasion and sure to bring a
+            smile.
           </p>
         </div>
 
@@ -92,7 +94,7 @@ export function BestChoicesSection() {
                 </ul>
                 <Button className="w-full bg-[#AE8F65] hover:bg-[#967a58] text-white rounded-full">
                   <ShoppingCart className="w-4 h-4 mr-2" />
-                  Add to Registry
+                  Book Your Gift
                 </Button>
               </CardContent>
             </Card>

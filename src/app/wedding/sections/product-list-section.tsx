@@ -4,58 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
-
+import { products } from "./productData";
 export function ProductListSection() {
-  const products = [
-    {
-      name: "Silver Cloche Centerpiece",
-      price: "₹3,250.00",
-      image: "/images/wedding/products/wedding (1).webp",
-      rating: 5,
-    },
-    // {
-    //   name: "Golden Keepsake Box",
-    //   price: "₹2,200.00",
-    //   image: "/images/wedding/products/wedding (2).webp",
-    //   rating: 5,
-    // },
-    {
-      name: "Turquoise Butterfly Box",
-      price: "₹2,800.00",
-      image: "/images/wedding/products/wedding (3).webp",
-      rating: 4,
-    },
-    // {
-    //   name: "Vintage Vanity Trunk",
-    //   price: "₹4,500.00",
-    //   image: "/images/wedding/products/wedding (4).webp",
-    //   rating: 5,
-    // },
-    {
-      name: "Acrylic & Gold Showcase",
-      price: "₹3,999.99",
-      image: "/images/wedding/products/wedding (5).webp",
-      rating: 5,
-    },
-    {
-      name: "Peacock Glassware Set",
-      price: "₹5,750.00",
-      image: "/images/wedding/products/wedding (6).webp",
-      rating: 4,
-    },
-    {
-      name: "Luxe Floral Hamper",
-      price: "₹3,000.00",
-      image: "/images/wedding/products/wedding (7).webp",
-      rating: 5,
-    },
-    {
-      name: "Rose Bloom Gift Basket",
-      price: "₹4,500.00",
-      image: "/images/wedding/products/wedding (8).webp",
-      rating: 4,
-    },
-  ];
+
 
   return (
     <section className="py-10 sm:py-20 px-4 bg-white" id="products">
@@ -87,17 +38,17 @@ export function ProductListSection() {
                     height={200}
                     className="w-full h-80 object-cover hover:shadow rounded group-hover:scale-105 transition-transform duration-300"
                   />
-                  <Button
+                  {/* <Button
                     size="sm"
                     className="absolute w-10 h-10 top-2 right-2 bg-white/90 text-[#3A5A40] hover:bg-white rounded-full p-2"
                   >
                     <Heart className="w-4 h-4" />
-                  </Button>
+                  </Button> */}
                 </div>
-                <h3 className="font-semibold text-[#3A5A40] mb-2">
+                {/* <h3 className="font-semibold text-[#3A5A40] mb-2">
                   {product.name}
-                </h3>
-                <div className="flex items-center mb-2">
+                </h3> */}
+                {/* <div className="flex items-center mb-2">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
@@ -108,7 +59,7 @@ export function ProductListSection() {
                       }`}
                     />
                   ))}
-                </div>
+                </div> */}
                 <div className="flex items-center justify-between">
                   {/* <span className="text-lg font-bold text-[#AE8F65]">
                     {product.price}
@@ -117,7 +68,7 @@ export function ProductListSection() {
                     size="sm"
                     className="bg-[#3A5A40] hover:bg-[#334d38] text-white rounded mt-2 w-full"
                   >
-                    Get a Quote
+                    Get the Price
                     <ShoppingCart className="ml-2 w-4 h-4" />
                   </Button>
                 </div>

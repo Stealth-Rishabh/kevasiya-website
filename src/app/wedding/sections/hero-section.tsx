@@ -7,7 +7,7 @@ import Image from "next/image";
 
 export function HeroSection() {
   return (
-    <section className="relative h-max sm:h-screen flex items-center justify-center overflow-hidden pt-20 pb-10 sm:pt-0">
+    <section className="relative h-max sm:h-max flex items-center justify-center overflow-hidden pt-20 pb-10 sm:py-20">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <Image
@@ -31,7 +31,7 @@ export function HeroSection() {
         <div className="space-y-4">
           {/* Badge */}
           <div className="flex justify-center">
-            <Badge className="bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white/30 text-lg px-8 py-3 rounded-full shadow-2xl ">
+            <Badge className="bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white/30 text-base sm:text-lg px-4 sm:px-8 py-2 sm:py-3 rounded-full shadow-2xl ">
               <Heart className="w-5 h-5 mr-3 text-pink-300" />A new chapter
               begins
             </Badge>
