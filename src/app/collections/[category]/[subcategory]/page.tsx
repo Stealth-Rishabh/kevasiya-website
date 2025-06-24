@@ -78,7 +78,7 @@ async function getProductsBySubcategoryId(
     const res = await fetch(
       `${getApiUrl()}/products?subcategory_id=${subcategoryId}`,
       {
-        next: { revalidate: 60 },
+        next: { tags: ["products"] },
       }
     );
     if (!res.ok) return [];

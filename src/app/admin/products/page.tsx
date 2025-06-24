@@ -36,6 +36,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { revalidateProducts } from "@/app/actions";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -236,6 +237,7 @@ function ProductDialog({
     try {
       const res = await fetch(url, { method, body: submissionData });
       if (!res.ok) throw new Error(await res.text());
+      await revalidateProducts();
       onSave();
       onOpenChange(false);
     } catch (error) {
@@ -448,6 +450,10 @@ export default function ProductsPage() {
     setIsDialogOpen(true);
   };
 
+  const handleSave = () => {
+    fetchData(); // Refetch all data after a save
+  };
+
   const handleDelete = async (productId: number) => {
     if (
       !window.confirm(
@@ -460,6 +466,7 @@ export default function ProductsPage() {
         method: "DELETE",
       });
       if (!res.ok) throw new Error(await res.text());
+      await revalidateProducts();
       fetchData();
     } catch (error) {
       console.error("Failed to delete product:", error);
@@ -571,7 +578,7 @@ export default function ProductsPage() {
       <ProductDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        onSave={fetchData}
+        onSave={handleSave}
         product={selectedProduct}
         categories={categories}
         allSubCategories={allSubCategories}

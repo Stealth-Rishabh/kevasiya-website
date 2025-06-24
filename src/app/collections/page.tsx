@@ -23,8 +23,8 @@ async function getCollections(): Promise<Collection[]> {
     const apiUrl = getApiUrl();
 
     const res = await fetch(`${apiUrl}/categories`, {
-      next: { revalidate: 3600 },
-    }); // Revalidate every hour
+      next: { tags: ["categories"] },
+    });
     if (!res.ok) {
       // Throwing an error will be caught by the nearest error boundary
       throw new Error(`Failed to fetch collections: ${res.statusText}`);

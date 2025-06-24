@@ -27,6 +27,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { revalidateCategories, revalidateProducts } from "@/app/actions";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -96,6 +97,8 @@ function CategoryDialog({
     const method = category ? "PUT" : "POST";
     const res = await fetch(url, { method, body: formData });
     if (res.ok) {
+      await revalidateCategories();
+      await revalidateProducts();
       onSave();
       onOpenChange(false);
     } else {
@@ -213,6 +216,8 @@ function SubCategoryDialog({
     const method = subcategory ? "PUT" : "POST";
     const res = await fetch(url, { method, body: formData });
     if (res.ok) {
+      await revalidateCategories();
+      await revalidateProducts();
       onSave();
       onOpenChange(false);
     } else {
@@ -393,19 +398,21 @@ export default function CategoriesPage() {
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
+
     const { type, id } = deleteTarget;
     try {
-      const res = await fetch(`${API_URL}/${type}/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        fetchCategories();
-      } else {
-        console.error(`Failed to delete ${type}`);
-      }
+      const res = await fetch(`${API_URL}/${type}/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error(`Failed to delete ${type}`);
+      await revalidateCategories();
+      await revalidateProducts();
+      fetchCategories();
     } catch (error) {
       console.error(`Error deleting ${type}:`, error);
+      alert(`Failed to delete ${type}.`);
     } finally {
       setIsDeleteDialogOpen(false);
-      setDeleteTarget(null);
     }
   };
 
