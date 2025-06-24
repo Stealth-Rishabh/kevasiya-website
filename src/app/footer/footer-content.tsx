@@ -4,9 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
   FiInstagram,
-  FiTwitter,
   FiFacebook,
-  FiYoutube,
   FiMail,
   FiPhone,
   FiMapPin,
