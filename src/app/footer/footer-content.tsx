@@ -21,7 +21,6 @@ import Link from "next/link";
 import { AnimatedParticles } from "./animated-particles";
 
 export function FooterContent() {
-  const [email, setEmail] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [ref, inView] = useInView({
     triggerOnce: true,
