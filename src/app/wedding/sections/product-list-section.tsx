@@ -2,12 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Heart, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { products } from "./productData";
 export function ProductListSection() {
-
-
   return (
     <section className="py-10 sm:py-20 px-4 bg-white" id="products">
       <div className="max-w-7xl mx-auto">

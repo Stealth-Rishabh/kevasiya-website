@@ -31,12 +31,6 @@ async function getCategoryPageData(categorySlug: string) {
   let subcategories: Subcategory[] = [];
   let products: Product[] = [];
 
-  const createAbsoluteUrl = (url: string | undefined | null): string => {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    return `${apiUrl}${url}`;
-  };
-
   try {
     // 1. Fetch the category by slug
     const catRes = await fetch(
