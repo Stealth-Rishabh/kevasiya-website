@@ -117,7 +117,7 @@ export function FooterContent() {
         className="relative z-10"
       >
         {/* Newsletter Section */}
-        <motion.div
+        {/* <motion.div
           variants={itemVariants}
           className="border-b border-white/10 py-16"
         >
@@ -168,7 +168,7 @@ export function FooterContent() {
               </motion.form>
             </div>
           </div>
-        </motion.div>
+        </motion.div> */}
 
         {/* Main Footer Content */}
         <motion.div variants={itemVariants} className="py-16">
@@ -237,9 +237,9 @@ export function FooterContent() {
                     { name: "Baby", href: "/baby" },
                     { name: "Wedding", href: "/collections/wedding" },
                     { name: "Corporates", href: "/corporates" },
-                    { name: "Occasions", href: "/collections/occasions" },
-                    { name: "Festive", href: "/collections/festive" },
-                    { name: "Home Decor", href: "/collections/home-decor" },
+                    // { name: "Occasions", href: "/collections/occasions" },
+                    // { name: "Festive", href: "/collections/festive" },
+                    // { name: "Home Decor", href: "/collections/home-decor" },
                   ].map((category) => (
                     <li key={category.name}>
                       <Link
@@ -263,17 +263,17 @@ export function FooterContent() {
                 <ul className="space-y-3">
                   {[
                     { name: "All Gifts", href: "/collections/all" },
-                    {
-                      name: "Bestsellers",
-                      href: "/collections/bestsellers",
-                    },
-                    { name: "New Arrivals", href: "/collections/new-arrivals" },
-                    { name: "Gift Boxes", href: "/collections/gift-boxes" },
-                    { name: "Personalized", href: "/collections/personalized" },
-                    {
-                      name: "Under ₹1000",
-                      href: "/collections/under-1000",
-                    },
+                    // {
+                    //   name: "Bestsellers",
+                    //   href: "/collections/bestsellers",
+                    // },
+                    // { name: "New Arrivals", href: "/collections/new-arrivals" },
+                    // { name: "Gift Boxes", href: "/collections/gift-boxes" },
+                    // { name: "Personalized", href: "/collections/personalized" },
+                    // {
+                    //   name: "Under ₹1000",
+                    //   href: "/collections/under-1000",
+                    // },
                   ].map((collection) => (
                     <li key={collection.name}>
                       <Link

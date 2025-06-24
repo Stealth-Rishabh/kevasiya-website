@@ -10,6 +10,7 @@ import {
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import Image from "next/image";
+import Link from "next/link";
 
 const cardVariants = {
   hidden: (custom: number) => {
@@ -90,39 +91,35 @@ function AnimatedCard({
 const cardData = [
   {
     custom: 0,
-    image: "/cardImages/cardOne.webp",
+    image: "/images/baby/boy/boy (6).jpeg",
     title: "Baby Announcement",
     description: "A beautiful way to announce the arrival of your baby",
-    className: "md:col-span-1",
+    className: "md:col-span-1 md:row-span-2",
+    path: "/baby",
   },
   {
     custom: 1,
-    image: "/cardImages/cardTwo.webp",
-    title: "Festive Gifting",
-    description: "A beautiful way to gift your loved ones",
-    className: "md:col-span-1",
-  },
-  {
-    custom: 2,
     image: "/cardImages/cardOne.webp",
     title: "Corporate Gifting",
     description: "A beautiful way to gift your loved ones",
-    className: "md:col-span-2",
+    className: "md:col-span-1 md:row-span-2",
+    path: "/corporate",
   },
   {
-    custom: 3,
-    image: "/cardImages/cardOne.webp",
+    custom: 2,
+    image: "/images/wedding/products/wedding (1).webp",
     title: "Wedding Gifts",
     description: "A beautiful way to invite your loved ones",
-    className: "md:col-span-1",
+    className: "md:col-span-2",
+    path: "/wedding",
   },
-  {
-    custom: 4,
-    image: "/cardImages/cardTwo.webp",
-    title: "Special Occasion",
-    description: "A beautiful way to gift your loved ones",
-    className: "md:col-span-1",
-  },
+  // {
+  //   custom: 4,
+  //   image: "/cardImages/cardTwo.webp",
+  //   title: "Special Occasion",
+  //   description: "A beautiful way to gift your loved ones",
+  //   className: "md:col-span-1",
+  // },
 ];
 
 export default function CardSection() {
@@ -134,12 +131,14 @@ export default function CardSection() {
 
       {/* Desktop Grid - Fixed height and smaller gap */}
       <div className="hidden md:grid grid-cols-2 gap-4">
-        {cardData.map((card) => (
-          <AnimatedCard
-            key={card.custom}
-            {...card}
-            className={`h-[350px] ${card.className}`}
-          />
+        {cardData.map((card, index) => (
+          <Link
+            href={card.path}
+            key={index}
+            className={`cursor-pointer ${card.className}`}
+          >
+            <AnimatedCard {...card} className=" h-[450px]" />
+          </Link>
         ))}
       </div>
 
@@ -155,9 +154,11 @@ export default function CardSection() {
           <CarouselContent>
             {cardData.map((card, index) => (
               <CarouselItem key={index} className="basis-11/12">
-                <div className="p-1 h-[450px]">
-                  <AnimatedCard {...card} className="h-full" />
-                </div>
+                <Link href={card.path}>
+                  <div className="p-1 h-[450px]">
+                    <AnimatedCard {...card} className="h-full" />
+                  </div>
+                </Link>
               </CarouselItem>
             ))}
           </CarouselContent>

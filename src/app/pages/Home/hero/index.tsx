@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   const [isMobile, setIsMobile] = useState(false);
@@ -97,12 +98,16 @@ export default function Hero() {
           className="flex flex-col sm:flex-row gap-6 justify-center"
           variants={textVariants}
         >
-          <button className="px-12 py-4 bg-white text-black font-bold text-lg rounded-md hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
-            Explore Collection
-          </button>
-          <button className="px-12 py-4 border-2 border-white text-white font-semibold text-lg rounded-md hover:bg-white hover:text-black transition-all duration-300 shadow-lg">
-            Our Story
-          </button>
+          <Link href="/collections">
+            <button className="px-12 py-4 bg-white text-black font-bold text-lg rounded-md hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+              Explore Collection
+            </button>
+          </Link>
+          {/* <Link href="/about">
+            <button className="px-12 py-4 border-2 border-white text-white font-semibold text-lg rounded-md hover:bg-white hover:text-black transition-all duration-300 shadow-lg">
+              Our Story
+            </button>
+          </Link> */}
         </motion.div>
       </motion.div>
     </section>

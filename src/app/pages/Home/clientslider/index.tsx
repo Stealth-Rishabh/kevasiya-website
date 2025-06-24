@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import IconMarquee from "@/components/ui/IconMarquee";
 import { useInView } from "react-intersection-observer";
+import Link from "next/link";
+import { Handshake } from "lucide-react";
 
 interface ClientsSliderProps {
   icons: { src: string; alt: string }[];
@@ -95,11 +97,17 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
         </motion.div>
 
         {/* Optional CTA */}
-        <motion.div variants={itemVariants} className="mt-16 text-center">
-          <button className="px-8 py-3 bg-[#3a5a40] text-white rounded-lg hover:bg-[#2d3a2e] transition-colors duration-300 shadow-md hover:shadow-lg">
-            Become a Partner
-          </button>
-        </motion.div>
+        <Link href="#" className="cursor-pointer flex justify-center">
+          <motion.div
+            variants={itemVariants}
+            className="mt-16 text-center animate-bounce "
+          >
+            <button className="px-8 py-3 bg-[#3a5a40] text-white rounded-lg hover:bg-[#2d3a2e] transition-colors duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+              Become a Partner  
+              <Handshake className="w-4 h-4 mt-1" />
+            </button>
+          </motion.div>
+        </Link>
       </motion.div>
     </section>
   );
