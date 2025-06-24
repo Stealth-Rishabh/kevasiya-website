@@ -89,8 +89,8 @@ function CategoryDialog({
 
     const apiUrl = getApiUrl();
     const url = category
-      ? `${apiUrl}/api/categories/${category.id}`
-      : `${apiUrl}/api/categories`;
+      ? `${apiUrl}/categories/${category.id}`
+      : `${apiUrl}/categories`;
     const method = category ? "PUT" : "POST";
     const res = await fetch(url, { method, body: formData });
 
@@ -165,8 +165,8 @@ export default function CategoriesPage() {
     try {
       const apiUrl = getApiUrl();
       const [catRes, subCatRes] = await Promise.all([
-        fetch(`${apiUrl}/api/categories`),
-        fetch(`${apiUrl}/api/subcategories`),
+        fetch(`${apiUrl}/categories`),
+        fetch(`${apiUrl}/subcategories`),
       ]);
 
       const rawCategories = await catRes.json();

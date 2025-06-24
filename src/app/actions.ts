@@ -36,11 +36,21 @@ export async function getProducts() {
       return `${apiUrl}${url}`;
     };
 
-    return products.map((product) => ({
-      ...product,
-      thumbnail: createAbsoluteUrl(product.thumbnail),
-      image: createAbsoluteUrl(product.image),
-      images: product.images ? product.images.map(createAbsoluteUrl) : [],
+    return products.map((p: any) => ({
+      ...p,
+      thumbnail: createAbsoluteUrl(p.image),
+      image: createAbsoluteUrl(p.image),
+      images: p.images ? p.images.map(createAbsoluteUrl) : [],
+      category: {
+        id: p.category_id,
+        name: p.category_name,
+      },
+      subcategory: p.subcategory_id
+        ? {
+            id: p.subcategory_id,
+            name: p.subcategory_name,
+          }
+        : null,
     }));
   } catch (error) {
     console.error("Error fetching products:", error);
