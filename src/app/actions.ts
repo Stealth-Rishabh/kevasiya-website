@@ -4,6 +4,23 @@ import { revalidateTag } from "next/cache";
 import { getApiUrl } from "@/lib/utils";
 import { Product } from "@/types/product";
 
+// This represents the structure of the product data coming directly from the API
+interface ApiProduct {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: string;
+  included_items: string[] | null;
+  packaging: string | null;
+  image: string;
+  images: string[] | null;
+  category_id: number;
+  category_name: string;
+  subcategory_id: number | null;
+  subcategory_name: string | null;
+}
+
 export async function revalidateProducts() {
   revalidateTag("products");
 }
@@ -28,7 +45,7 @@ export async function getProducts() {
       return [];
     }
 
-    const products: Product[] = await res.json();
+    const apiProducts: ApiProduct[] = await res.json();
 
     const createAbsoluteUrl = (url: string | null) => {
       if (!url) return "";
@@ -36,7 +53,7 @@ export async function getProducts() {
       return `${apiUrl}${url}`;
     };
 
-    return products.map((p: any) => ({
+    return apiProducts.map((p) => ({
       ...p,
       thumbnail: createAbsoluteUrl(p.image),
       image: createAbsoluteUrl(p.image),
