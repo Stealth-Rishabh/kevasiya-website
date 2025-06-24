@@ -2,7 +2,6 @@
 
 import { revalidateTag } from "next/cache";
 import { getApiUrl } from "@/lib/utils";
-import { Product } from "@/types/product";
 
 // This represents the structure of the product data coming directly from the API
 interface ApiProduct {
