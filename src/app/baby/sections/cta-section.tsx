@@ -77,7 +77,7 @@ export function CTASection() {
             </div>
           </div>
 
-          <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
+          <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl" id="book">
             <CardHeader>
               <CardTitle className="text-2xl text-[#3A5A40] text-center">
                 Let&apos;s Stay in Touch
