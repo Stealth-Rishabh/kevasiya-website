@@ -1,3 +1,16 @@
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface SubCategory {
+  id: number;
+  name: string;
+  slug: string;
+  category_id: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -8,5 +21,9 @@ export interface Product {
   packaging: string | null;
   image: string;
   images: string[] | null;
-  subcategory_id: number;
+  thumbnail: string;
+  category: Category;
+  subcategory: SubCategory | null;
+  category_id?: number;
+  subcategory_id?: number;
 }

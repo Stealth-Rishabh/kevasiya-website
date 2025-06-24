@@ -1,12 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getApiUrl } from "@/lib/utils";
 
 interface Product {
   id: number;
   name: string;
   slug: string;
   image: string;
+  description: string;
 }
 
 interface Subcategory {
@@ -23,13 +25,6 @@ interface Category {
   description: string;
 }
 
-const getApiUrl = () => {
-  if (typeof window === "undefined") {
-    return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
-  }
-  return process.env.NEXT_PUBLIC_API_URL || "/api";
-};
-
 async function getCategoryPageData(categorySlug: string) {
   const apiUrl = getApiUrl();
   let category: Category | null = null;
@@ -38,9 +33,12 @@ async function getCategoryPageData(categorySlug: string) {
 
   try {
     // 1. Fetch the category by slug
-    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`, {
-      next: { revalidate: 60 },
-    });
+    const catRes = await fetch(
+      `${apiUrl}/api/categories?slug=${categorySlug}`,
+      {
+        next: { tags: ["categories"] },
+      }
+    );
     if (!catRes.ok)
       throw new Error(`Failed to fetch category with slug: ${categorySlug}`);
     const categories: Category[] = await catRes.json();
@@ -51,8 +49,8 @@ async function getCategoryPageData(categorySlug: string) {
 
     // 2. Fetch its subcategories
     const subCatRes = await fetch(
-      `${apiUrl}/subcategories?category_id=${category.id}`,
-      { next: { revalidate: 60 } }
+      `${apiUrl}/api/subcategories?category_id=${category.id}`,
+      { next: { tags: ["categories"] } }
     );
     if (!subCatRes.ok)
       throw new Error(
@@ -63,8 +61,8 @@ async function getCategoryPageData(categorySlug: string) {
     // 3. If NO subcategories exist, fetch products for this category directly
     if (subcategories.length === 0) {
       const prodRes = await fetch(
-        `${apiUrl}/products?category_id=${category.id}`,
-        { next: { revalidate: 60 } }
+        `${apiUrl}/api/products?category_id=${category.id}`,
+        { next: { tags: ["products"] } }
       );
       if (!prodRes.ok)
         throw new Error(
@@ -114,7 +112,7 @@ export default async function CategoryPage({
               >
                 <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
                   <Image
-                    src={sub.image || "/images/placeholder.webp"}
+                    src={sub.image || "/images/placeholder.svg"}
                     alt={sub.name}
                     width={500}
                     height={500}
@@ -141,7 +139,7 @@ export default async function CategoryPage({
               >
                 <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
                   <Image
-                    src={product.image || "/images/placeholder.webp"}
+                    src={product.image || "/images/placeholder.svg"}
                     alt={product.name}
                     width={500}
                     height={500}
