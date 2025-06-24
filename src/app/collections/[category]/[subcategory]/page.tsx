@@ -37,13 +37,6 @@ interface PageProps {
   params: Promise<SubCategoryPageParams>;
 }
 
-function getImageUrl(path: string) {
-  if (!path) return "/placeholder.svg";
-  // The public URL for images is directly under /uploads
-  const baseUrl = path.startsWith("/") ? path : `/uploads/${path}`;
-  return `${baseUrl}?v=${new Date().getTime()}`;
-}
-
 // Fetches a single subcategory by its slug and its parent category's slug
 async function getSubcategoryInfo(
   categorySlug: string,
