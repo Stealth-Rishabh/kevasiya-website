@@ -47,7 +47,7 @@ interface SubCategory {
   image?: string;
 }
 
-// --- Reusable Dialog for Category ---
+// --- Reusable Dialog Components ---
 function CategoryDialog({
   category,
   open,
@@ -152,14 +152,12 @@ function CategoryDialog({
     </Dialog>
   );
 }
+// NOTE: A similar dialog for SubCategory would be needed for full functionality.
 
 // --- Main Page Component ---
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
   const [isCategoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
@@ -170,20 +168,12 @@ export default function CategoriesPage() {
         fetch(`${apiUrl}/api/categories`),
         fetch(`${apiUrl}/api/subcategories`),
       ]);
-      const catData = await catRes.json();
-      const subCatData = await subCatRes.json();
-      setCategories(catData);
-      setSubCategories(subCatData);
-      // If a category was selected, refresh its data too
-      if (selectedCategory) {
-        setSelectedCategory(
-          catData.find((c: Category) => c.id === selectedCategory.id) || null
-        );
-      }
+      setCategories(await catRes.json());
+      setSubCategories(await subCatRes.json());
     } catch (error) {
       console.error("Failed to fetch data:", error);
     }
-  }, [selectedCategory]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -196,103 +186,98 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-      <div className="md:col-span-1">
-        <Card>
-          <CardHeader>
-            <CardTitle>Categories</CardTitle>
-            <Button
-              size="sm"
-              onClick={() => {
-                setEditingCategory(null);
-                setCategoryDialogOpen(true);
-              }}
-            >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Add Category
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {categories.map((cat) => (
-              <div
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat)}
-                className={`p-2 rounded-md cursor-pointer hover:bg-muted ${
-                  selectedCategory?.id === cat.id ? "bg-muted" : ""
-                }`}
-              >
-                {cat.name}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+    <div className="flex flex-col gap-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Categories & Sub-Categories</h1>
+          <p className="text-muted-foreground">
+            Manage your store's structure.
+          </p>
+        </div>
+        <Button
+          onClick={() => {
+            setEditingCategory(null);
+            setCategoryDialogOpen(true);
+          }}
+        >
+          <PlusCircle className="h-4 w-4 mr-2" />
+          Add New Category
+        </Button>
       </div>
-      <div className="md:col-span-2">
-        {selectedCategory && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>{selectedCategory.name}</CardTitle>
-                  <CardDescription>
-                    {selectedCategory.description}
-                  </CardDescription>
-                </div>
-                {selectedCategory.image && (
-                  <Image
-                    src={selectedCategory.image}
-                    alt={selectedCategory.name}
-                    width={64}
-                    height={64}
-                    className="rounded-md object-cover"
-                  />
-                )}
+
+      {categories.map((category) => (
+        <Card key={category.id}>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>{category.name}</CardTitle>
+                <CardDescription>{category.description}</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* Add Sub-Category button would go here */}
+                <Button variant="outline" size="sm">
+                  Add Sub-Category
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="icon" variant="ghost">
-                      <MoreHorizontal className="h-4 w-4" />
+                      <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem
                       onClick={() => {
-                        setEditingCategory(selectedCategory);
+                        setEditingCategory(category);
                         setCategoryDialogOpen(true);
                       }}
                     >
                       Edit
                     </DropdownMenuItem>
+                    <DropdownMenuItem className="text-red-600">
+                      Delete
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-            </CardHeader>
-            <CardContent>
-              <h3 className="font-bold mb-2">Sub-categories</h3>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <h4 className="font-semibold mb-2">Sub-Categories</h4>
+            <div className="space-y-2">
               {subCategories
-                .filter((sub) => sub.category_id === selectedCategory.id)
+                .filter((sub) => sub.category_id === category.id)
                 .map((sub) => (
                   <div
                     key={sub.id}
-                    className="flex items-center justify-between p-2"
+                    className="flex items-center justify-between p-2 rounded-md hover:bg-muted"
                   >
-                    <div className="flex items-center gap-3">
-                      {sub.image && (
-                        <Image
-                          src={sub.image}
-                          alt={sub.name}
-                          width={40}
-                          height={40}
-                          className="rounded-md object-cover"
-                        />
-                      )}
-                      <span>{sub.name}</span>
-                    </div>
+                    <p>{sub.name}</p>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 ))}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+              {subCategories.filter((sub) => sub.category_id === category.id)
+                .length === 0 && (
+                <p className="text-sm text-muted-foreground p-2">
+                  No sub-categories yet.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
       <CategoryDialog
         category={editingCategory}
         open={isCategoryDialogOpen}
