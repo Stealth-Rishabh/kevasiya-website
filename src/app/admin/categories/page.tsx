@@ -172,17 +172,22 @@ export default function CategoriesPage() {
       const rawCategories = await catRes.json();
       const rawSubCategories = await subCatRes.json();
 
-      // Create absolute URLs for images
+      const createAbsoluteUrl = (url: string | undefined | null) => {
+        if (!url) return "";
+        if (url.startsWith("http")) return url;
+        return `${apiUrl}${url}`;
+      };
+
       setCategories(
         rawCategories.map((cat: Category) => ({
           ...cat,
-          image: cat.image ? `${apiUrl}${cat.image}` : "",
+          image: createAbsoluteUrl(cat.image),
         }))
       );
       setSubCategories(
         rawSubCategories.map((sub: SubCategory) => ({
           ...sub,
-          image: sub.image ? `${apiUrl}${sub.image}` : "",
+          image: createAbsoluteUrl(sub.image),
         }))
       );
     } catch (error) {

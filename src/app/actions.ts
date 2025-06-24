@@ -2,6 +2,7 @@
 
 import { revalidateTag } from "next/cache";
 import { getApiUrl } from "@/lib/utils";
+import { Product } from "@/types/product";
 
 export async function revalidateProducts() {
   revalidateTag("products");
@@ -26,16 +27,20 @@ export async function getProducts() {
       );
       return [];
     }
-    const products = await res.json();
 
-    // Map over products to create absolute URLs for images
-    return products.map((product: any) => ({
+    const products: Product[] = await res.json();
+
+    const createAbsoluteUrl = (url: string | null) => {
+      if (!url) return "";
+      if (url.startsWith("http")) return url;
+      return `${apiUrl}${url}`;
+    };
+
+    return products.map((product) => ({
       ...product,
-      thumbnail: product.thumbnail ? `${apiUrl}${product.thumbnail}` : "",
-      image: product.image ? `${apiUrl}${product.image}` : "",
-      images: product.images
-        ? product.images.map((img: string) => `${apiUrl}${img}`)
-        : [],
+      thumbnail: createAbsoluteUrl(product.thumbnail),
+      image: createAbsoluteUrl(product.image),
+      images: product.images ? product.images.map(createAbsoluteUrl) : [],
     }));
   } catch (error) {
     console.error("Error fetching products:", error);
