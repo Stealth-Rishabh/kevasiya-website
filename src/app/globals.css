@@ -172,3 +172,7 @@
 .animate-marquee-vertical-reverse {
   animation: marquee-vertical-reverse var(--duration, 40s) linear infinite;
 }
+
+* {
+  scroll-behavior: smooth;
+}

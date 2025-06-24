@@ -110,14 +110,15 @@ export function ProductListSection() {
                   ))}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-[#AE8F65]">
+                  {/* <span className="text-lg font-bold text-[#AE8F65]">
                     {product.price}
-                  </span>
+                  </span> */}
                   <Button
                     size="sm"
-                    className="bg-[#3A5A40] hover:bg-[#334d38] text-white rounded-full"
+                    className="bg-[#3A5A40] hover:bg-[#334d38] text-white rounded mt-2 w-full"
                   >
-                    <ShoppingCart className="w-4 h-4" />
+                    Get a Quote
+                    <ShoppingCart className="ml-2 w-4 h-4" />
                   </Button>
                 </div>
               </CardContent>
