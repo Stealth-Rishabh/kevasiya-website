@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Heart, ShoppingCart } from "lucide-react";
+import { Star, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { products } from "./productData";
 
