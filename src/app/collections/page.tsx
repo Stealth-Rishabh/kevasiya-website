@@ -8,9 +8,19 @@ interface Collection {
   image: string;
 }
 
+const getApiUrl = () => {
+  // Use the internal URL for server-side rendering, and a relative one for client-side.
+  if (typeof window === "undefined") {
+    // This is the server
+    return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
+  }
+  // This is the client
+  return "/api";
+};
+
 async function getCollections(): Promise<Collection[]> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const apiUrl = getApiUrl();
 
     const res = await fetch(`${apiUrl}/categories`, {
       next: { revalidate: 3600 },

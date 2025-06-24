@@ -1,13 +1,18 @@
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "./product-details-client";
-import { Product } from "@/types/product"; // Centralized type definition
+import { Product } from "@/types/product";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const getApiUrl = () => {
+  if (typeof window === "undefined") {
+    return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
+  }
+  return "/api";
+};
 
 async function getProductBySlug(slug: string): Promise<Product | undefined> {
   try {
-    const res = await fetch(`${API_URL}/products?slug=${slug}`, {
-      next: { revalidate: 60 }, // Revalidate more frequently
+    const res = await fetch(`${getApiUrl()}/products?slug=${slug}`, {
+      next: { revalidate: 60 },
     });
 
     if (!res.ok) {

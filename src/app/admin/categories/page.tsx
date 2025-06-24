@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,7 +30,6 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
-// --- Interfaces matching the database ---
 interface Category {
   id: number;
   name: string;
@@ -44,13 +43,10 @@ interface SubCategory {
   name: string;
   slug: string;
   description: string;
-  categoryId: number;
-  image?: string; // Image is optional for subcategories
+  category_id: number;
+  image?: string;
 }
 
-// --- Reusable Dialog Components ---
-
-// Dialog for Adding / Editing a Category
 function CategoryDialog({
   category,
   open,
@@ -74,19 +70,17 @@ function CategoryDialog({
       setName(category.name);
       setDescription(category.description);
       setExistingImageUrl(category.image);
-      setImage(null);
     } else {
       setName("");
       setDescription("");
       setExistingImageUrl(undefined);
-      setImage(null);
     }
+    setImage(null);
   }, [category, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[?']/g, "");
-
     const formData = new FormData();
     formData.append("name", name);
     formData.append("slug", slug);
@@ -96,23 +90,16 @@ function CategoryDialog({
     } else if (existingImageUrl) {
       formData.append("image", existingImageUrl);
     }
-
     const url = category
       ? `${API_URL}/categories/${category.id}`
       : `${API_URL}/categories`;
     const method = category ? "PUT" : "POST";
-
-    const res = await fetch(url, {
-      method,
-      body: formData, // No 'Content-Type' header needed; browser sets it for FormData
-    });
-
+    const res = await fetch(url, { method, body: formData });
     if (res.ok) {
       onSave();
       onOpenChange(false);
     } else {
       console.error("Failed to save category");
-      // You can add a user-facing error message here
     }
   };
 
@@ -147,14 +134,14 @@ function CategoryDialog({
           />
           {existingImageUrl && !image && (
             <div className="text-sm text-muted-foreground">
-              Current image:{" "}
+              Current:{" "}
               <a
                 href={existingImageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
               >
-                {existingImageUrl}
+                {existingImageUrl.split("/").pop()}
               </a>
             </div>
           )}
@@ -174,7 +161,6 @@ function CategoryDialog({
   );
 }
 
-// Dialog for Adding / Editing a SubCategory
 function SubCategoryDialog({
   subcategory,
   selectedCategoryId,
@@ -200,40 +186,32 @@ function SubCategoryDialog({
       setName(subcategory.name);
       setDescription(subcategory.description);
       setExistingImageUrl(subcategory.image);
-      setImage(null);
     } else {
       setName("");
       setDescription("");
       setExistingImageUrl(undefined);
-      setImage(null);
     }
+    setImage(null);
   }, [subcategory, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[?']/g, "");
-
     const formData = new FormData();
     formData.append("name", name);
     formData.append("slug", slug);
     formData.append("description", description);
-    formData.append("categoryId", String(selectedCategoryId));
+    formData.append("category_id", String(selectedCategoryId));
     if (image) {
       formData.append("image", image);
     } else if (existingImageUrl) {
       formData.append("image", existingImageUrl);
     }
-
     const url = subcategory
       ? `${API_URL}/subcategories/${subcategory.id}`
       : `${API_URL}/subcategories`;
     const method = subcategory ? "PUT" : "POST";
-
-    const res = await fetch(url, {
-      method,
-      body: formData,
-    });
-
+    const res = await fetch(url, { method, body: formData });
     if (res.ok) {
       onSave();
       onOpenChange(false);
@@ -273,14 +251,14 @@ function SubCategoryDialog({
           />
           {existingImageUrl && !image && (
             <div className="text-sm text-muted-foreground">
-              Current image:{" "}
+              Current:{" "}
               <a
                 href={existingImageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
               >
-                {existingImageUrl}
+                {existingImageUrl.split("/").pop()}
               </a>
             </div>
           )}
@@ -307,7 +285,6 @@ interface DeleteDialogProps {
   name: string;
 }
 
-// Reusable component for Delete confirmation
 function DeleteDialog({
   open,
   onOpenChange,
@@ -320,9 +297,8 @@ function DeleteDialog({
         <DialogHeader>
           <DialogTitle>Are you absolutely sure?</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete the{" "}
-            <strong>{name}</strong> category and all its related sub-categories
-            and products.
+            This action cannot be undone. This will permanently delete the item:{" "}
+            <strong>{name}</strong>.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -338,58 +314,60 @@ function DeleteDialog({
   );
 }
 
-// --- Main Page Component ---
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
-
-  // Dialog states
+  const [subCategoriesMap, setSubCategoriesMap] = useState<
+    Map<number, SubCategory[]>
+  >(new Map());
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubCategoryDialogOpen, setIsSubCategoryDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedCategoryForSub, setSelectedCategoryForSub] =
+    useState<Category | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingSubCategory, setEditingSubCategory] =
     useState<SubCategory | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{
+  const [deleteTarget, setDeleteTarget] = useState<{
     type: "categories" | "subcategories";
     id: number;
     name: string;
   } | null>(null);
 
-  const fetchCategories = async () => {
+  const fetchSubCategories = useCallback(async (categoryId: number) => {
+    try {
+      const res = await fetch(
+        `${API_URL}/subcategories?category_id=${categoryId}`
+      );
+      if (res.ok) {
+        const subs: SubCategory[] = await res.json();
+        setSubCategoriesMap((prevMap) =>
+          new Map(prevMap).set(categoryId, subs)
+        );
+      } else {
+        setSubCategoriesMap((prevMap) => new Map(prevMap).set(categoryId, []));
+      }
+    } catch (error) {
+      console.error(`Failed to fetch subcategories for ${categoryId}:`, error);
+      setSubCategoriesMap((prevMap) => new Map(prevMap).set(categoryId, []));
+    }
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/categories`);
-      if (res.ok) setCategories(await res.json());
+      if (res.ok) {
+        const cats: Category[] = await res.json();
+        setCategories(cats);
+        cats.forEach((cat) => fetchSubCategories(cat.id));
+      }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
     }
-  };
-
-  const fetchSubCategories = async (categoryId: number) => {
-    try {
-      const res = await fetch(
-        `${API_URL}/subcategories?categoryId=${categoryId}`
-      );
-      if (res.ok) setSubCategories(await res.json());
-    } catch (error) {
-      console.error("Failed to fetch subcategories:", error);
-    }
-  };
+  }, [fetchSubCategories]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    if (selectedCategory) {
-      fetchSubCategories(selectedCategory.id);
-    } else {
-      setSubCategories([]);
-    }
-  }, [selectedCategory]);
+  }, [fetchCategories]);
 
   const handleOpenCategoryDialog = (category: Category | null = null) => {
     setEditingCategory(category);
@@ -397,8 +375,10 @@ export default function CategoriesPage() {
   };
 
   const handleOpenSubCategoryDialog = (
-    subcategory: SubCategory | null = null
+    subcategory: SubCategory | null,
+    categoryId: number
   ) => {
+    setSelectedCategoryForSub({ id: categoryId } as Category);
     setEditingSubCategory(subcategory);
     setIsSubCategoryDialogOpen(true);
   };
@@ -407,163 +387,160 @@ export default function CategoriesPage() {
     type: "categories" | "subcategories",
     item: Category | SubCategory
   ) => {
-    setItemToDelete({ type, id: item.id, name: item.name });
+    setDeleteTarget({ type, id: item.id, name: item.name });
     setIsDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (!itemToDelete) return;
-    const { type, id } = itemToDelete;
-
-    const res = await fetch(`${API_URL}/${type}/${id}`, { method: "DELETE" });
-
-    if (res.ok) {
-      if (type === "categories") {
+    if (!deleteTarget) return;
+    const { type, id } = deleteTarget;
+    try {
+      const res = await fetch(`${API_URL}/${type}/${id}`, { method: "DELETE" });
+      if (res.ok) {
         fetchCategories();
-        setSelectedCategory(null);
-      } else if (selectedCategory) {
-        fetchSubCategories(selectedCategory.id);
+      } else {
+        console.error(`Failed to delete ${type}`);
       }
-    } else {
-      console.error("Failed to delete item");
+    } catch (error) {
+      console.error(`Error deleting ${type}:`, error);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setDeleteTarget(null);
     }
+  };
 
-    setIsDeleteDialogOpen(false);
-    setItemToDelete(null);
+  const handleSave = () => {
+    fetchCategories();
   };
 
   return (
-    <>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Categories & Sub-Categories</h1>
+          <p className="text-muted-foreground">
+            Manage your store&apos;s structure.
+          </p>
+        </div>
+        <Button onClick={() => handleOpenCategoryDialog()}>
+          Add New Category
+        </Button>
+      </div>
+
+      {categories.map((category) => (
+        <Card key={category.id}>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>{category.name}</CardTitle>
+                <CardDescription>{category.description}</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOpenSubCategoryDialog(null, category.id)}
+                >
+                  Add Sub-Category
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem
+                      onClick={() => handleOpenCategoryDialog(category)}
+                    >
+                      Edit Category
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-500"
+                      onClick={() =>
+                        handleOpenDeleteDialog("categories", category)
+                      }
+                    >
+                      Delete Category
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <h4 className="text-md font-semibold mb-2">Sub-Categories</h4>
+            <div className="border rounded-md p-4 space-y-3">
+              {(subCategoriesMap.get(category.id) || []).length > 0 ? (
+                (subCategoriesMap.get(category.id) || []).map((sub) => (
+                  <div
+                    key={sub.id}
+                    className="flex justify-between items-center"
+                  >
+                    <p>{sub.name}</p>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleOpenSubCategoryDialog(sub, category.id)
+                          }
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-red-500"
+                          onClick={() =>
+                            handleOpenDeleteDialog("subcategories", sub)
+                          }
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No sub-categories yet.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
       <CategoryDialog
+        category={editingCategory}
         open={isCategoryDialogOpen}
         onOpenChange={setIsCategoryDialogOpen}
-        onSave={fetchCategories}
-        category={editingCategory}
+        onSave={handleSave}
       />
-      {selectedCategory && (
+
+      {selectedCategoryForSub && (
         <SubCategoryDialog
+          subcategory={editingSubCategory}
+          selectedCategoryId={selectedCategoryForSub.id}
           open={isSubCategoryDialogOpen}
           onOpenChange={setIsSubCategoryDialogOpen}
-          onSave={() => fetchSubCategories(selectedCategory.id)}
-          subcategory={editingSubCategory}
-          selectedCategoryId={selectedCategory.id}
+          onSave={handleSave}
         />
       )}
-      <DeleteDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleDeleteConfirm}
-        name={itemToDelete?.name || ""}
-      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Manage Categories</CardTitle>
-            <CardDescription>Add, edit, or select a category.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => handleOpenCategoryDialog()} className="mb-4">
-              Add Category
-            </Button>
-            <div className="flex flex-col gap-2">
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className={`flex items-center justify-between p-2 rounded-lg ${
-                    selectedCategory?.id === cat.id ? "bg-muted" : ""
-                  }`}
-                >
-                  <Button
-                    variant="ghost"
-                    onClick={() => setSelectedCategory(cat)}
-                    className="flex-grow justify-start"
-                  >
-                    {cat.name}
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => handleOpenCategoryDialog(cat)}
-                      >
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleOpenDeleteDialog("categories", cat)
-                        }
-                        className="text-red-600"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Manage Sub-Categories</CardTitle>
-            <CardDescription>
-              {selectedCategory
-                ? `For ${selectedCategory.name}`
-                : "Select a category first"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {selectedCategory && (
-              <Button
-                onClick={() => handleOpenSubCategoryDialog()}
-                className="mb-4"
-              >
-                Add Sub-Category
-              </Button>
-            )}
-            <div className="flex flex-col gap-2">
-              {subCategories.map((sub) => (
-                <div
-                  key={sub.id}
-                  className="flex items-center justify-between p-2 border rounded-lg"
-                >
-                  <span>{sub.name}</span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => handleOpenSubCategoryDialog(sub)}
-                      >
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleOpenDeleteDialog("subcategories", sub)
-                        }
-                        className="text-red-600"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </>
+      {deleteTarget && (
+        <DeleteDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeleteConfirm}
+          name={deleteTarget.name}
+        />
+      )}
+    </div>
   );
 }

@@ -1,15 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -21,7 +15,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -35,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { MoreHorizontal, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit, X as XIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,144 +39,208 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
+// --- Helper to get full image URL ---
+function getImageUrl(path?: string) {
+  if (!path) return "/placeholder.svg";
+  if (path.startsWith("http") || path.startsWith("/uploads")) return path;
+  return `${API_URL}/${path.replace(/^\//, "")}`;
+}
+
+// --- Type Definitions ---
 interface Product {
   id: number;
   name: string;
-  slug: string;
   description: string;
   price: number | string;
-  subCategoryId: number;
+  category_id: number;
+  subcategory_id?: number;
   image?: string;
-  images?: string[] | string; // Can be string from server
-  included_items?: string[] | string; // Can be string from server
+  images?: string[];
+  included_items?: string[];
   packaging?: string;
+  category_name?: string;
+  subcategory_name?: string;
 }
-
-interface SubCategory {
+interface Category {
   id: number;
   name: string;
 }
+interface SubCategory {
+  id: number;
+  name: string;
+  category_id: number;
+}
 
+// =================================================================
+// --- Product Dialog Component (Corrected and Final Version) ---
+// =================================================================
 function ProductDialog({
-  product,
   open,
   onOpenChange,
   onSave,
-  subCategories,
+  product,
+  categories,
+  allSubCategories,
 }: {
-  product?: Product | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: () => void;
-  subCategories: SubCategory[];
+  product?: Product | null;
+  categories: Category[];
+  allSubCategories: SubCategory[];
 }) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [subCategoryId, setSubCategoryId] = useState<string | undefined>(
-    undefined
-  );
-  const [packaging, setPackaging] = useState("");
-  const [includedItems, setIncludedItems] = useState("");
-  const [mainImage, setMainImage] = useState<File | null>(null);
-  const [galleryImages, setGalleryImages] = useState<FileList | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    categoryId: "",
+    subCategoryId: "",
+    packaging: "",
+    included_items: "",
+  });
 
-  const [existingMainImageUrl, setExistingMainImageUrl] = useState<
-    string | undefined
-  >(undefined);
-  const [existingGalleryImageUrls, setExistingGalleryImageUrls] = useState<
-    string[]
-  >([]);
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([]);
+
+  const [existingMainImage, setExistingMainImage] = useState<string | null>(
+    null
+  );
+  const [existingGalleryImages, setExistingGalleryImages] = useState<string[]>(
+    []
+  );
+  const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
+
+  const availableSubCategories = useMemo(() => {
+    if (!formData.categoryId) return [];
+    return allSubCategories.filter(
+      (sc) => String(sc.category_id) === formData.categoryId
+    );
+  }, [formData.categoryId, allSubCategories]);
 
   useEffect(() => {
     if (product) {
-      setName(product.name);
-      setDescription(product.description);
-      setPrice(String(product.price));
-      setSubCategoryId(String(product.subCategoryId));
-      setPackaging(product.packaging || "");
-      // Ensure included_items is always an array before joining
-      setIncludedItems(
-        Array.isArray(product.included_items)
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: String(product.price),
+        categoryId: String(product.category_id),
+        subCategoryId: product.subcategory_id
+          ? String(product.subcategory_id)
+          : "",
+        packaging: product.packaging || "",
+        included_items: Array.isArray(product.included_items)
           ? product.included_items.join(", ")
-          : ""
-      );
-      setExistingMainImageUrl(product.image);
-      // Ensure images is always an array
-      setExistingGalleryImageUrls(
-        Array.isArray(product.images) ? product.images : []
-      );
+          : "",
+      });
+      setExistingMainImage(product.image || null);
+
+      const galleryImagesData = product.images;
+      if (Array.isArray(galleryImagesData)) {
+        setExistingGalleryImages(galleryImagesData);
+      } else {
+        setExistingGalleryImages([]);
+      }
     } else {
-      // Reset form
-      setName("");
-      setDescription("");
-      setPrice("");
-      setSubCategoryId(undefined);
-      setPackaging("");
-      setIncludedItems("");
-      setExistingMainImageUrl(undefined);
-      setExistingGalleryImageUrls([]);
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        categoryId: "",
+        subCategoryId: "",
+        packaging: "",
+        included_items: "",
+      });
+      setExistingMainImage(null);
+      setExistingGalleryImages([]);
     }
-    setMainImage(null);
-    setGalleryImages(null);
+    setMainImageFile(null);
+    setGalleryImageFiles([]);
+    setImagesToRemove([]);
   }, [product, open]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange =
+    (name: "categoryId" | "subCategoryId") => (value: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        ...(name === "categoryId" && { subCategoryId: "" }),
+      }));
+    };
+
+  const handleRemoveExistingImage = (imageUrl: string) => {
+    if (imageUrl === existingMainImage) {
+      setExistingMainImage(null);
+    } else {
+      setExistingGalleryImages((prev) =>
+        prev.filter((url) => url !== imageUrl)
+      );
+    }
+    setImagesToRemove((prev) => [...prev, imageUrl]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = name.toLowerCase().replace(/ /g, "-").replace(/[?']/g, "");
-    if (!subCategoryId) {
-      alert("Please select a sub-category.");
+    if (!formData.categoryId) {
+      alert("Please select a category.");
+      return;
+    }
+    if (availableSubCategories.length > 0 && !formData.subCategoryId) {
+      alert("This category has sub-categories. Please select one.");
       return;
     }
 
-    const isPriceValid =
-      !isNaN(Number(price)) || price.trim() === "Price on Request";
-    if (!isPriceValid || price.trim() === "") {
-      alert("Price must be a number or the exact text 'Price on Request'.");
-      return;
-    }
+    const submissionData = new FormData();
+    submissionData.append("name", formData.name);
+    submissionData.append("description", formData.description);
+    submissionData.append("price", formData.price);
+    submissionData.append("packaging", formData.packaging);
+    submissionData.append("category_id", formData.categoryId);
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("slug", slug);
-    formData.append("description", description);
-    formData.append("price", price);
-    formData.append("subCategoryId", subCategoryId);
-    formData.append("packaging", packaging);
-    formData.append(
+    if (formData.subCategoryId)
+      submissionData.append("subcategory_id", formData.subCategoryId);
+
+    submissionData.append(
       "included_items",
-      JSON.stringify(includedItems.split(",").map((s) => s.trim()))
+      JSON.stringify(
+        formData.included_items
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      )
     );
 
-    if (mainImage) {
-      formData.append("image", mainImage);
-    } else if (existingMainImageUrl) {
-      formData.append("image", existingMainImageUrl);
-    }
+    if (mainImageFile) submissionData.append("image", mainImageFile);
+    galleryImageFiles.forEach((file) => submissionData.append("images", file));
 
-    if (galleryImages) {
-      Array.from(galleryImages).forEach((file) => {
-        formData.append("images", file);
-      });
-    }
-    // When updating, we need to inform the backend about existing images
-    if (!galleryImages && existingGalleryImageUrls.length > 0) {
-      formData.append("images", JSON.stringify(existingGalleryImageUrls));
-    }
+    if (existingMainImage)
+      submissionData.append("existing_images", existingMainImage);
+    existingGalleryImages.forEach((url) =>
+      submissionData.append("existing_images", url)
+    );
+
+    if (imagesToRemove.length > 0)
+      submissionData.append("images_to_remove", JSON.stringify(imagesToRemove));
 
     const url = product
       ? `${API_URL}/products/${product.id}`
       : `${API_URL}/products`;
     const method = product ? "PUT" : "POST";
 
-    const res = await fetch(url, { method, body: formData });
-
-    if (res.ok) {
+    try {
+      const res = await fetch(url, { method, body: submissionData });
+      if (!res.ok) throw new Error(await res.text());
       onSave();
       onOpenChange(false);
-    } else {
-      console.error("Failed to save product");
-      alert("Failed to save product. Check console for details.");
+    } catch (error) {
+      console.error("Failed to save product:", error);
+      alert("Failed to save product. Check the console for details.");
     }
   };
 
@@ -194,97 +251,142 @@ function ProductDialog({
           <DialogTitle>
             {product ? "Edit Product" : "Add New Product"}
           </DialogTitle>
-          <DialogDescription>
-            {product
-              ? "Make changes to the existing product."
-              : "Provide details for the new product."}
-          </DialogDescription>
         </DialogHeader>
-        <form
-          onSubmit={handleSubmit}
-          className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4"
-        >
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <Input
+            name="name"
             placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={formData.name}
+            onChange={handleInputChange}
             required
           />
-          <Select onValueChange={setSubCategoryId} value={subCategoryId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a Sub-Category" />
-            </SelectTrigger>
-            <SelectContent>
-              {subCategories.map((sub) => (
-                <SelectItem key={sub.id} value={String(sub.id)}>
-                  {sub.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Textarea
+            name="description"
             placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={formData.description}
+            onChange={handleInputChange}
           />
           <Input
-            type="text"
-            placeholder="Price (e.g., 499 or 'Price on Request')"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            name="price"
+            placeholder="e.g., 29.99 or 'Price on Request'"
+            value={formData.price}
+            onChange={handleInputChange}
             required
           />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              value={formData.categoryId}
+              onValueChange={handleSelectChange("categoryId")}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={formData.subCategoryId}
+              onValueChange={handleSelectChange("subCategoryId")}
+              disabled={availableSubCategories.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a sub-category" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableSubCategories.map((sc) => (
+                  <SelectItem key={sc.id} value={String(sc.id)}>
+                    {sc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <Input
-            placeholder="Packaging (e.g., Gift Box)"
-            value={packaging}
-            onChange={(e) => setPackaging(e.target.value)}
+            name="packaging"
+            placeholder="Packaging"
+            value={formData.packaging}
+            onChange={handleInputChange}
           />
-          <Textarea
+          <Input
+            name="included_items"
             placeholder="Included Items (comma-separated)"
-            value={includedItems}
-            onChange={(e) => setIncludedItems(e.target.value)}
+            value={formData.included_items}
+            onChange={handleInputChange}
           />
 
           <div>
-            <label className="text-sm font-medium">Main Image</label>
+            <label className="font-medium">Main Image</label>
             <Input
               type="file"
               accept="image/*"
               onChange={(e) =>
-                e.target.files && setMainImage(e.target.files[0])
+                setMainImageFile(e.target.files ? e.target.files[0] : null)
               }
             />
-            {existingMainImageUrl && !mainImage && (
-              <div className="text-sm text-muted-foreground mt-1">
-                Current:{" "}
-                <a
-                  href={existingMainImageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline"
-                >
-                  {existingMainImageUrl.split("/").pop()}
-                </a>
-              </div>
-            )}
           </div>
-
           <div>
-            <label className="text-sm font-medium">Gallery Images</label>
+            <label className="font-medium">Gallery Images</label>
             <Input
               type="file"
               accept="image/*"
               multiple
               onChange={(e) =>
-                e.target.files && setGalleryImages(e.target.files)
+                setGalleryImageFiles(Array.from(e.target.files || []))
               }
             />
-            {existingGalleryImageUrls.length > 0 && (
-              <div className="text-sm text-muted-foreground mt-1">
-                Keeps existing gallery images unless new ones are added.
-              </div>
-            )}
           </div>
+
+          {(existingMainImage || existingGalleryImages.length > 0) && (
+            <div>
+              <h4 className="font-medium mb-2">Current Images</h4>
+              <div className="flex flex-wrap gap-2">
+                {existingMainImage && (
+                  <div className="relative w-24 h-24 border rounded">
+                    <Image
+                      src={getImageUrl(existingMainImage)}
+                      alt="Main"
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleRemoveExistingImage(existingMainImage)
+                      }
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-0.5"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </div>
+                )}
+                {existingGalleryImages.map((url) => (
+                  <div key={url} className="relative w-24 h-24 border rounded">
+                    <Image
+                      src={getImageUrl(url)}
+                      alt="Gallery"
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveExistingImage(url)}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-0.5"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <DialogFooter>
             <Button
@@ -294,7 +396,9 @@ function ProductDialog({
             >
               Cancel
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit">
+              {product ? "Save Changes" : "Create Product"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -302,151 +406,176 @@ function ProductDialog({
   );
 }
 
+// =================================================================
+// --- Main Products Page Component ---
+// =================================================================
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [allSubCategories, setAllSubCategories] = useState<SubCategory[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const fetchProducts = async () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/products`);
-      if (res.ok) {
-        const data: Product[] = await res.json();
-        // Safely parse JSON string fields into arrays
-        const parsedProducts = data.map((p) => ({
-          ...p,
-          included_items:
-            typeof p.included_items === "string"
-              ? JSON.parse(p.included_items)
-              : p.included_items || [],
-          images:
-            typeof p.images === "string"
-              ? JSON.parse(p.images)
-              : p.images || [],
-        }));
-        setProducts(parsedProducts);
-      }
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
-    }
-  };
+      const [prodRes, catRes, subCatRes] = await Promise.all([
+        fetch(`${API_URL}/products`),
+        fetch(`${API_URL}/categories`),
+        fetch(`${API_URL}/subcategories`),
+      ]);
+      if (!prodRes.ok || !catRes.ok || !subCatRes.ok)
+        throw new Error("Failed to fetch initial data");
 
-  const fetchSubCategories = async () => {
-    try {
-      const res = await fetch(`${API_URL}/subcategories`);
-      if (res.ok) setSubCategories(await res.json());
+      setProducts(await prodRes.json());
+      setCategories(await catRes.json());
+      setAllSubCategories(await subCatRes.json());
     } catch (error) {
-      console.error("Failed to fetch subcategories:", error);
+      console.error("Fetch data error:", error);
+      alert("Failed to load data. Please refresh the page.");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-    fetchSubCategories();
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   const handleOpenDialog = (product: Product | null = null) => {
-    setEditingProduct(product);
+    setSelectedProduct(product);
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-
-    const res = await fetch(`${API_URL}/products/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      fetchProducts(); // Refresh list
-    } else {
-      console.error("Failed to delete product");
+  const handleDelete = async (productId: number) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this product? This action cannot be undone."
+      )
+    )
+      return;
+    try {
+      const res = await fetch(`${API_URL}/products/${productId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error(await res.text());
+      fetchData();
+    } catch (error) {
+      console.error("Failed to delete product:", error);
       alert("Failed to delete product.");
     }
   };
 
   return (
-    <>
-      <ProductDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSave={fetchProducts}
-        product={editingProduct}
-        subCategories={subCategories}
-      />
-
+    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <div className="flex items-center">
+        <h1 className="text-lg font-semibold md:text-2xl">Products</h1>
+        <div className="ml-auto flex items-center gap-2">
+          <Button size="sm" onClick={() => handleOpenDialog()}>
+            Add Product
+          </Button>
+        </div>
+      </div>
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Manage Products</CardTitle>
-              <CardDescription>Add, edit, or delete products.</CardDescription>
-            </div>
-            <Button onClick={() => handleOpenDialog()}>Add Product</Button>
-          </div>
+          <CardTitle>Product List</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Image</TableHead>
+                <TableHead className="hidden w-[100px] sm:table-cell">
+                  Image
+                </TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>Price</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Sub-Category</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((prod) => (
-                <TableRow key={prod.id}>
-                  <TableCell>
-                    <Image
-                      alt={prod.name}
-                      className="aspect-square rounded-md object-cover"
-                      height="64"
-                      src={prod.image || "/placeholder.svg"}
-                      width="64"
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{prod.name}</TableCell>
-                  <TableCell>
-                    {typeof prod.price === "number"
-                      ? `₹${prod.price}`
-                      : prod.price}
-                  </TableCell>
-                  <TableCell>
-                    {subCategories.find((s) => s.id === prod.subCategoryId)
-                      ?.name || "N/A"}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={() => handleOpenDialog(prod)}
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(prod.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    Loading...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : products.length > 0 ? (
+                products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="hidden sm:table-cell">
+                      <Image
+                        alt={product.name}
+                        className="aspect-square rounded-md object-cover"
+                        height="64"
+                        src={getImageUrl(product.image)}
+                        width="64"
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {product.name}
+                    </TableCell>
+                    <TableCell>{product.category_name}</TableCell>
+                    <TableCell>{product.subcategory_name || "N/A"}</TableCell>
+                    <TableCell>
+                      {typeof product.price === "number"
+                        ? `₹${product.price}`
+                        : product.price}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            aria-haspopup="true"
+                            size="icon"
+                            variant="ghost"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onSelect={() => handleOpenDialog(product)}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => handleDelete(product.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    No products found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
-    </>
+      <ProductDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSave={fetchData}
+        product={selectedProduct}
+        categories={categories}
+        allSubCategories={allSubCategories}
+      />
+    </main>
   );
 }
