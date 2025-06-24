@@ -516,11 +516,11 @@ export default function ProductsPage() {
                   <TableRow key={product.id}>
                     <TableCell className="hidden sm:table-cell">
                       <Image
-                        alt={product.name}
-                        className="aspect-square rounded-md object-cover"
-                        height="64"
                         src={getImageUrl(product.image)}
-                        width="64"
+                        alt={product.name}
+                        width={64}
+                        height={64}
+                        className="aspect-square rounded-lg object-cover"
                       />
                     </TableCell>
                     <TableCell className="font-medium">
