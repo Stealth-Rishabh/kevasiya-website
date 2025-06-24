@@ -191,7 +191,7 @@ export default function CategoriesPage() {
         <div>
           <h1 className="text-2xl font-bold">Categories & Sub-Categories</h1>
           <p className="text-muted-foreground">
-            Manage your store's structure.
+            Manage your store&apos;s structure.
           </p>
         </div>
         <Button
