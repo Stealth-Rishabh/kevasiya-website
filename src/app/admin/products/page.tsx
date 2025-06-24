@@ -69,7 +69,7 @@ export default async function ProductsPage() {
                     )}
                   </TableCell>
                   <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.category.name}</TableCell>
+                  <TableCell>{product.category?.name || "N/A"}</TableCell>
                   <TableCell>{product.subcategory?.name || "N/A"}</TableCell>
                   <TableCell>
                     <DropdownMenu>
