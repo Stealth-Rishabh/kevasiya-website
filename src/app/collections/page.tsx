@@ -21,7 +21,17 @@ async function getCollections(): Promise<Collection[]> {
       throw new Error(`Failed to fetch collections: ${res.statusText}`);
     }
     // The data from the API should already be in the correct format
-    return res.json();
+    const collections: Collection[] = await res.json();
+    const createAbsoluteUrl = (url: string | null) => {
+      if (!url) return "";
+      if (url.startsWith("http")) return url;
+      return `${apiUrl}${url}`;
+    };
+
+    return collections.map((collection) => ({
+      ...collection,
+      image: createAbsoluteUrl(collection.image),
+    }));
   } catch (error) {
     console.error("Error fetching collections:", error);
     // In case of an error, return an empty array to prevent the page from crashing

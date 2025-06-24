@@ -89,8 +89,8 @@ function CategoryDialog({
 
     const apiUrl = getApiUrl();
     const url = category
-      ? `${apiUrl}/api/categories/${category.id}`
-      : `${apiUrl}/api/categories`;
+      ? `${apiUrl}/categories/${category.id}`
+      : `${apiUrl}/categories`;
     const method = category ? "PUT" : "POST";
     const res = await fetch(url, { method, body: formData });
 
@@ -165,11 +165,31 @@ export default function CategoriesPage() {
     try {
       const apiUrl = getApiUrl();
       const [catRes, subCatRes] = await Promise.all([
-        fetch(`${apiUrl}/api/categories`),
-        fetch(`${apiUrl}/api/subcategories`),
+        fetch(`${apiUrl}/categories`),
+        fetch(`${apiUrl}/subcategories`),
       ]);
-      setCategories(await catRes.json());
-      setSubCategories(await subCatRes.json());
+
+      const rawCategories = await catRes.json();
+      const rawSubCategories = await subCatRes.json();
+
+      const createAbsoluteUrl = (url: string | undefined | null) => {
+        if (!url) return "";
+        if (url.startsWith("http")) return url;
+        return `${apiUrl}${url}`;
+      };
+
+      setCategories(
+        rawCategories.map((cat: Category) => ({
+          ...cat,
+          image: createAbsoluteUrl(cat.image),
+        }))
+      );
+      setSubCategories(
+        rawSubCategories.map((sub: SubCategory) => ({
+          ...sub,
+          image: createAbsoluteUrl(sub.image),
+        }))
+      );
     } catch (error) {
       console.error("Failed to fetch data:", error);
     }
@@ -191,7 +211,7 @@ export default function CategoriesPage() {
         <div>
           <h1 className="text-2xl font-bold">Categories & Sub-Categories</h1>
           <p className="text-muted-foreground">
-            Manage your store's structure.
+            Manage your store&apos;s structure.
           </p>
         </div>
         <Button

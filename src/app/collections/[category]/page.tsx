@@ -31,6 +31,12 @@ async function getCategoryPageData(categorySlug: string) {
   let subcategories: Subcategory[] = [];
   let products: Product[] = [];
 
+  const createAbsoluteUrl = (url: string | undefined | null): string => {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    return `${apiUrl}${url}`;
+  };
+
   try {
     // 1. Fetch the category by slug
     const catRes = await fetch(
@@ -56,7 +62,11 @@ async function getCategoryPageData(categorySlug: string) {
       throw new Error(
         `Failed to fetch subcategories for category ID: ${category.id}`
       );
-    subcategories = await subCatRes.json();
+    const rawSubcategories: Subcategory[] = await subCatRes.json();
+    subcategories = rawSubcategories.map((sub) => ({
+      ...sub,
+      image: createAbsoluteUrl(sub.image),
+    }));
 
     // 3. If NO subcategories exist, fetch products for this category directly
     if (subcategories.length === 0) {
@@ -68,7 +78,11 @@ async function getCategoryPageData(categorySlug: string) {
         throw new Error(
           `Failed to fetch products for category ID: ${category.id}`
         );
-      products = await prodRes.json();
+      const rawProducts: Product[] = await prodRes.json();
+      products = rawProducts.map((prod) => ({
+        ...prod,
+        image: createAbsoluteUrl(prod.image),
+      }));
     }
   } catch (error) {
     console.error("Error fetching category page data:", error);

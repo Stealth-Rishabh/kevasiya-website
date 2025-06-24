@@ -10,7 +10,6 @@ import {
   FiMail,
   FiPhone,
   FiMapPin,
-  FiSend,
   FiHeart,
   FiAward,
   FiShield,
@@ -22,7 +21,6 @@ import Link from "next/link";
 import { AnimatedParticles } from "./animated-particles";
 
 export function FooterContent() {
-  const [email, setEmail] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -56,12 +54,6 @@ export function FooterContent() {
         stiffness: 100,
       },
     },
-  };
-
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Newsletter subscription:", email);
-    setEmail("");
   };
 
   const socialLinks = [

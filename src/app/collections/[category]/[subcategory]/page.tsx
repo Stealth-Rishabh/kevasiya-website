@@ -75,7 +75,18 @@ async function getProductsBySubcategoryId(
       }
     );
     if (!res.ok) return [];
-    return res.json();
+
+    const products: Product[] = await res.json();
+    const createAbsoluteUrl = (url: string | null) => {
+      if (!url) return "";
+      if (url.startsWith("http")) return url;
+      return `${apiUrl}${url}`;
+    };
+
+    return products.map((product) => ({
+      ...product,
+      image: createAbsoluteUrl(product.image),
+    }));
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];

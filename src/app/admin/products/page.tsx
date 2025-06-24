@@ -56,8 +56,8 @@ export default async function ProductsPage() {
             </TableHeader>
             <TableBody>
               {products.map((product: Product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="hidden sm:table-cell">
+                  <TableRow key={product.id}>
+                    <TableCell className="hidden sm:table-cell">
                     {product.thumbnail && (
                       <Image
                         src={product.thumbnail}
@@ -67,28 +67,28 @@ export default async function ProductsPage() {
                         className="rounded-md object-cover"
                       />
                     )}
-                  </TableCell>
+                    </TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.category?.name || "N/A"}</TableCell>
                   <TableCell>{product.subcategory?.name || "N/A"}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            aria-haspopup="true"
+                            size="icon"
+                            variant="ghost"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
                           <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem>Edit</DropdownMenuItem>
                         <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
