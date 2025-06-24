@@ -10,7 +10,6 @@ import {
   FiMail,
   FiPhone,
   FiMapPin,
-  FiSend,
   FiHeart,
   FiAward,
   FiShield,
@@ -58,11 +57,6 @@ export function FooterContent() {
     },
   };
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Newsletter subscription:", email);
-    setEmail("");
-  };
 
   const socialLinks = [
     {
