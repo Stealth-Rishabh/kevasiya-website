@@ -17,6 +17,12 @@ interface CollectionsGridProps {
   collections: Collection[];
 }
 
+function getImageUrl(path: string) {
+  if (!path) return "/placeholder.svg";
+  const baseUrl = path.startsWith("/") ? path : `/uploads/${path}`;
+  return `${baseUrl}?v=${new Date().getTime()}`;
+}
+
 export default function CollectionsGrid({ collections }: CollectionsGridProps) {
   return (
     <div className="mt-16 grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
@@ -30,7 +36,7 @@ export default function CollectionsGrid({ collections }: CollectionsGridProps) {
         >
           <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
             <Image
-              src={collection.image}
+              src={getImageUrl(collection.image)}
               alt={collection.name}
               width={400}
               height={500}

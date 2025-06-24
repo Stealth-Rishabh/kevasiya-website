@@ -28,8 +28,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { revalidateCategories, revalidateProducts } from "@/app/actions";
+import Image from "next/image";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+
+function getImageUrl(path?: string) {
+  if (!path) return "/placeholder.svg";
+  const baseUrl =
+    path.startsWith("http") || path.startsWith("/uploads")
+      ? path
+      : `${API_URL}/${path.replace(/^\//, "")}`;
+  return `${baseUrl}?v=${new Date().getTime()}`;
+}
 
 interface Category {
   id: number;
@@ -136,16 +146,15 @@ function CategoryDialog({
             }}
           />
           {existingImageUrl && !image && (
-            <div className="text-sm text-muted-foreground">
-              Current:{" "}
-              <a
-                href={existingImageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                {existingImageUrl.split("/").pop()}
-              </a>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Image
+                src={getImageUrl(existingImageUrl)}
+                alt="Current Image"
+                width={40}
+                height={40}
+                className="rounded"
+              />
+              <span>Current: {existingImageUrl.split("/").pop()}</span>
             </div>
           )}
           <DialogFooter>
@@ -255,16 +264,15 @@ function SubCategoryDialog({
             }}
           />
           {existingImageUrl && !image && (
-            <div className="text-sm text-muted-foreground">
-              Current:{" "}
-              <a
-                href={existingImageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                {existingImageUrl.split("/").pop()}
-              </a>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Image
+                src={getImageUrl(existingImageUrl)}
+                alt="Current Image"
+                width={40}
+                height={40}
+                className="rounded"
+              />
+              <span>Current: {existingImageUrl.split("/").pop()}</span>
             </div>
           )}
           <DialogFooter>
@@ -485,7 +493,16 @@ export default function CategoriesPage() {
                     key={sub.id}
                     className="flex justify-between items-center"
                   >
-                    <p>{sub.name}</p>
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={getImageUrl(sub.image)}
+                        alt={sub.name}
+                        width={32}
+                        height={32}
+                        className="rounded-md object-cover"
+                      />
+                      <span className="font-medium">{sub.name}</span>
+                    </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">

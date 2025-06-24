@@ -36,6 +36,13 @@ interface PageProps {
   params: Promise<SubCategoryPageParams>;
 }
 
+function getImageUrl(path: string) {
+  if (!path) return "/placeholder.svg";
+  // The public URL for images is directly under /uploads
+  const baseUrl = path.startsWith("/") ? path : `/uploads/${path}`;
+  return `${baseUrl}?v=${new Date().getTime()}`;
+}
+
 const getApiUrl = () => {
   if (typeof window === "undefined") {
     // For server-side rendering (build time), use the internal URL.
@@ -124,7 +131,7 @@ export default async function SubCategoryPage({ params }: PageProps) {
             >
               <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
                 <Image
-                  src={product.image || "/images/placeholder.webp"}
+                  src={getImageUrl(product.image)}
                   alt={product.name}
                   width={500}
                   height={500}

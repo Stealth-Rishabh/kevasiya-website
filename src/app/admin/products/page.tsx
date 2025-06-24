@@ -43,8 +43,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 // --- Helper to get full image URL ---
 function getImageUrl(path?: string) {
   if (!path) return "/placeholder.svg";
-  if (path.startsWith("http") || path.startsWith("/uploads")) return path;
-  return `${API_URL}/${path.replace(/^\//, "")}`;
+  const baseUrl =
+    path.startsWith("http") || path.startsWith("/uploads")
+      ? path
+      : `${API_URL}/${path.replace(/^\//, "")}`;
+  // Append a timestamp as a cache-busting query parameter
+  return `${baseUrl}?v=${new Date().getTime()}`;
 }
 
 // --- Type Definitions ---

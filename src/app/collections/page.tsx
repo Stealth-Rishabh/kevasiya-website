@@ -1,5 +1,12 @@
 import CollectionsGrid from "./CollectionsGrid";
 
+function getImageUrl(path: string) {
+  if (!path) return "/placeholder.svg";
+  // The public URL for images is directly under /uploads
+  const baseUrl = path.startsWith("/") ? path : `/uploads/${path}`;
+  return `${baseUrl}?v=${new Date().getTime()}`;
+}
+
 interface Collection {
   id: number;
   name: string;

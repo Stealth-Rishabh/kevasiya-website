@@ -23,6 +23,13 @@ interface Category {
   description: string;
 }
 
+function getImageUrl(path: string) {
+  if (!path) return "/placeholder.svg";
+  // The public URL for images is directly under /uploads
+  const baseUrl = path.startsWith("/") ? path : `/uploads/${path}`;
+  return `${baseUrl}?v=${new Date().getTime()}`;
+}
+
 const getApiUrl = () => {
   if (typeof window === "undefined") {
     return process.env.INTERNAL_API_URL || "http://localhost:5001/api";
@@ -114,7 +121,7 @@ export default async function CategoryPage({
               >
                 <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
                   <Image
-                    src={sub.image || "/images/placeholder.webp"}
+                    src={getImageUrl(sub.image || "")}
                     alt={sub.name}
                     width={500}
                     height={500}
@@ -141,7 +148,7 @@ export default async function CategoryPage({
               >
                 <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
                   <Image
-                    src={product.image || "/images/placeholder.webp"}
+                    src={getImageUrl(product.image)}
                     alt={product.name}
                     width={500}
                     height={500}
