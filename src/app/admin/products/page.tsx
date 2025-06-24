@@ -47,6 +47,22 @@ import { getApiUrl } from "@/lib/utils";
 import { Product, Category, SubCategory } from "@/types/product";
 import { revalidateProducts } from "@/app/actions";
 
+interface ApiProduct {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: string;
+  included_items: string[] | null;
+  packaging: string | null;
+  image: string;
+  images: string[] | null;
+  category_id: number;
+  category_name: string;
+  subcategory_id: number | null;
+  subcategory_name: string | null;
+}
+
 // --- Reusable Dialog for Add/Edit Product ---
 function ProductDialog({
   product,
@@ -312,19 +328,12 @@ export default function ProductsPage() {
         fetch(`${apiUrl}/api/categories`),
         fetch(`${apiUrl}/api/subcategories`),
       ]);
-      const productsData = await prodRes.json();
+      const productsData: ApiProduct[] = await prodRes.json();
 
       const slugify = (text: string) =>
         text.toString().toLowerCase().replace(/\s+/g, "-");
-      const mappedProducts = productsData.map((p: any) => ({
-        ...p,
-        thumbnail: p.image,
-        category: {
-          id: p.category_id,
-          name: p.category_name,
-          slug: slugify(p.category_name || ""),
-        },
-        subcategory:
+      const mappedProducts = productsData.map((p: ApiProduct) => {
+        const subcategory =
           p.subcategory_id && p.subcategory_name
             ? {
                 id: p.subcategory_id,
@@ -332,8 +341,29 @@ export default function ProductsPage() {
                 slug: slugify(p.subcategory_name),
                 category_id: p.category_id,
               }
-            : null,
-      }));
+            : null;
+
+        return {
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          description: p.description,
+          price: p.price,
+          included_items: p.included_items,
+          packaging: p.packaging,
+          image: p.image,
+          images: p.images,
+          thumbnail: p.image,
+          category: {
+            id: p.category_id,
+            name: p.category_name,
+            slug: slugify(p.category_name || ""),
+          },
+          subcategory: subcategory,
+          category_id: p.category_id,
+          subcategory_id: p.subcategory_id ?? undefined,
+        };
+      });
 
       setProducts(mappedProducts);
       setCategories(await catRes.json());
