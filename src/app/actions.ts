@@ -20,6 +20,16 @@ interface ApiProduct {
   subcategory_name: string | null;
 }
 
+const slugify = (text: string) =>
+  text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+    .replace(/\-\-+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start of text
+    .replace(/-+$/, ""); // Trim - from end of text
+
 export async function revalidateProducts() {
   revalidateTag("products");
 }
@@ -60,13 +70,17 @@ export async function getProducts() {
       category: {
         id: p.category_id,
         name: p.category_name,
+        slug: slugify(p.category_name),
       },
-      subcategory: p.subcategory_id
-        ? {
-            id: p.subcategory_id,
-            name: p.subcategory_name,
-          }
-        : null,
+      subcategory:
+        p.subcategory_id && p.subcategory_name
+          ? {
+              id: p.subcategory_id,
+              name: p.subcategory_name,
+              slug: slugify(p.subcategory_name),
+              category_id: p.category_id,
+            }
+          : null,
     }));
   } catch (error) {
     console.error("Error fetching products:", error);
