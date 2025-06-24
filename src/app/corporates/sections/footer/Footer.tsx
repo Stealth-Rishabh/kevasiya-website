@@ -96,7 +96,7 @@ const Footer = () => {
     },
     {
       icon: FiInstagram,
-      href: "#",
+      href: "https://www.instagram.com/kevasiya.in/",
       label: "Instagram",
       color: "hover:text-pink-500",
     },

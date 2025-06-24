@@ -103,11 +103,11 @@ export default function Hero() {
               Explore Collection
             </button>
           </Link>
-          {/* <Link href="/about">
+          <Link href="/contact">
             <button className="px-12 py-4 border-2 border-white text-white font-semibold text-lg rounded-md hover:bg-white hover:text-black transition-all duration-300 shadow-lg">
-              Our Story
+              Book Your Gift
             </button>
-          </Link> */}
+          </Link>
         </motion.div>
       </motion.div>
     </section>

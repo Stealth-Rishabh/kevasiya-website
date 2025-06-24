@@ -12,8 +12,9 @@ export default function Nav() {
     // { name: "Baby", href: "/collections/baby" },
     // { name: "Wedding", href: "/collections/wedding" },
     { name: "Wedding", href: "/wedding" },
-    { name: "Occasions", href: "/collections/occasions" },
+    // { name: "Occasions", href: "/collections/occasions" },
     { name: "Corporates", href: "/corporates" },
+    { name: "Contact", href: "/contact" },
   ];
 
   const menuVariants = {

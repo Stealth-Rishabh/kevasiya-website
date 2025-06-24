@@ -59,28 +59,28 @@ export function FooterContent() {
   const socialLinks = [
     {
       icon: FiInstagram,
-      href: "#",
+      href: "https://www.instagram.com/kevasiya.in/",
       label: "Instagram",
       color: "hover:text-pink-500",
     },
     {
       icon: FiFacebook,
-      href: "#",
+      href: "https://www.facebook.com/kevasiya",
       label: "Facebook",
       color: "hover:text-blue-600",
     },
-    {
-      icon: FiTwitter,
-      href: "#",
-      label: "Twitter",
-      color: "hover:text-blue-400",
-    },
-    {
-      icon: FiYoutube,
-      href: "#",
-      label: "YouTube",
-      color: "hover:text-red-500",
-    },
+    // {
+    //   icon: FiTwitter,
+    //   href: "#",
+    //   label: "Twitter",
+    //   color: "hover:text-blue-400",
+    // },
+    // {
+    //   icon: FiYoutube,
+    //   href: "#",
+    //   label: "YouTube",
+    //   color: "hover:text-red-500",
+    // },
   ];
 
   const trustBadges = [
