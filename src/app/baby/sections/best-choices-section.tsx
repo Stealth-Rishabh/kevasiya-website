@@ -34,7 +34,7 @@ export function BestChoicesSection() {
       title: "Circus Themed Gifts",
       description:
         "Bring on the fun with playful circus hampers, toyish showcases, and custom-themed gifts.",
-      image: "/images/baby/circus/asset 2.jpeg",
+      image: "/images/baby/circus/circus (1).jpeg",
       badge: "Circus Fun",
       features: ["Themed Hampers", "Toyish Showcases", "Custom Circus Gifts"],
     },
