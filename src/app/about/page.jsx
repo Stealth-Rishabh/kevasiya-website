@@ -5,6 +5,7 @@ import { useInView } from "framer-motion"
 import { useRef } from "react"
 import Image from "next/image"
 import { Gift, Heart, Sparkles, Crown, Baby, Building2 } from "lucide-react"
+import Link from "next/link"
 
 export default function AboutUs() {
   const ref = useRef(null)
@@ -40,7 +41,7 @@ export default function AboutUs() {
   ]
 
   return (
-    <section className="relative min-h-screen bg-white py-12 sm:py-16 lg:py-32 overflow-hidden">
+    <section className="relative sm:min-h-screen bg-white py-24 sm:py-16 lg:py-32 overflow-hidden">
       {/* Background decorative elements - using hardcoded colors */}
       <div className="absolute top-10 sm:top-20 right-5 sm:right-10 w-20 h-20 sm:w-32 sm:h-32 bg-[#3A5A40]/5 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 sm:bottom-40 left-5 sm:left-10 w-32 h-32 sm:w-48 sm:h-48 bg-[#AE8F65]/5 rounded-full blur-3xl"></div>
@@ -120,7 +121,7 @@ export default function AboutUs() {
                   alt="Luxury gift hamper"
                   width={400}
                   height={500}
-                  className="rounded-2xl shadow-2xl object-cover w-full h-[700px]"
+                  className="rounded-2xl shadow-2xl object-cover w-full sm:h-[600px] h-96 lg:h-[700px]"
                 />
               </div>
 
@@ -250,6 +251,7 @@ export default function AboutUs() {
               transition={{ duration: 0.8, delay: 2 }}
             >
               {/* Shop Button */}
+              <Link href="/collections">
               <motion.button
                 className="group relative w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-[#3A5A40] text-white font-medium text-base sm:text-lg rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#3A5A40]/25"
                 whileHover={{ scale: 1.05, y: -2 }}
@@ -265,8 +267,10 @@ export default function AboutUs() {
                   initial={false}
                 />
               </motion.button>
+              </Link>
 
               {/* Contact Button */}
+              <Link href="/contact">
               <motion.button
                 className="group relative w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-transparent border-2 border-[#AE8F65] text-[#AE8F65] font-medium text-base sm:text-lg rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#AE8F65]/25"
                 whileHover={{ scale: 1.05, y: -2 }}
@@ -282,6 +286,7 @@ export default function AboutUs() {
                   initial={false}
                 />
               </motion.button>
+              </Link>
             </motion.div>
 
             {/* Decorative elements - smaller on mobile */}
