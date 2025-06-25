@@ -188,21 +188,21 @@ export default function ContactPage() {
                 <div className="w-16 h-16 bg-[#AE8F65]/20 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Users className="w-8 h-8 text-[#AE8F65]" />
                 </div>
-                <div className="text-3xl font-bold text-white">500+</div>
+                <div className="text-3xl font-bold text-white">50+</div>
                 <div className="text-white/70 text-sm">Happy Clients</div>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-[#AE8F65]/20 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Award className="w-8 h-8 text-[#AE8F65]" />
                 </div>
-                <div className="text-3xl font-bold text-white">50+</div>
-                <div className="text-white/70 text-sm">Projects Done</div>
+                <div className="text-3xl font-bold text-white">500+</div>
+                <div className="text-white/70 text-sm">Products Catalog</div>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-[#AE8F65]/20 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Shield className="w-8 h-8 text-[#AE8F65]" />
                 </div>
-                <div className="text-3xl font-bold text-white">5+</div>
+                <div className="text-3xl font-bold text-white">10+</div>
                 <div className="text-white/70 text-sm">Years Experience</div>
               </div>
               <div className="text-center">
