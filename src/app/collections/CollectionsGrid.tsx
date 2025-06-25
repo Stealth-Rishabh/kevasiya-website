@@ -28,7 +28,7 @@ export default function CollectionsGrid({ collections }: CollectionsGridProps) {
           transition={{ duration: 0.5, delay: index * 0.1 }}
           className="group relative"
         >
-          <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+          <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7 h-full">
             <Image
               src={collection.image || "/images/placeholder.svg"}
               alt={collection.name}

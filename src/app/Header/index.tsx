@@ -14,6 +14,7 @@ export default function Nav() {
     { name: "Wedding", href: "/wedding" },
     // { name: "Occasions", href: "/collections/occasions" },
     { name: "Corporates", href: "/corporates" },
+    { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
 
