@@ -103,7 +103,7 @@ const cardData = [
     title: "Corporate Gifting",
     description: "A beautiful way to gift your loved ones",
     className: "md:col-span-1 md:row-span-2",
-    path: "/corporate",
+    path: "/corporates",
   },
   {
     custom: 2,
