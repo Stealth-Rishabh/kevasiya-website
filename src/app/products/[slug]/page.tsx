@@ -83,9 +83,10 @@ async function getProductBySlug(slug: string): Promise<Product | undefined> {
 export default async function ProductPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const product = await getProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
