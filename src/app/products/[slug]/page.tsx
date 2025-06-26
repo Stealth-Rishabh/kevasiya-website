@@ -94,3 +94,21 @@ export default async function ProductPage({
 
   return <ProductDetailsClient product={product} />;
 }
+
+// This function helps Next.js generate static pages at build time.
+// By commenting it out, we make the pages dynamic, which fixes build-time data fetching issues.
+// export async function generateStaticParams() {
+//   try {
+//     const res = await fetch(`${getApiUrl()}/products`);
+//     if (!res.ok) return [];
+//
+//     const products: Product[] = await res.json();
+//
+//     return products.map((product) => ({
+//       slug: product.slug,
+//     }));
+//   } catch (error) {
+//     console.error("Could not generate static params for products:", error);
+//     return [];
+//   }
+// }

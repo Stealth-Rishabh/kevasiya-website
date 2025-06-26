@@ -159,33 +159,33 @@ export default async function SubCategoryPage({ params }: PageProps) {
 }
 
 // This function helps Next.js know which subcategory pages to generate at build time.
-export async function generateStaticParams(): Promise<SubCategoryPageParams[]> {
-  try {
-    const apiUrl = getApiUrl();
-    const subCatRes = await fetch(`${apiUrl}/subcategories`);
-    if (!subCatRes.ok) return [];
-    const subcategories: Subcategory[] = await subCatRes.json();
-
-    const catRes = await fetch(`${apiUrl}/categories`);
-    if (!catRes.ok) return [];
-    const categories: Category[] = await catRes.json();
-
-    const categoryMap = new Map(categories.map((c) => [c.id, c.slug]));
-
-    return subcategories
-      .map((sub) => {
-        const categorySlug = categoryMap.get(sub.category_id);
-        if (!categorySlug) {
-          return null; // Return null for invalid entries
-        }
-        return {
-          category: categorySlug,
-          subcategory: sub.slug,
-        };
-      })
-      .filter((params): params is SubCategoryPageParams => params !== null); // Use a type guard to filter out nulls and satisfy TypeScript
-  } catch (error) {
-    console.error("Could not generate static params for subcategories:", error);
-    return [];
-  }
-}
+// export async function generateStaticParams(): Promise<SubCategoryPageParams[]> {
+//   try {
+//     const apiUrl = getApiUrl();
+//     const subCatRes = await fetch(`${apiUrl}/subcategories`);
+//     if (!subCatRes.ok) return [];
+//     const subcategories: Subcategory[] = await subCatRes.json();
+//
+//     const catRes = await fetch(`${apiUrl}/categories`);
+//     if (!catRes.ok) return [];
+//     const categories: Category[] = await catRes.json();
+//
+//     const categoryMap = new Map(categories.map((c) => [c.id, c.slug]));
+//
+//     return subcategories
+//       .map((sub) => {
+//         const categorySlug = categoryMap.get(sub.category_id);
+//         if (!categorySlug) {
+//           return null; // Return null for invalid entries
+//         }
+//         return {
+//           category: categorySlug,
+//           subcategory: sub.slug,
+//         };
+//       })
+//       .filter((params): params is SubCategoryPageParams => params !== null); // Use a type guard to filter out nulls and satisfy TypeScript
+//   } catch (error) {
+//     console.error("Could not generate static params for subcategories:", error);
+//     return [];
+//   }
+// }
