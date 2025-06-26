@@ -319,12 +319,26 @@ export default function ProductsPage() {
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [filters, setFilters] = useState<{
+    categoryId?: string;
+    subcategoryId?: string;
+  }>({});
+
+  const filteredSubcategoriesForFilter = subCategories.filter(
+    (sub) => sub.category_id.toString() === filters.categoryId
+  );
 
   const fetchData = useCallback(async () => {
     try {
       const apiUrl = getApiUrl();
+      const queryParams = new URLSearchParams();
+      if (filters.categoryId)
+        queryParams.append("category_id", filters.categoryId);
+      if (filters.subcategoryId)
+        queryParams.append("subcategory_id", filters.subcategoryId);
+
       const [prodRes, catRes, subCatRes] = await Promise.all([
-        fetch(`${apiUrl}/products`),
+        fetch(`${apiUrl}/products?${queryParams.toString()}`),
         fetch(`${apiUrl}/categories`),
         fetch(`${apiUrl}/subcategories`),
       ]);
@@ -371,7 +385,7 @@ export default function ProductsPage() {
     } catch (error) {
       console.error("Failed to fetch data:", error);
     }
-  }, []);
+  }, [filters]);
 
   useEffect(() => {
     fetchData();
@@ -381,6 +395,23 @@ export default function ProductsPage() {
     fetchData();
     setDialogOpen(false);
     setEditingProduct(null);
+  };
+
+  const handleFilterChange = (
+    type: "categoryId" | "subcategoryId",
+    value: string
+  ) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev, [type]: value };
+      if (type === "categoryId") {
+        delete newFilters.subcategoryId; // Reset subcategory when category changes
+      }
+      return newFilters;
+    });
+  };
+
+  const handleResetFilters = () => {
+    setFilters({});
   };
 
   const handleDelete = async (productId: number) => {
@@ -426,6 +457,54 @@ export default function ProductsPage() {
             Add Product
           </Button>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Filters</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center gap-4">
+            <Select
+              onValueChange={(value) => handleFilterChange("categoryId", value)}
+              value={filters.categoryId}
+            >
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="Filter by Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              onValueChange={(value) =>
+                handleFilterChange("subcategoryId", value)
+              }
+              value={filters.subcategoryId}
+              disabled={
+                !filters.categoryId ||
+                filteredSubcategoriesForFilter.length === 0
+              }
+            >
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="Filter by Subcategory" />
+              </SelectTrigger>
+              <SelectContent>
+                {filteredSubcategoriesForFilter.map((sub) => (
+                  <SelectItem key={sub.id} value={sub.id.toString()}>
+                    {sub.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={handleResetFilters} variant="outline">
+              Reset Filters
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardDescription>
