@@ -159,8 +159,8 @@ function ProductDialog({
 
     const apiUrl = getApiUrl();
     const url = product
-      ? `${apiUrl}/products/${product.id}`
-      : `${apiUrl}/products`;
+      ? `${apiUrl}/api/products/${product.id}`
+      : `${apiUrl}/api/products`;
     const method = product ? "PUT" : "POST";
 
     try {
@@ -340,9 +340,9 @@ export default function ProductsPage() {
       if (filters.name) queryParams.append("name", filters.name);
 
       const [prodRes, catRes, subCatRes] = await Promise.all([
-        fetch(`${apiUrl}/products?${queryParams.toString()}`),
-        fetch(`${apiUrl}/categories`),
-        fetch(`${apiUrl}/subcategories`),
+        fetch(`${apiUrl}/api/products?${queryParams.toString()}`),
+        fetch(`${apiUrl}/api/categories`),
+        fetch(`${apiUrl}/api/subcategories`),
       ]);
       const productsData: ApiProduct[] = await prodRes.json();
 
@@ -420,7 +420,7 @@ export default function ProductsPage() {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/products/${productId}`, {
+      const res = await fetch(`${apiUrl}/api/products/${productId}`, {
         method: "DELETE",
       });
       if (res.ok) {

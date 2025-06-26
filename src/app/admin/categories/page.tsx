@@ -96,8 +96,8 @@ function CategoryDialog({
 
     const apiUrl = getApiUrl();
     const url = category
-      ? `${apiUrl}/categories/${category.id}`
-      : `${apiUrl}/categories`;
+      ? `${apiUrl}/api/categories/${category.id}`
+      : `${apiUrl}/api/categories`;
     const method = category ? "PUT" : "POST";
     const res = await fetch(url, { method, body: formData });
 
@@ -218,8 +218,8 @@ function SubCategoryDialog({
 
     const apiUrl = getApiUrl();
     const url = subcategory
-      ? `${apiUrl}/subcategories/${subcategory.id}`
-      : `${apiUrl}/subcategories`;
+      ? `${apiUrl}/api/subcategories/${subcategory.id}`
+      : `${apiUrl}/api/subcategories`;
     const method = subcategory ? "PUT" : "POST";
     const res = await fetch(url, { method, body: formData });
 
@@ -320,8 +320,8 @@ export default function CategoriesPage() {
     try {
       const apiUrl = getApiUrl();
       const [catRes, subCatRes] = await Promise.all([
-        fetch(`${apiUrl}/categories`),
-        fetch(`${apiUrl}/subcategories`),
+        fetch(`${apiUrl}/api/categories`),
+        fetch(`${apiUrl}/api/subcategories`),
       ]);
       setCategories(await catRes.json());
       setSubCategories(await subCatRes.json());
@@ -348,7 +348,7 @@ export default function CategoriesPage() {
 
     try {
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/${entity}/${id}`, {
+      const res = await fetch(`${apiUrl}/api/${entity}/${id}`, {
         method: "DELETE",
       });
 
