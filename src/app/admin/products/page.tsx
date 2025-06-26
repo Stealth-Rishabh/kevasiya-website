@@ -113,7 +113,7 @@ function ProductDialog({
     } else {
       setName("");
       setDescription("");
-      setPrice("");
+      setPrice("Price on Request");
       setPackaging("");
       setCategoryId(undefined);
       setSubCategoryId(undefined);
@@ -201,7 +201,8 @@ function ProductDialog({
             onChange={(e) => setDescription(e.target.value)}
           />
           <Input
-            placeholder="Price (e.g., 2500 or 'Price on Request')"
+            type="text"
+            placeholder="Price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             required
@@ -322,6 +323,7 @@ export default function ProductsPage() {
   const [filters, setFilters] = useState<{
     categoryId?: string;
     subcategoryId?: string;
+    name?: string;
   }>({});
 
   const filteredSubcategoriesForFilter = subCategories.filter(
@@ -336,6 +338,7 @@ export default function ProductsPage() {
         queryParams.append("category_id", filters.categoryId);
       if (filters.subcategoryId)
         queryParams.append("subcategory_id", filters.subcategoryId);
+      if (filters.name) queryParams.append("name", filters.name);
 
       const [prodRes, catRes, subCatRes] = await Promise.all([
         fetch(`${apiUrl}/products?${queryParams.toString()}`),
@@ -398,7 +401,7 @@ export default function ProductsPage() {
   };
 
   const handleFilterChange = (
-    type: "categoryId" | "subcategoryId",
+    type: "categoryId" | "subcategoryId" | "name",
     value: string
   ) => {
     setFilters((prev) => {
@@ -444,9 +447,14 @@ export default function ProductsPage() {
         categories={categories}
         subCategories={subCategories}
       />
-      <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <CardTitle>Products</CardTitle>
+          <div>
+            <h1 className="text-2xl font-bold">Products</h1>
+            <p className="text-muted-foreground">
+              Manage your products and view their sales performance.
+            </p>
+          </div>
           <Button
             onClick={() => {
               setEditingProduct(null);
@@ -463,6 +471,12 @@ export default function ProductsPage() {
             <CardTitle>Filters</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap items-center gap-4">
+            <Input
+              placeholder="Search by product name..."
+              value={filters.name || ""}
+              onChange={(e) => handleFilterChange("name", e.target.value)}
+              className="w-full sm:w-auto"
+            />
             <Select
               onValueChange={(value) => handleFilterChange("categoryId", value)}
               value={filters.categoryId}
@@ -506,12 +520,7 @@ export default function ProductsPage() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardDescription>
-              Manage your products and view their sales performance.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <Table>
               <TableHeader>
                 <TableRow>
