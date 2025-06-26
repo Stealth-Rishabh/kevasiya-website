@@ -96,8 +96,8 @@ function CategoryDialog({
 
     const apiUrl = getApiUrl();
     const url = category
-      ? `${apiUrl}/api/categories/${category.id}`
-      : `${apiUrl}/api/categories`;
+      ? `${apiUrl}/categories/${category.id}`
+      : `${apiUrl}/categories`;
     const method = category ? "PUT" : "POST";
     const res = await fetch(url, { method, body: formData });
 
@@ -218,8 +218,8 @@ function SubCategoryDialog({
 
     const apiUrl = getApiUrl();
     const url = subcategory
-      ? `${apiUrl}/api/subcategories/${subcategory.id}`
-      : `${apiUrl}/api/subcategories`;
+      ? `${apiUrl}/subcategories/${subcategory.id}`
+      : `${apiUrl}/subcategories`;
     const method = subcategory ? "PUT" : "POST";
     const res = await fetch(url, { method, body: formData });
 
@@ -317,16 +317,14 @@ export default function CategoriesPage() {
   >(undefined);
 
   const fetchData = useCallback(async () => {
-    try {
-      const apiUrl = getApiUrl();
-      const [catRes, subCatRes] = await Promise.all([
-        fetch(`${apiUrl}/api/categories`),
-        fetch(`${apiUrl}/api/subcategories`),
-      ]);
+    const apiUrl = getApiUrl();
+    const [catRes, subCatRes] = await Promise.all([
+      fetch(`${apiUrl}/categories`),
+      fetch(`${apiUrl}/subcategories`),
+    ]);
+    if (catRes.ok && subCatRes.ok) {
       setCategories(await catRes.json());
       setSubCategories(await subCatRes.json());
-    } catch (error) {
-      console.error("Failed to fetch data:", error);
     }
   }, []);
 
@@ -343,26 +341,25 @@ export default function CategoriesPage() {
   };
 
   const handleDelete = async (type: "category" | "subcategory", id: number) => {
-    const entity = type === "category" ? "categories" : "subcategories";
-    if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
+    const confirmation = window.confirm(
+      `Are you sure you want to delete this ${type}?`
+    );
+    if (!confirmation) return;
 
-    try {
-      const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/api/${entity}/${id}`, {
-        method: "DELETE",
-      });
+    const apiUrl = getApiUrl();
+    const url =
+      type === "category"
+        ? `${apiUrl}/categories/${id}`
+        : `${apiUrl}/subcategories/${id}`;
+    const res = await fetch(url, { method: "DELETE" });
 
-      if (res.ok) {
-        await revalidateCategories();
-        fetchData();
-      } else {
-        const err = await res.json();
-        console.error("Delete failed:", err);
-        alert(`Error deleting: ${err.error || "Item may be in use."}`);
-      }
-    } catch (error) {
-      console.error("An error occurred during deletion:", error);
-      alert("An unexpected error occurred.");
+    if (res.ok) {
+      await revalidateCategories();
+      fetchData();
+    } else {
+      const err = await res.json();
+      console.error("Delete failed:", err);
+      alert(`Error deleting: ${err.error || "Item may be in use."}`);
     }
   };
 

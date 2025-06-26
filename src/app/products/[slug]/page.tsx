@@ -31,7 +31,7 @@ const slugify = (text: string) =>
 
 async function getProductBySlug(slug: string): Promise<Product | undefined> {
   try {
-    const res = await fetch(`${getApiUrl()}/api/products?slug=${slug}`, {
+    const res = await fetch(`${getApiUrl()}/products?slug=${slug}`, {
       next: { revalidate: 60 },
     });
 

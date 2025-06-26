@@ -159,8 +159,8 @@ function ProductDialog({
 
     const apiUrl = getApiUrl();
     const url = product
-      ? `${apiUrl}/api/products/${product.id}`
-      : `${apiUrl}/api/products`;
+      ? `${apiUrl}/products/${product.id}`
+      : `${apiUrl}/products`;
     const method = product ? "PUT" : "POST";
 
     try {
@@ -340,9 +340,9 @@ export default function ProductsPage() {
       if (filters.name) queryParams.append("name", filters.name);
 
       const [prodRes, catRes, subCatRes] = await Promise.all([
-        fetch(`${apiUrl}/api/products?${queryParams.toString()}`),
-        fetch(`${apiUrl}/api/categories`),
-        fetch(`${apiUrl}/api/subcategories`),
+        fetch(`${apiUrl}/products?${queryParams.toString()}`),
+        fetch(`${apiUrl}/categories`),
+        fetch(`${apiUrl}/subcategories`),
       ]);
       const productsData: ApiProduct[] = await prodRes.json();
 
@@ -417,10 +417,9 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (productId: number) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-    try {
+    if (window.confirm("Are you sure you want to delete this product?")) {
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/api/products/${productId}`, {
+      const res = await fetch(`${apiUrl}/products/${productId}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -430,9 +429,6 @@ export default function ProductsPage() {
         const err = await res.json();
         alert(`Error: ${err.details || err.error}`);
       }
-    } catch (error) {
-      console.error(error);
-      alert("An error occurred while deleting the product.");
     }
   };
 

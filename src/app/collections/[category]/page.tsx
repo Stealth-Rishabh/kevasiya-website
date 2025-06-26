@@ -33,12 +33,9 @@ async function getCategoryPageData(categorySlug: string) {
 
   try {
     // 1. Fetch the category by slug
-    const catRes = await fetch(
-      `${apiUrl}/api/categories?slug=${categorySlug}`,
-      {
-        next: { tags: ["categories"] },
-      }
-    );
+    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`, {
+      next: { tags: ["categories"] },
+    });
     if (!catRes.ok)
       throw new Error(`Failed to fetch category with slug: ${categorySlug}`);
     const categories: Category[] = await catRes.json();
@@ -49,7 +46,7 @@ async function getCategoryPageData(categorySlug: string) {
 
     // 2. Fetch its subcategories
     const subCatRes = await fetch(
-      `${apiUrl}/api/subcategories?category_id=${category.id}`,
+      `${apiUrl}/subcategories?category_id=${category.id}`,
       { next: { tags: ["categories"] } }
     );
     if (!subCatRes.ok)
@@ -61,7 +58,7 @@ async function getCategoryPageData(categorySlug: string) {
     // 3. If NO subcategories exist, fetch products for this category directly
     if (subcategories.length === 0) {
       const prodRes = await fetch(
-        `${apiUrl}/api/products?category_id=${category.id}`,
+        `${apiUrl}/products?category_id=${category.id}`,
         { next: { tags: ["products"] } }
       );
       if (!prodRes.ok)

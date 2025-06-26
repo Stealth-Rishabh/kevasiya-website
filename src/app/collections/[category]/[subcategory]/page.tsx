@@ -44,14 +44,14 @@ async function getSubcategoryInfo(
 ): Promise<Subcategory | undefined> {
   try {
     const apiUrl = getApiUrl();
-    const catRes = await fetch(`${apiUrl}/api/categories?slug=${categorySlug}`);
+    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`);
     if (!catRes.ok) return undefined;
     const categories: Category[] = await catRes.json();
     const parentCategory = categories[0];
     if (!parentCategory) return undefined;
 
     const subCatRes = await fetch(
-      `${apiUrl}/api/subcategories?category_id=${parentCategory.id}`
+      `${apiUrl}/subcategories?category_id=${parentCategory.id}`
     );
     if (!subCatRes.ok) return undefined;
     const subcategories: Subcategory[] = await subCatRes.json();
@@ -69,7 +69,7 @@ async function getProductsBySubcategoryId(
   try {
     const apiUrl = getApiUrl();
     const res = await fetch(
-      `${apiUrl}/api/products?subcategory_id=${subcategoryId}`,
+      `${apiUrl}/products?subcategory_id=${subcategoryId}`,
       {
         next: { tags: ["products"] },
       }
@@ -162,11 +162,11 @@ export default async function SubCategoryPage({ params }: PageProps) {
 export async function generateStaticParams(): Promise<SubCategoryPageParams[]> {
   try {
     const apiUrl = getApiUrl();
-    const subCatRes = await fetch(`${apiUrl}/api/subcategories`);
+    const subCatRes = await fetch(`${apiUrl}/subcategories`);
     if (!subCatRes.ok) return [];
     const subcategories: Subcategory[] = await subCatRes.json();
 
-    const catRes = await fetch(`${apiUrl}/api/categories`);
+    const catRes = await fetch(`${apiUrl}/categories`);
     if (!catRes.ok) return [];
     const categories: Category[] = await catRes.json();
 

@@ -13,7 +13,7 @@ async function getCollections(): Promise<Collection[]> {
   try {
     const apiUrl = getApiUrl();
 
-    const res = await fetch(`${apiUrl}/api/categories`, {
+    const res = await fetch(`${apiUrl}/categories`, {
       next: { tags: ["categories"] },
     });
     if (!res.ok) {
