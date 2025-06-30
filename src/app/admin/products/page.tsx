@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -34,6 +35,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -87,10 +89,24 @@ function ProductDialog({
     undefined
   );
   const [includedItems, setIncludedItems] = useState("");
+
+  // State for new files
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [galleryFiles, setGalleryFiles] = useState<FileList | null>(null);
-  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+
+  // State for existing images (when editing)
+  const [existingMainImageUrl, setExistingMainImageUrl] = useState<
+    string | null
+  >(null);
+  const [existingGalleryUrls, setExistingGalleryUrls] = useState<string[]>([]);
   const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
+
+  // State for new image previews
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const filteredSubcategories = subCategories.filter(
     (sub) => sub.category_id.toString() === categoryId
@@ -105,11 +121,12 @@ function ProductDialog({
       setCategoryId(product.category.id.toString());
       setSubCategoryId(product.subcategory?.id.toString());
       setIncludedItems((product.included_items || []).join("\n"));
-      const allImages = [product.image, ...(product.images || [])].filter(
-        Boolean
-      ) as string[];
-      setExistingImages(allImages);
+
+      // Separate existing images for the UI
+      setExistingMainImageUrl(product.image || null);
+      setExistingGalleryUrls(product.images || []);
     } else {
+      // Reset for "Add" mode
       setName("");
       setDescription("");
       setPrice("Price on Request");
@@ -117,16 +134,47 @@ function ProductDialog({
       setCategoryId(undefined);
       setSubCategoryId(undefined);
       setIncludedItems("");
-      setExistingImages([]);
+      setExistingMainImageUrl(null);
+      setExistingGalleryUrls([]);
     }
+
+    // Reset file inputs and previews on open/product change
     setImageFile(null);
-    setGalleryFiles(null);
+    setGalleryFiles([]);
     setImagesToRemove([]);
+    if (mainImageInputRef.current) mainImageInputRef.current.value = "";
+    if (galleryInputRef.current) galleryInputRef.current.value = "";
   }, [product, open]);
 
-  const handleImageRemove = (url: string) => {
-    setImagesToRemove((prev) => [...prev, url]);
-    setExistingImages((prev) => prev.filter((img) => img !== url));
+  // Create/revoke preview URLs for new files
+  useEffect(() => {
+    if (imageFile) {
+      const url = URL.createObjectURL(imageFile);
+      setImagePreview(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    setImagePreview(null);
+  }, [imageFile]);
+
+  useEffect(() => {
+    if (galleryFiles.length > 0) {
+      const urls = galleryFiles.map((file) => URL.createObjectURL(file));
+      setGalleryPreviews(urls);
+      return () => urls.forEach((url) => URL.revokeObjectURL(url));
+    }
+    setGalleryPreviews([]);
+  }, [galleryFiles]);
+
+  const handleRemoveExistingMainImage = () => {
+    if (existingMainImageUrl) {
+      setImagesToRemove((prev) => [...prev, existingMainImageUrl]);
+      setExistingMainImageUrl(null);
+    }
+  };
+
+  const handleRemoveExistingGalleryImage = (urlToRemove: string) => {
+    setImagesToRemove((prev) => [...prev, urlToRemove]);
+    setExistingGalleryUrls((prev) => prev.filter((url) => url !== urlToRemove));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -146,14 +194,24 @@ function ProductDialog({
     formData.append("included_items", JSON.stringify(items));
 
     if (imageFile) formData.append("image", imageFile);
-    if (galleryFiles) {
-      Array.from(galleryFiles).forEach((file) => {
+    if (galleryFiles.length > 0) {
+      galleryFiles.forEach((file) => {
         formData.append("images", file);
       });
     }
 
     if (product) {
-      existingImages.forEach((img) => formData.append("existing_images", img));
+      // The backend needs to know which images to keep.
+      // We send the main image first, then the gallery images.
+      const finalExistingImages = [];
+      if (existingMainImageUrl) {
+        finalExistingImages.push(existingMainImageUrl);
+      }
+      finalExistingImages.push(...existingGalleryUrls);
+
+      finalExistingImages.forEach((img) =>
+        formData.append("existing_images", img)
+      );
       imagesToRemove.forEach((img) => formData.append("images_to_remove", img));
     }
 
@@ -181,122 +239,261 @@ function ProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {product ? "Edit Product" : "Add New Product"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <Input
-            placeholder="Product Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <Input
-            type="text"
-            placeholder="Price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
-          <Input
-            placeholder="Packaging Info"
-            value={packaging}
-            onChange={(e) => setPackaging(e.target.value)}
-          />
+        <form onSubmit={handleSubmit} className="py-4">
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+            {/* Left Column */}
+            <div className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Product Name</Label>
+                <Input
+                  id="name"
+                  placeholder="e.g. 'Welcome Baby' Gift Box"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Select onValueChange={setCategoryId} value={categoryId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id.toString()}>
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              onValueChange={setSubCategoryId}
-              value={subCategoryId}
-              disabled={!categoryId || filteredSubcategories.length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Subcategory (Optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredSubcategories.map((sub) => (
-                  <SelectItem key={sub.id} value={sub.id.toString()}>
-                    {sub.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="A short summary of the product."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
 
-          <Textarea
-            placeholder="Included Items (one per line)"
-            value={includedItems}
-            onChange={(e) => setIncludedItems(e.target.value)}
-            rows={4}
-          />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="price">Price</Label>
+                  <Input
+                    id="price"
+                    type="text"
+                    placeholder="e.g. 2499 or 'Price on Request'"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="packaging">Packaging</Label>
+                  <Input
+                    id="packaging"
+                    placeholder="e.g. Kevasiya Signature Box"
+                    value={packaging}
+                    onChange={(e) => setPackaging(e.target.value)}
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label className="text-sm font-medium">Main Image</label>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium">Gallery Images</label>
-            <Input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => setGalleryFiles(e.target.files)}
-            />
-          </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label>Category</Label>
+                  <Select onValueChange={setCategoryId} value={categoryId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Subcategory</Label>
+                  <Select
+                    onValueChange={setSubCategoryId}
+                    value={subCategoryId}
+                    disabled={!categoryId || filteredSubcategories.length === 0}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Subcategory" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredSubcategories.map((sub) => (
+                        <SelectItem key={sub.id} value={sub.id.toString()}>
+                          {sub.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-          {existingImages.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium mb-2">Current Images</h4>
-              <div className="flex flex-wrap gap-2">
-                {existingImages.map((url) => (
-                  <div key={url} className="relative">
-                    <Image
-                      src={url}
-                      alt="Existing"
-                      width={80}
-                      height={80}
-                      className="rounded object-cover"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                      onClick={() => handleImageRemove(url)}
-                    >
-                      X
-                    </Button>
-                  </div>
-                ))}
+              <div className="grid gap-2">
+                <Label htmlFor="included-items">Included Items</Label>
+                <Textarea
+                  id="included-items"
+                  placeholder="List each item on a new line."
+                  value={includedItems}
+                  onChange={(e) => setIncludedItems(e.target.value)}
+                  rows={4}
+                />
               </div>
             </div>
-          )}
 
-          <DialogFooter>
+            {/* Right Column */}
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Product Images</CardTitle>
+                  <CardDescription>
+                    Upload a main image and optional gallery images.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="main-image">Main Image</Label>
+                    <Input
+                      id="main-image"
+                      ref={mainImageInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        setImageFile(e.target.files?.[0] || null)
+                      }
+                    />
+                    {imagePreview && (
+                      <div className="relative mt-2 w-fit">
+                        <Image
+                          src={imagePreview}
+                          alt="Main preview"
+                          width={100}
+                          height={100}
+                          className="rounded-md object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                          onClick={() => {
+                            setImageFile(null);
+                            if (mainImageInputRef.current) {
+                              mainImageInputRef.current.value = "";
+                            }
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    {!imagePreview && existingMainImageUrl && (
+                      <div className="relative mt-2 w-fit">
+                        <Image
+                          src={existingMainImageUrl}
+                          alt="Current main image"
+                          width={100}
+                          height={100}
+                          className="rounded-md object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                          onClick={handleRemoveExistingMainImage}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="gallery-images">Gallery Images</Label>
+                    <Input
+                      id="gallery-images"
+                      ref={galleryInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          setGalleryFiles((prevFiles) => [
+                            ...prevFiles,
+                            ...Array.from(e.target.files as FileList),
+                          ]);
+                        }
+                        if (galleryInputRef.current) {
+                          galleryInputRef.current.value = "";
+                        }
+                      }}
+                    />
+                    {galleryPreviews.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {galleryPreviews.map((url, index) => (
+                          <div key={url} className="relative">
+                            <Image
+                              src={url}
+                              alt={`Gallery preview ${index + 1}`}
+                              width={100}
+                              height={100}
+                              className="rounded-md object-cover"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                              onClick={() => {
+                                const newFiles = [...galleryFiles];
+                                newFiles.splice(index, 1);
+                                setGalleryFiles(newFiles);
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {existingGalleryUrls.length > 0 && (
+                      <div className="mt-4">
+                        <Label className="text-sm font-medium">
+                          Current Gallery Images
+                        </Label>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {existingGalleryUrls.map((url) => (
+                            <div key={url} className="relative group">
+                              <Image
+                                src={url}
+                                alt="Existing gallery"
+                                width={100}
+                                height={100}
+                                className="rounded-md object-cover"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() =>
+                                  handleRemoveExistingGalleryImage(url)
+                                }
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          <DialogFooter className="pt-8">
             <Button
               type="button"
               variant="outline"
@@ -304,7 +501,7 @@ function ProductDialog({
             >
               Cancel
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit">Save Product</Button>
           </DialogFooter>
         </form>
       </DialogContent>
