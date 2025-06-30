@@ -3,11 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+// import { Festive } from "next/font/google";
 
 export default function Nav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navLinks = [
-    { name: "Categories", href: "/collections" },
+    { name: "Festivals", href: "/festivals" },
+    // { name: "Categories", href: "/collections" },
     { name: "Baby", href: "/baby" },
     // { name: "Baby", href: "/collections/baby" },
     // { name: "Wedding", href: "/collections/wedding" },
