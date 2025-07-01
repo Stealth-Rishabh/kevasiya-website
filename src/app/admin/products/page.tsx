@@ -177,6 +177,32 @@ function ProductDialog({
     setExistingGalleryUrls((prev) => prev.filter((url) => url !== urlToRemove));
   };
 
+  const handleGalleryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const newFiles = Array.from(e.target.files);
+    const existingFileNames = new Set(
+      existingGalleryUrls.map((url) => url.split("/").pop())
+    );
+    const stagedFileNames = new Set(galleryFiles.map((f) => f.name));
+
+    const uniqueNewFiles = newFiles.filter(
+      (file) =>
+        !stagedFileNames.has(file.name) && !existingFileNames.has(file.name)
+    );
+
+    if (uniqueNewFiles.length < newFiles.length) {
+      alert("Skipped adding duplicate images (same filename).");
+    }
+
+    if (uniqueNewFiles.length > 0) {
+      setGalleryFiles((prev) => [...prev, ...uniqueNewFiles]);
+    }
+
+    // Reset the file input so the same file can be selected again if removed
+    e.target.value = "";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
@@ -201,18 +227,16 @@ function ProductDialog({
     }
 
     if (product) {
-      // The backend needs to know which images to keep.
-      // We send the main image first, then the gallery images.
-      const finalExistingImages = [];
+      // Send a clear signal to the backend about which images to keep and remove
       if (existingMainImageUrl) {
-        finalExistingImages.push(existingMainImageUrl);
+        formData.append("existing_main_image", existingMainImageUrl);
       }
-      finalExistingImages.push(...existingGalleryUrls);
 
-      finalExistingImages.forEach((img) =>
-        formData.append("existing_images", img)
+      existingGalleryUrls.forEach((url) =>
+        formData.append("existing_gallery_images", url)
       );
-      imagesToRemove.forEach((img) => formData.append("images_to_remove", img));
+
+      imagesToRemove.forEach((url) => formData.append("images_to_remove", url));
     }
 
     const apiUrl = getApiUrl();
@@ -417,17 +441,7 @@ function ProductDialog({
                       type="file"
                       accept="image/*"
                       multiple
-                      onChange={(e) => {
-                        if (e.target.files) {
-                          setGalleryFiles((prevFiles) => [
-                            ...prevFiles,
-                            ...Array.from(e.target.files as FileList),
-                          ]);
-                        }
-                        if (galleryInputRef.current) {
-                          galleryInputRef.current.value = "";
-                        }
-                      }}
+                      onChange={handleGalleryFileChange}
                     />
                     {galleryPreviews.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
