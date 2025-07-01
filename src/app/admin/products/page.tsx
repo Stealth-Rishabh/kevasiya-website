@@ -205,6 +205,23 @@ function ProductDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Stricter validation for new products
+    if (!product) {
+      if (!imageFile) {
+        alert("A main image is required to create a new product.");
+        return;
+      }
+      if (!categoryId) {
+        alert("A category is required to create a new product.");
+        return;
+      }
+      if (!subCategoryId) {
+        alert("A sub-category is required to create a new product.");
+        return;
+      }
+    }
+
     const formData = new FormData();
 
     formData.append("name", name);
@@ -280,7 +297,7 @@ function ProductDialog({
                   placeholder="e.g. 'Welcome Baby' Gift Box"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  required
+                  // required
                 />
               </div>
 
@@ -303,7 +320,7 @@ function ProductDialog({
                     placeholder="e.g. 2499 or 'Price on Request'"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    required
+                    // required
                   />
                 </div>
                 <div className="grid gap-2">
@@ -477,7 +494,7 @@ function ProductDialog({
                           Current Gallery Images
                         </Label>
                         <div className="mt-2 flex flex-wrap gap-2">
-                          {existingGalleryUrls.map((url) => (
+                          {existingGalleryUrls.reverse().map((url) => (
                             <div key={url} className="relative group">
                               <Image
                                 src={url}
