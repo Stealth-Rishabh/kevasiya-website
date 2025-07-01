@@ -124,7 +124,7 @@ export default function ProductDetailsClient({
             <div className="mt-8">
               {product.packaging && (
                 <p className="text-md text-gray-700 font-semibold mt-4">
-                  {product.packaging}
+                  Packaging: {product.packaging}
                 </p>
               )}
             </div>
