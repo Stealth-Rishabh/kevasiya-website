@@ -44,14 +44,17 @@ async function getSubcategoryInfo(
 ): Promise<Subcategory | undefined> {
   try {
     const apiUrl = getApiUrl();
-    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`);
+    const catRes = await fetch(`${apiUrl}/categories?slug=${categorySlug}`, {
+      cache: "no-store",
+    });
     if (!catRes.ok) return undefined;
     const categories: Category[] = await catRes.json();
     const parentCategory = categories[0];
     if (!parentCategory) return undefined;
 
     const subCatRes = await fetch(
-      `${apiUrl}/subcategories?category_id=${parentCategory.id}`
+      `${apiUrl}/subcategories?category_id=${parentCategory.id}`,
+      { cache: "no-store" }
     );
     if (!subCatRes.ok) return undefined;
     const subcategories: Subcategory[] = await subCatRes.json();
@@ -71,7 +74,7 @@ async function getProductsBySubcategoryId(
     const res = await fetch(
       `${apiUrl}/products?subcategory_id=${subcategoryId}`,
       {
-        next: { tags: ["products"] },
+        cache: "no-store",
       }
     );
     if (!res.ok) return [];

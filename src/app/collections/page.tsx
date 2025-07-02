@@ -14,7 +14,8 @@ async function getCollections(): Promise<Collection[]> {
     const apiUrl = getApiUrl();
 
     const res = await fetch(`${apiUrl}/categories`, {
-      next: { tags: ["categories"] },
+      // next: { tags: ["categories"] },
+      cache: "no-store", // Disable cache to ensure fresh data
     });
     if (!res.ok) {
       throw new Error(`Failed to fetch collections: ${res.statusText}`);
