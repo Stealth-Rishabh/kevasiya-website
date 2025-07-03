@@ -62,7 +62,7 @@ async function getBabyPageData() {
       { cache: "no-store" } // Products might change more often
     );
     if (!prodRes.ok) throw new Error("Failed to fetch products");
-    let products: Product[] = await prodRes.json();
+    const products: Product[] = await prodRes.json();
 
     // 4. Process the products: augment, shuffle, and slice
     const processedProducts = products

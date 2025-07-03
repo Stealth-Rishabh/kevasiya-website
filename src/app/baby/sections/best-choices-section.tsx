@@ -60,7 +60,7 @@ const subcategoryDetails = [
     description:
       "Mark the traditional Mundan ceremony with thoughtful hampers and showcases.",
     options: ["Mundan Hampers", "Ceremony Showcases", "Custom Mundan Gifts"],
-      button: "Explore Gifts",
+    button: "Explore Gifts",
   },
 ];
 
@@ -139,7 +139,7 @@ export function BestChoicesSection({
                   >
                     <Button className="w-full bg-[#AE8F65] hover:bg-[#967a58] text-white rounded-full">
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      {details ? details.button : "Book Your "}
+                      {details ? details.button : "Explore Gifts"}
                     </Button>
                   </Link>
                 </CardContent>

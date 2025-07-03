@@ -19,7 +19,7 @@ interface Category {
   slug: string;
 }
 
-async function getWeddingProducts() {
+async function getWeddingProducts(): Promise<Product[]> {
   const apiUrl = getApiUrl();
   const categorySlug = "wedding";
 
@@ -38,7 +38,8 @@ async function getWeddingProducts() {
     );
     if (!prodRes.ok) throw new Error("Failed to fetch wedding products");
 
-    return prodRes.json();
+    const products: Product[] = await prodRes.json();
+    return products;
   } catch (error) {
     console.error("Error fetching wedding products:", error);
     return [];
