@@ -4,8 +4,32 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
-import { products } from "./productData";
-export function ProductListSection() {
+import Link from "next/link";
+
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  image: string;
+}
+
+interface ProductListSectionProps {
+  products: Product[];
+}
+
+export function ProductListSection({ products }: ProductListSectionProps) {
+  if (!products || products.length === 0) {
+    return (
+      <section className="py-10 sm:py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-lg text-gray-600">
+            Wedding gifts are being prepared. Please check back soon!
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-10 sm:py-20 px-4 bg-white" id="products">
       <div className="max-w-7xl mx-auto">
@@ -21,57 +45,36 @@ export function ProductListSection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product, index) => (
-            <Card
-              key={index}
-              // className="group hover:shadow-xl transition-all duration-300 border-[#e8dcc8] py-0"
-              className="group shadow-none transition-all duration-300 border-none py-0"
+          {products.map((product) => (
+            <Link
+              key={product.id}
+              href={`/products/${product.slug}`}
+              className="group block"
             >
-              <CardContent className="p-4">
-                <div className="relative mb-4">
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    width={200}
-                    height={200}
-                    className="w-full h-80 object-cover hover:shadow rounded group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {/* <Button
-                    size="sm"
-                    className="absolute w-10 h-10 top-2 right-2 bg-white/90 text-[#3A5A40] hover:bg-white rounded-full p-2"
-                  >
-                    <Heart className="w-4 h-4" />
-                  </Button> */}
-                </div>
-                {/* <h3 className="font-semibold text-[#3A5A40] mb-2">
-                  {product.name}
-                </h3> */}
-                {/* <div className="flex items-center mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i < product.rating
-                          ? "text-yellow-400 fill-current"
-                          : "text-gray-300"
-                      }`}
+              <Card className="group shadow-none transition-all duration-300 border-none py-0">
+                <CardContent className="p-4">
+                  <div className="relative mb-4">
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      width={200}
+                      height={200}
+                      className="w-full h-80 object-cover hover:shadow rounded group-hover:scale-105 transition-transform duration-300"
                     />
-                  ))}
-                </div> */}
-                <div className="flex items-center justify-between">
-                  {/* <span className="text-lg font-bold text-[#AE8F65]">
-                    {product.price}
-                  </span> */}
+                  </div>
                   <Button
                     size="sm"
                     className="bg-[#3A5A40] hover:bg-[#334d38] text-white rounded mt-2 w-full"
+                    asChild
                   >
-                    Get the Price
-                    <ShoppingCart className="ml-2 w-4 h-4" />
+                    <div>
+                      View Details
+                      <ShoppingCart className="ml-2 w-4 h-4" />
+                    </div>
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

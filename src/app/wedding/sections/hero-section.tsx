@@ -80,11 +80,11 @@ export function HeroSection() {
           </div>
 
           {/* Scroll Indicator */}
-          <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce hidden sm:block">
+          {/* <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce hidden sm:block">
             <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
               <div className="w-1 h-3 bg-white/70 rounded-full mt-2 ml-[1px] animate-pulse"></div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

@@ -216,10 +216,10 @@ function ProductDialog({
         alert("A category is required to create a new product.");
         return;
       }
-      if (!subCategoryId) {
-        alert("A sub-category is required to create a new product.");
-        return;
-      }
+      // if (!subCategoryId) {
+      //   alert("A sub-category is required to create a new product.");
+      //   return;
+      // }
     }
 
     const formData = new FormData();

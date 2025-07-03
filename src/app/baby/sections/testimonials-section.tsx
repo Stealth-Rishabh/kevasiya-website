@@ -20,7 +20,7 @@ export function TestimonialsSection() {
       content:
         "I wish I had discovered these products with my first baby! The smart nursery solutions made nighttime so much easier. The sleep monitoring gave me confidence and better rest knowing my baby was safe.",
       rating: 5,
-      image: "/images/parent2.png",
+      image: "/images/parent1.png",
     },
     {
       name: "David & Lisa",
@@ -74,7 +74,7 @@ export function TestimonialsSection() {
                     alt={testimonial.name}
                     width={80}
                     height={80}
-                    className="w-12 h-12 rounded-full mr-4"
+                    className="w-12 h-12 object-cover rounded-full mr-4"
                   />
                   <div>
                     <h4 className="font-semibold text-[#3A5A40]">
