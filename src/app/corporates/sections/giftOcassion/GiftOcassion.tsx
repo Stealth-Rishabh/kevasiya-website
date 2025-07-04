@@ -4,8 +4,18 @@ import { motion, useInView } from "framer-motion";
 import Container from "../../components/Container";
 import Image from "next/image";
 import Button from "../../components/Button";
+import { MorphingText } from "@/components/magicui/morphing-text";
 
 const GiftOcassion = () => {
+
+  const texts = [
+    "Birthday",
+    "Anniversary",
+    "Onboarding",
+    "Rewards",
+    "Diwali",
+  ];
+
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
@@ -101,13 +111,11 @@ const GiftOcassion = () => {
               className="object-cover "
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
-            <div className="absolute bottom-10 left-0 right-0 text-center z-20">
-              <motion.h2
-                variants={textFadeIn}
-                className="text-[#FBE0C2] text-3xl sm:text-5xl "
-              >
-                Birthday
-              </motion.h2>
+            <div className="absolute bottom-0 left-0 right-0 text-center z-20">
+              <MorphingText
+                texts={texts}
+                className="text-[#FBE0C2] !text-5xl"
+              />
             </div>
           </motion.div>
         </section>
