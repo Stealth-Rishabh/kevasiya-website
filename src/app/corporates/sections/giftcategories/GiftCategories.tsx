@@ -178,9 +178,9 @@ const GiftCategories = () => {
                       variants={textFadeIn}
                       className="text-white text-3xl font-serif"
                     >
-                      Client
+                      Special
                       <br />
-                      Appreciation
+                      Occasions
                     </motion.h2>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 transition-colors z-10"></div>
@@ -192,7 +192,7 @@ const GiftCategories = () => {
                 variants={cardSlideIn}
                 className="relative overflow-hidden h-80 sm:h-[230px]"
               >
-                <Link href="/collections/corporates/clients">
+                <Link href="/collections/corporates/corporate-diwali">
                   <motion.div whileHover="hover" variants={imageHoverEffect}>
                     <Image
                       src="/images/categories/categories (5).webp"
