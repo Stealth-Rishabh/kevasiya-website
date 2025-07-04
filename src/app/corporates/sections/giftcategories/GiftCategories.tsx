@@ -73,7 +73,7 @@ const GiftCategories = () => {
             variants={cardSlideIn}
             className="md:col-span-5 relative overflow-hidden sm:rounded-bl-[7rem] h-80 sm:h-[600px]"
           >
-            <Link href="#rewards-recognition">
+            <Link href="/collections/corporates/reward-and-recognitions">
               <motion.div whileHover="hover" variants={imageHoverEffect}>
                 <Image
                   src="/images/categories/categories (1).webp"
@@ -105,7 +105,7 @@ const GiftCategories = () => {
               variants={cardSlideIn}
               className="relative overflow-hidden sm:rounded-tr-[7rem] h-80 sm:h-[345px]"
             >
-              <Link href="#work-anniversary">
+              <Link href="/collections/corporates/work-anniversary">
                 <motion.div whileHover="hover" variants={imageHoverEffect}>
                   <Image
                     src="/images/categories/categories (2).webp"
@@ -136,7 +136,7 @@ const GiftCategories = () => {
                 variants={cardSlideIn}
                 className="relative overflow-hidden h-80 sm:h-[230px]"
               >
-                <Link href="#employee-onboarding">
+                <Link href="/collections/corporates/onboarding">
                   <motion.div whileHover="hover" variants={imageHoverEffect}>
                     <Image
                       src="/images/categories/categories (3).webp"
@@ -164,7 +164,7 @@ const GiftCategories = () => {
                 variants={cardSlideIn}
                 className="relative overflow-hidden h-80 sm:h-[230px]"
               >
-                <Link href="#client-appreciation">
+                <Link href="/collections/corporates/special-occasions">
                   <motion.div whileHover="hover" variants={imageHoverEffect}>
                     <Image
                       src="/images/categories/categories (4).webp"
@@ -192,7 +192,7 @@ const GiftCategories = () => {
                 variants={cardSlideIn}
                 className="relative overflow-hidden h-80 sm:h-[230px]"
               >
-                <Link href="#clients">
+                <Link href="/collections/corporates/clients">
                   <motion.div whileHover="hover" variants={imageHoverEffect}>
                     <Image
                       src="/images/categories/categories (5).webp"
