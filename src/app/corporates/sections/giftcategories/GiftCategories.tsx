@@ -206,7 +206,9 @@ const GiftCategories = () => {
                       variants={textFadeIn}
                       className="text-white text-3xl font-serif"
                     >
-                      Clients
+                      Corporate
+                      <br />
+                      Diwali
                     </motion.h2>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 transition-colors z-10"></div>
