@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 export default function Nav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navLinks = [
-    { name: "Festivals", href: "/festivals" },
+    { name: "Festival", href: "/festival" },
     // { name: "Categories", href: "/collections" },
     { name: "Baby", href: "/baby" },
     // { name: "Baby", href: "/collections/baby" },
