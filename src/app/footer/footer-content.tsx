@@ -181,7 +181,7 @@ export function FooterContent() {
 
                 {/* Contact Info */}
                 <div className="space-y-4 mb-8">
-                  <div className="flex items-center gap-3 hover:text-kevasiya-gold transition-colors duration-300">
+                  <div className="flex items-start gap-3 hover:text-kevasiya-gold transition-colors duration-300">
                     <FiMapPin className="w-5 h-5 flex-shrink-0" />
                     <span>52, North Ave, Punjabi Bagh, Delhi, 110026</span>
                   </div>
@@ -219,16 +219,16 @@ export function FooterContent() {
               {/* Categories */}
               <motion.div variants={itemVariants}>
                 <h4 className="text-xl font-semibold text-white mb-6 relative">
-                  Categories
+                  Pages
                   <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-kevasiya-gold"></div>
                 </h4>
                 <ul className="space-y-3">
                   {[
                     { name: "Baby", href: "/baby" },
-                    { name: "Wedding", href: "/collections/wedding" },
+                    { name: "Wedding", href: "/wedding" },
                     { name: "Corporates", href: "/corporates" },
                     // { name: "Occasions", href: "/collections/occasions" },
-                    // { name: "Festive", href: "/collections/festive" },
+                    { name: "Festival", href: "/festival" },
                     // { name: "Home Decor", href: "/collections/home-decor" },
                   ].map((category) => (
                     <li key={category.name}>
@@ -252,7 +252,11 @@ export function FooterContent() {
                 </h4>
                 <ul className="space-y-3">
                   {[
-                    { name: "All Gifts", href: "/collections/all" },
+                    { name: "All Gifts", href: "/collections" },
+                    { name: "Baby Hampers", href: "/collections/baby-hampers" },
+                    { name: "Corporate Hampers", href: "/collections/corporates" },
+                    { name: "Festival Hampers", href: "/collections/festival" },
+                    { name: "Wedding Hampers", href: "/collections/wedding" },
                     // {
                     //   name: "Bestsellers",
                     //   href: "/collections/bestsellers",
@@ -287,8 +291,8 @@ export function FooterContent() {
                 <ul className="space-y-3">
                   {[
                     { name: "About Us", href: "/about" },
-                    { name: "Our Story", href: "/story" },
-                    { name: "Blog", href: "/blog" },
+                    // { name: "Our Story", href: "/story" },
+                    // { name: "Blog", href: "/blog" },
                     { name: "Contact Us", href: "/contact" },
                     { name: "FAQs", href: "/faq" },
                     { name: "Privacy Policy", href: "/privacy-policy" },
