@@ -91,8 +91,8 @@ export function ProductListSection({ products }: ProductListSectionProps) {
             Gifts for Every Joyous Occasion
           </h2>
           <p className="text-xl text-[#AE8F65] max-w-3xl mx-auto leading-relaxed">
-            From vibrant Diwali hampers to elegant Eid gifts, we've selected
-            each item to bring joy and light to your celebrations.
+            From vibrant Diwali hampers to elegant Eid gifts, we&apos;ve
+            selected each item to bring joy and light to your celebrations.
           </p>
         </div>
 
