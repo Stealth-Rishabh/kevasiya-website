@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Home, Package, Package2, Boxes } from "lucide-react";
 
 export default function AdminLayout({
@@ -6,6 +9,12 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  const isDashboardActive = pathname === "/admin";
+  const isCategoriesActive = pathname.startsWith("/admin/categories");
+  const isProductsActive = pathname.startsWith("/admin/products");
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -20,21 +29,33 @@ export default function AdminLayout({
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               <Link
                 href="/admin"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                  isDashboardActive
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground"
+                }`}
               >
                 <Home className="h-4 w-4" />
                 Dashboard
               </Link>
               <Link
                 href="/admin/categories"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                  isCategoriesActive
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground"
+                }`}
               >
                 <Boxes className="h-4 w-4" />
                 Categories
               </Link>
               <Link
                 href="/admin/products"
-                className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                  isProductsActive
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground"
+                }`}
               >
                 <Package className="h-4 w-4" />
                 Products{" "}
