@@ -47,7 +47,7 @@ export function CTASection() {
           </h2>
           <p className="text-xl text-[#e3e7e3] leading-relaxed">
             Join our community to get exclusive offers, gift ideas, and updates
-            on our latest festival collections. Let's make every occasion
+            on our latest festival collections. Let&apos;s make every occasion
             special together.
           </p>
         </div>
