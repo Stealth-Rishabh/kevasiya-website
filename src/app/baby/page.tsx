@@ -89,8 +89,8 @@ export default async function BabyAnnouncementPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white">
       <HeroSection />
-      <BestChoicesSection subcategories={subcategories} category={category} />
       <ProductListSection products={randomProducts} />
+      <BestChoicesSection subcategories={subcategories} category={category} />
       <TestimonialsSection />
       <CTASection />
     </div>

@@ -52,8 +52,8 @@ export default async function WeddingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white">
       <HeroSection />
-      <BestChoicesSection />
       <ProductListSection products={products} />
+      <BestChoicesSection />
       <TestimonialsSection />
       <CTASection />
     </div>
