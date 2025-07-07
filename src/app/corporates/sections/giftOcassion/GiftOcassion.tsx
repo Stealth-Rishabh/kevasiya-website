@@ -5,9 +5,10 @@ import Container from "../../components/Container";
 import Image from "next/image";
 import Button from "../../components/Button";
 import { MorphingText } from "@/components/magicui/morphing-text";
+import Link from "next/link";
 
 const GiftOcassion = () => {
-  const texts = ["Birthday", "Anniversary", "Onboarding", "Rewards", "Diwali"];
+  const texts = [ "Anniversary", "Onboarding", "Rewards", "Diwali"];
 
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
@@ -83,9 +84,11 @@ const GiftOcassion = () => {
               variants={textElementFadeInUp}
               className="flex justify-center sm:justify-start"
             >
-              <Button className="!mt-4 text-3xl w-fit sm:py-4 sm:px-8 mx-auto sm:mx-0 animate-pulse">
-                Contact Us
-              </Button>
+              <Link href="/contact">
+                <Button className="!mt-4 text-3xl w-fit sm:py-4 sm:px-8 mx-auto sm:mx-0 animate-pulse cursor-pointer">
+                  Contact Us
+                </Button>
+              </Link>
             </motion.div>
           </motion.div>
           <motion.div

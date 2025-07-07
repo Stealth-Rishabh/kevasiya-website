@@ -73,11 +73,11 @@ const GiftCategories = () => {
             variants={cardSlideIn}
             className="md:col-span-5 relative overflow-hidden sm:rounded-bl-[7rem] h-80 sm:h-[600px]"
           >
-            <Link href="/collections/corporates/reward-and-recognitions">
+            <Link href="/collections/corporates/corporate-diwali">
               <motion.div whileHover="hover" variants={imageHoverEffect}>
                 <Image
                   src="/images/categories/categories (1).webp"
-                  alt="Rewards and recognition gift box with wine and gourmet items"
+                  alt="Corporate Diwali gift box with wine and gourmet items"
                   fill
                   className="object-cover"
                 />
@@ -87,8 +87,8 @@ const GiftCategories = () => {
                   variants={textFadeIn}
                   className="text-white text-3xl font-serif"
                 >
-                  Rewards &<br />
-                  recognition
+                  Corporate<br />
+                  Diwali
                 </motion.h2>
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 transition-colors z-10"></div>
@@ -192,7 +192,7 @@ const GiftCategories = () => {
                 variants={cardSlideIn}
                 className="relative overflow-hidden h-80 sm:h-[230px]"
               >
-                <Link href="/collections/corporates/corporate-diwali">
+                <Link href="/collections/corporates/reward-and-recognitions">
                   <motion.div whileHover="hover" variants={imageHoverEffect}>
                     <Image
                       src="/images/categories/categories (5).webp"
@@ -206,9 +206,8 @@ const GiftCategories = () => {
                       variants={textFadeIn}
                       className="text-white text-3xl font-serif"
                     >
-                      Corporate
-                      <br />
-                      Diwali
+                      Rewards &<br />
+                      Recognition
                     </motion.h2>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 transition-colors z-10"></div>
