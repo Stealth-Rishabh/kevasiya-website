@@ -87,14 +87,13 @@ function AnimatedCard({
     </motion.div>
   );
 }
-
 const cardData = [
   {
     custom: 0,
     image: "/images/baby/boy/boy (6).jpeg",
-    title: "Baby Announcement",
+    title: "Baby Hampers",
     description: "A beautiful way to announce the arrival of your baby",
-    className: "md:col-span-1 md:row-span-2",
+    className: "md:col-span-1 ",
     path: "/baby",
   },
   {
@@ -102,7 +101,7 @@ const cardData = [
     image: "/cardImages/cardOne.webp",
     title: "Corporate Gifting",
     description: "A beautiful way to gift your loved ones",
-    className: "md:col-span-1 md:row-span-2",
+    className: "md:col-span-1 sm:mt-16",
     path: "/corporates",
   },
   {
@@ -110,34 +109,88 @@ const cardData = [
     image: "/images/wedding/products/wedding (1).webp",
     title: "Wedding Gifts",
     description: "A beautiful way to invite your loved ones",
-    className: "md:col-span-2",
+    className: "md:col-span-1",
     path: "/wedding",
   },
-  // {
-  //   custom: 4,
-  //   image: "/cardImages/cardTwo.webp",
-  //   title: "Special Occasion",
-  //   description: "A beautiful way to gift your loved ones",
-  //   className: "md:col-span-1",
-  // },
+  {
+    custom: 4,
+    image: "/cardImages/cardTwo.webp",
+    title: "Festive Occasions",
+    description: "A beautiful way to gift your loved ones",
+    className: "md:col-span-1 sm:mt-16",
+    path: "/festival",
+  },
 ];
+
+// Animation for floating effect - alternating up and down
+const getFloatingAnimation = (index: number) => {
+  // Alternate between up and down movement
+  const direction = index % 2 === 0 ? 1 : -1;
+  
+  return {
+    y: [0, 15 * direction, 0],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  };
+};
+
+const itemVariants = {
+  hidden: { y: 30, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      damping: 12,
+      stiffness: 100,
+    },
+  },
+};
 
 export default function CardSection() {
   return (
     <section className="py-20 px-4 max-w-7xl mx-auto">
-      <h2 className="text-center font-semibold text-4xl md:text-5xl font-serif text-[#3a5a40] mb-12">
-        Specially Curated
-      </h2>
+      <motion.div
+          variants={itemVariants}
+          className="text-center mb-5 md:mb-5"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#3a5a40] mb-4">
+            Specially Curated
+          </h2>
+          <motion.p
+            variants={itemVariants}
+            className="text-lg text-[#5a6d5c] max-w-2xl mx-auto"
+          >
+           Choose from our carefully curated collection of gifts
+          </motion.p>
+        </motion.div>
+
+        {/* Animated Divider */}
+        <motion.div
+          variants={itemVariants}
+          className="flex justify-center "
+        >
+          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full"></div>
+        </motion.div>
+
 
       {/* Desktop Grid - Fixed height and smaller gap */}
-      <div className="hidden md:grid grid-cols-2 gap-4">
+      <div className="hidden md:grid grid-cols-4 gap-4 mt-16">
         {cardData.map((card, index) => (
           <Link
             href={card.path}
             key={index}
             className={`cursor-pointer ${card.className}`}
           >
-            <AnimatedCard {...card} className=" h-[450px]" />
+            <motion.div
+              animate={getFloatingAnimation(index)}
+              style={{ display: 'block' }}
+            >
+              <AnimatedCard {...card} className=" h-[450px]" />
+            </motion.div>
           </Link>
         ))}
       </div>

@@ -72,16 +72,30 @@ const WhyKevasiya: React.FC = () => {
   return (
     <section className="py-16 md:py-24 bg-white text-gray-900">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-[#3a5a40] font-extrabold tracking-tight ">
-            Why Choose <span className="text-kevasiya-gold">Kevasiya</span>?
+         {/* Animated Heading */}
+         <motion.div
+          variants={itemVariants}
+          className="text-center mb-5 md:mb-5"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#3a5a40] mb-4">
+          Why Choose <span className="text-kevasiya-gold">Kevasiya</span>?
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-            Experience the difference with our commitment to quality and
+          <motion.p
+            variants={itemVariants}
+            className="text-lg text-[#5a6d5c] max-w-2xl mx-auto"
+          >
+          Experience the difference with our commitment to quality and
             customer satisfaction.
-          </p>
-          <div className="mt-6 w-24 h-1.5 bg-kevasiya-gold mx-auto rounded-full"></div>
-        </div>
+          </motion.p>
+        </motion.div>
+
+        {/* Animated Divider */}
+        <motion.div
+          variants={itemVariants}
+          className="flex justify-center mb-12 md:mb-16"
+        >
+          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full"></div>
+        </motion.div>
 
         <motion.div
           ref={ref}

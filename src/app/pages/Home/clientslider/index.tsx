@@ -59,7 +59,7 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
         {/* Animated Heading */}
         <motion.div
           variants={itemVariants}
-          className="text-center mb-12 md:mb-16"
+          className="text-center mb-5 md:mb-5"
         >
           <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#3a5a40] mb-4">
             Trusted By Industry Leaders
@@ -78,7 +78,7 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
           variants={itemVariants}
           className="flex justify-center mb-12 md:mb-16"
         >
-          <div className="h-1 w-24 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full"></div>
+          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full"></div>
         </motion.div>
 
         {/* Marquee with enhanced styling */}
@@ -97,12 +97,12 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
         </motion.div>
 
         {/* Optional CTA */}
-        <Link href="#" className="cursor-pointer flex justify-center">
+        <Link href="/contact" className="cursor-pointer flex justify-center">
           <motion.div
             variants={itemVariants}
             className="mt-16 text-center animate-bounce "
           >
-            <button className="px-8 py-3 bg-[#3a5a40] text-white rounded-lg hover:bg-[#2d3a2e] transition-colors duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+            <button className="px-8 py-3 bg-[#3a5a40] text-white rounded-lg hover:bg-[#2d3a2e]  shadow-md hover:shadow-lg flex items-center justify-center gap-2 hover:scale-105 cursor-pointer  transition-all duration-300">
               Become a Partner  
               <Handshake className="w-4 h-4 mt-1" />
             </button>

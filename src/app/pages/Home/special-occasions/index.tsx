@@ -121,30 +121,44 @@ const AnimatedCard = ({
   );
 };
 
+const itemVariants = {
+  hidden: { y: 30, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      damping: 12,
+      stiffness: 100,
+    },
+  },
+};
 const SpecialOccasions: React.FC = () => {
   return (
     <section className="py-16 md:py-24 bg-slate-50">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true, margin: "-100px" }}
-          className="text-center mb-12 md:mb-16"
+             {/* Animated Heading */}
+             <motion.div
+          variants={itemVariants}
+          className="text-center mb-5 md:mb-5"
         >
-          <h2 className="text-3xl md:text-5xl font-bold font-serif text-[#3a5a40] mb-4">
-            Special Occasions
+          <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#3a5a40] mb-4">
+          Special Occasions
           </h2>
-          <p className="mt-3 text-base sm:text-lg max-w-2xl mx-auto text-[#5a6d5c]">
-            Making every celebration memorable with the perfect gift.
-          </p>
-          <motion.div
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="mt-6 w-24 h-1 bg-[#AE8F65] mx-auto rounded-full"
-          />
+          <motion.p
+            variants={itemVariants}
+            className="text-lg text-[#5a6d5c] max-w-2xl mx-auto"
+          >
+          Making every celebration memorable with the perfect gift.
+          </motion.p>
+        </motion.div>
+
+        {/* Animated Divider */}
+        <motion.div
+          variants={itemVariants}
+          className="flex justify-center mb-12 md:mb-16"
+        >
+          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full"></div>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 md:px-4 sm:px-0">
