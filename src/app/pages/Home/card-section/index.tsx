@@ -1,14 +1,8 @@
 "use client";
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -87,6 +81,47 @@ function AnimatedCard({
     </motion.div>
   );
 }
+
+function MobileCard({
+  image,
+  title,
+  description,
+  className,
+}: {
+  image: string;
+  title: string;
+  description: string;
+  className?: string;
+}) {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.3,
+  });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0 }}
+      animate={inView ? { opacity: 1 } : { opacity: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={`relative group overflow-hidden rounded-xl shadow-lg flex-shrink-0 ${className}`}
+    >
+      <Image
+        src={image}
+        alt={title}
+        width={400}
+        height={500}
+        className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+      <div className="absolute bottom-0 left-0 p-6 text-white">
+        <h3 className="text-xl font-semibold font-serif">{title}</h3>
+        <p className="text-gray-200 mt-1 text-sm">{description}</p>
+      </div>
+    </motion.div>
+  );
+}
+
 const cardData = [
   {
     custom: 0,
@@ -126,14 +161,14 @@ const cardData = [
 const getFloatingAnimation = (index: number) => {
   // Alternate between up and down movement
   const direction = index % 2 === 0 ? 1 : -1;
-  
+
   return {
     y: [0, 15 * direction, 0],
     transition: {
       duration: 3,
       repeat: Infinity,
-      ease: "easeInOut"
-    }
+      ease: "easeInOut",
+    },
   };
 };
 
@@ -151,12 +186,36 @@ const itemVariants = {
 };
 
 export default function CardSection() {
+  const scrollTrackRef = useRef<HTMLDivElement>(null);
+  const cardsContainerRef = useRef<HTMLDivElement>(null);
+  const [maxScrollWidth, setMaxScrollWidth] = useState(0);
+
+  useEffect(() => {
+    const calculateWidth = () => {
+      if (cardsContainerRef.current) {
+        const scrollWidth = cardsContainerRef.current.scrollWidth;
+        const parentWidth =
+          cardsContainerRef.current.parentElement!.clientWidth;
+        setMaxScrollWidth(scrollWidth - parentWidth);
+      }
+    };
+
+    calculateWidth();
+    window.addEventListener("resize", calculateWidth);
+    return () => window.removeEventListener("resize", calculateWidth);
+  }, []);
+
+  const { scrollYProgress } = useScroll({
+    target: scrollTrackRef,
+    offset: ["start start", "end end"],
+  });
+
+  const x = useTransform(scrollYProgress, [0, 1], [0, -maxScrollWidth]);
+
   return (
     <section className="py-20 px-4 max-w-7xl mx-auto">
-      <motion.div
-          variants={itemVariants}
-          className="text-center mb-5 md:mb-5"
-        >
+      <div className="hidden md:block text-center mb-12">
+        <motion.div className="text-center mb-5 md:mb-5">
           <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#3a5a40] mb-4">
             Specially Curated
           </h2>
@@ -164,18 +223,15 @@ export default function CardSection() {
             variants={itemVariants}
             className="text-lg text-[#5a6d5c] max-w-2xl mx-auto"
           >
-           Choose from our carefully curated collection of gifts
+            Choose from our carefully curated collection of gifts
           </motion.p>
         </motion.div>
 
         {/* Animated Divider */}
-        <motion.div
-          variants={itemVariants}
-          className="flex justify-center "
-        >
+        <motion.div className="flex justify-center ">
           <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full"></div>
         </motion.div>
-
+      </div>
 
       {/* Desktop Grid - Fixed height and smaller gap */}
       <div className="hidden md:grid grid-cols-4 gap-4 mt-16">
@@ -187,7 +243,7 @@ export default function CardSection() {
           >
             <motion.div
               animate={getFloatingAnimation(index)}
-              style={{ display: 'block' }}
+              style={{ display: "block" }}
             >
               <AnimatedCard {...card} className=" h-[450px]" />
             </motion.div>
@@ -195,31 +251,39 @@ export default function CardSection() {
         ))}
       </div>
 
-      {/* Mobile Slider */}
-      <div className="md:hidden">
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full"
-        >
-          <CarouselContent>
-            {cardData.map((card, index) => (
-              <CarouselItem key={index} className="basis-11/12">
-                <Link href={card.path}>
-                  <div className="p-1 h-[450px]">
-                    <AnimatedCard {...card} className="h-full" />
-                  </div>
-                </Link>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <div className="hidden sm:block">
-            <CarouselPrevious className="left-0" />
-            <CarouselNext className="right-0" />
+      {/* Mobile Horizontal Scroll */}
+      <div ref={scrollTrackRef} className="md:hidden mt-8 relative h-[300vh]">
+        <div className="sticky top-20 w-full">
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold font-serif text-[#3a5a40] mb-4">
+              Specially Curated
+            </h2>
+            <p className="text-lg text-[#5a6d5c] max-w-2xl mx-auto">
+              Choose from our carefully curated collection of gifts
+            </p>
+            <div className="flex justify-center mt-4">
+              <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full"></div>
+            </div>
           </div>
-        </Carousel>
+          <div className="overflow-hidden">
+            <motion.div
+              ref={cardsContainerRef}
+              style={{ x }}
+              className="flex gap-4"
+            >
+              {cardData.map((card, index) => (
+                <Link key={index} href={card.path} className="block">
+                  <MobileCard
+                    image={card.image}
+                    title={card.title}
+                    description={card.description}
+                    className="w-[280px] h-[400px]"
+                  />
+                </Link>
+              ))}
+            </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
