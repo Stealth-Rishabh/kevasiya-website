@@ -150,7 +150,7 @@ export default function TrendingCarousel() {
     setIsAutoPlaying(true);
   };
 
-  const getBadgeColor = (type: string, brightness: "light" | "dark") => {
+  const getBadgeColor = (type: string) => {
     const baseClasses = "backdrop-blur-sm border border-white/20";
     switch (type) {
       case "hot":
@@ -218,7 +218,8 @@ export default function TrendingCarousel() {
             variants={itemVariants}
             className="text-lg text-[#5a6d5c] max-w-2xl mx-auto"
           >
-            Discover what corporate leaders are choosing. Data-driven selections that deliver impact.
+            Discover what corporate leaders are choosing. Data-driven selections
+            that deliver impact.
           </motion.p>
         </motion.div>
 
@@ -275,8 +276,7 @@ export default function TrendingCarousel() {
                         <div className="flex flex-col gap-2">
                           <Badge
                             className={`${getBadgeColor(
-                              product.badge.type,
-                              product.imageBrightness
+                              product.badge.type
                             )} flex items-center gap-1 text-xs font-semibold`}
                           >
                             {getBadgeIcon(product.badge.type)}
@@ -467,13 +467,13 @@ export default function TrendingCarousel() {
         {/* View All CTA */}
         <div className="text-center mt-8">
           <Link href="/collections">
-          <Button
-            variant="outline"
-            size="lg"
-            className="border-2 border-[#4A674F] text-[#4A674F] hover:bg-[#4A674F] hover:text-white bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-300 hover:scale-105"
-          >
-            Explore Premium Gifts <TrendingUp className="ml-1 mt-1 w-4 h-4" />
-          </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-2 border-[#4A674F] text-[#4A674F] hover:bg-[#4A674F] hover:text-white bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-300 hover:scale-105"
+            >
+              Explore Premium Gifts <TrendingUp className="ml-1 mt-1 w-4 h-4" />
+            </Button>
           </Link>
         </div>
       </div>
