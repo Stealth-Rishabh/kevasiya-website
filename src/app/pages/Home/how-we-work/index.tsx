@@ -1,15 +1,24 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Gift, Pen, Headphones, MessageSquare, ChevronRight, Sparkles } from "lucide-react"
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Gift,
+  Pen,
+  Headphones,
+  MessageSquare,
+  ChevronRight,
+  Sparkles,
+} from "lucide-react";
+import { motion, useInView } from "framer-motion";
 
 const steps = [
   {
     number: 1,
     icon: Gift,
     label: "Choose the Gift",
-    description: "Browse curated hampers for Baby, Wedding, Corporate or Festive occasions.",
+    description:
+      "Browse curated hampers for Baby, Wedding, Corporate or Festive occasions.",
   },
   {
     number: 2,
@@ -27,64 +36,103 @@ const steps = [
     number: 4,
     icon: MessageSquare,
     label: "Queries Resolved & Order Finalized",
-    description: "We clarify all details, guide approvals, and finalize your order.",
+    description:
+      "We clarify all details, guide approvals, and finalize your order.",
   },
-]
+];
 
 export default function OurProcessStepper() {
-  const [activeStep, setActiveStep] = useState(1)
-  const [isVisible, setIsVisible] = useState(false)
+  const [activeStep, setActiveStep] = useState(1);
 
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+      },
+    },
+  };
 
   return (
-    <section className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#AE8F65]/5 to-[#4A674F]/5">
+    <motion.section
+      ref={ref}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={containerVariants}
+      className="w-full py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#AE8F65]/5 to-[#4A674F]/5"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div
-          className={`text-center mb-16 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-        >
+        <motion.div variants={itemVariants} className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#AE8F65]/10 border border-[#AE8F65]/20 mb-6">
             <Sparkles size={16} className="text-[#AE8F65]" />
-            <span className="text-sm font-medium text-[#4A674F]">Our Simple Process</span>
+            <span className="text-sm font-medium text-[#4A674F]">
+              Our Simple Process
+            </span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          <motion.h2
+            variants={itemVariants}
+            className="text-4xl md:text-5xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight"
+          >
             How We Make
             <span className="block bg-gradient-to-r from-[#AE8F65] to-[#4A674F] bg-clip-text text-transparent">
               Corporate Gifting
             </span>
             <span className="block">Effortless</span>
-          </h2>
+          </motion.h2>
 
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            From selection to delivery, our streamlined process ensures your corporate gifting experience is seamless,
-            personalized, and memorable for every recipient.
-          </p>
-        </div>
+          <motion.p
+            variants={itemVariants}
+            className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+          >
+            From selection to delivery, our streamlined process ensures your
+            corporate gifting experience is seamless, personalized, and
+            memorable for every recipient.
+          </motion.p>
+        </motion.div>
 
         {/* Desktop Layout */}
         <div className="hidden lg:block">
-          <ol role="list" className="flex items-center justify-between space-x-8">
+          <motion.ol
+            variants={containerVariants}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            role="list"
+            className="flex items-center justify-between space-x-8"
+          >
             {steps.map((step, index) => {
-              const Icon = step.icon
-              const isActive = step.number === activeStep
-              const isCompleted = step.number < activeStep
+              const Icon = step.icon;
+              const isActive = step.number === activeStep;
+              const isCompleted = step.number < activeStep;
 
               return (
                 <React.Fragment key={step.number}>
-                  <li
-                    className={`flex-1 group transition-all duration-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                    style={{ transitionDelay: `${index * 150}ms` }}
+                  <motion.li
+                    variants={itemVariants}
+                    className={`flex-1 group transition-colors duration-500`}
                     aria-current={isActive ? "step" : undefined}
                     tabIndex={0}
                     role="button"
                     onClick={() => setActiveStep(step.number)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                        setActiveStep(step.number)
+                        setActiveStep(step.number);
                       }
                     }}
                   >
@@ -112,7 +160,11 @@ export default function OurProcessStepper() {
                         <div
                           className={`
                           w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg transition-all duration-300
-                          ${isActive ? "bg-white/20 text-white" : "bg-[#AE8F65]/10 text-[#AE8F65] group-hover:bg-[#AE8F65]/20"}
+                          ${
+                            isActive
+                              ? "bg-white/20 text-white"
+                              : "bg-[#AE8F65]/10 text-[#AE8F65] group-hover:bg-[#AE8F65]/20"
+                          }
                         `}
                         >
                           {step.number}
@@ -120,12 +172,18 @@ export default function OurProcessStepper() {
                         <div
                           className={`
                           p-2 rounded-lg transition-all duration-300
-                          ${isActive ? "bg-white/20" : "bg-[#4A674F]/10 group-hover:bg-[#4A674F]/20"}
+                          ${
+                            isActive
+                              ? "bg-white/20"
+                              : "bg-[#4A674F]/10 group-hover:bg-[#4A674F]/20"
+                          }
                         `}
                         >
                           <Icon
                             size={24}
-                            className={`transition-all duration-300 ${isActive ? "text-white" : "text-[#4A674F]"}`}
+                            className={`transition-all duration-300 ${
+                              isActive ? "text-white" : "text-[#4A674F]"
+                            }`}
                           />
                         </div>
                       </div>
@@ -137,54 +195,70 @@ export default function OurProcessStepper() {
 
                       {/* Step Description */}
                       <p
-                        className={`text-sm leading-relaxed flex-grow transition-colors duration-300 ${isActive ? "text-white/90" : "text-gray-600"}`}
+                        className={`text-sm leading-relaxed flex-grow transition-colors duration-300 ${
+                          isActive ? "text-white/90" : "text-gray-600"
+                        }`}
                       >
                         {step.description}
                       </p>
                     </div>
-                  </li>
+                  </motion.li>
 
                   {/* Connector Arrow */}
                   {index < steps.length - 1 && (
-                    <div
-                      className="flex-shrink-0 transition-all duration-500"
-                      style={{ transitionDelay: `${index * 150 + 75}ms` }}
+                    <motion.div
+                      variants={itemVariants}
+                      className="flex-shrink-0"
                     >
                       <div
                         className={`
                         p-2 rounded-full transition-all duration-300
-                        ${isCompleted || isActive ? "bg-[#4A674F]/10" : "bg-gray-100"}
+                        ${
+                          isCompleted || isActive
+                            ? "bg-[#4A674F]/10"
+                            : "bg-gray-100"
+                        }
                       `}
                       >
                         <ChevronRight
                           size={20}
                           className={`
                             transition-all duration-300
-                            ${isCompleted || isActive ? "text-[#4A674F]" : "text-gray-400"}
+                            ${
+                              isCompleted || isActive
+                                ? "text-[#4A674F]"
+                                : "text-gray-400"
+                            }
                           `}
                         />
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </React.Fragment>
-              )
+              );
             })}
-          </ol>
+          </motion.ol>
         </div>
 
         {/* Mobile Layout */}
         <div className="lg:hidden">
-          <ol role="list" className="space-y-6">
+          <motion.ol
+            variants={containerVariants}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            role="list"
+            className="space-y-6"
+          >
             {steps.map((step, index) => {
-              const Icon = step.icon
-              const isActive = step.number === activeStep
-              const isCompleted = step.number < activeStep
+              const Icon = step.icon;
+              const isActive = step.number === activeStep;
+              const isCompleted = step.number < activeStep;
 
               return (
-                <li
+                <motion.li
                   key={step.number}
-                  className={`relative transition-all duration-500 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"}`}
-                  style={{ transitionDelay: `${index * 150}ms` }}
+                  variants={itemVariants}
+                  className={`relative transition-colors duration-500`}
                   aria-current={isActive ? "step" : undefined}
                 >
                   {/* Progress Line */}
@@ -193,7 +267,11 @@ export default function OurProcessStepper() {
                       <div
                         className={`
                           w-full h-full transition-all duration-500 rounded-full
-                          ${isCompleted || isActive ? "bg-gradient-to-b from-[#AE8F65] to-[#4A674F]" : "bg-gray-300"}
+                          ${
+                            isCompleted || isActive
+                              ? "bg-gradient-to-b from-[#AE8F65] to-[#4A674F]"
+                              : "bg-gray-300"
+                          }
                         `}
                       />
                     </div>
@@ -214,7 +292,7 @@ export default function OurProcessStepper() {
                     onClick={() => setActiveStep(step.number)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                        setActiveStep(step.number)
+                        setActiveStep(step.number);
                       }
                     }}
                   >
@@ -230,7 +308,11 @@ export default function OurProcessStepper() {
                       <div
                         className={`
                         w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base transition-all duration-300
-                        ${isActive ? "bg-white/20 text-white" : "bg-[#AE8F65]/10 text-[#AE8F65]"}
+                        ${
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-[#AE8F65]/10 text-[#AE8F65]"
+                        }
                       `}
                       >
                         {step.number}
@@ -243,45 +325,56 @@ export default function OurProcessStepper() {
                       >
                         <Icon
                           size={20}
-                          className={`transition-all duration-300 ${isActive ? "text-white" : "text-[#4A674F]"}`}
+                          className={`transition-all duration-300 ${
+                            isActive ? "text-white" : "text-[#4A674F]"
+                          }`}
                         />
                       </div>
                     </div>
 
                     {/* Step Label */}
-                    <h3 className="text-base font-semibold mb-2 leading-tight">{step.label}</h3>
+                    <h3 className="text-base font-semibold mb-2 leading-tight">
+                      {step.label}
+                    </h3>
 
                     {/* Step Description */}
-                    <p className={`text-sm leading-relaxed ${isActive ? "text-white/90" : "text-gray-600"}`}>
+                    <p
+                      className={`text-sm leading-relaxed ${
+                        isActive ? "text-white/90" : "text-gray-600"
+                      }`}
+                    >
                       {step.description}
                     </p>
                   </div>
-                </li>
-              )
+                </motion.li>
+              );
             })}
-          </ol>
+          </motion.ol>
         </div>
 
         {/* CTA Button */}
-        <div
-          className={`mt-12 flex justify-center transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-          style={{ transitionDelay: "800ms" }}
+        <motion.div
+          variants={itemVariants}
+          className="mt-12 flex justify-center"
         >
           <Button
             size="lg"
             className="group relative overflow-hidden bg-gradient-to-r from-[#AE8F65] to-[#4A674F] hover:from-[#4A674F] hover:to-[#AE8F65] text-white px-8 py-4 text-base font-semibold min-h-[52px] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             onClick={() => {
-              console.log("Start Your Corporate Order clicked")
+              console.log("Start Your Corporate Order clicked");
             }}
           >
             <span className="relative z-10 flex items-center gap-2">
               Start Your Corporate Order
-              <ChevronRight size={18} className="transition-transform duration-300 group-hover:translate-x-1" />
+              <ChevronRight
+                size={18}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
             </span>
             <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
           </Button>
-        </div>
+        </motion.div>
       </div>
-    </section>
-  )
+    </motion.section>
+  );
 }
