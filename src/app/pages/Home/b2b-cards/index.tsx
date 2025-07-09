@@ -116,7 +116,7 @@ export default function TrendingCarousel() {
 
     const interval = setInterval(() => {
       api.scrollNext();
-    }, 30000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [api, isAutoPlaying]);

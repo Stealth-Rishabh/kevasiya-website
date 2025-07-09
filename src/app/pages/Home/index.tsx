@@ -10,6 +10,7 @@ const ClientsSlider = dynamic(() =>
 const SpecialOccasions = dynamic(() => import("./special-occasions"));
 const WhyKevasiya = dynamic(() => import("./why-kevasiya"));
 const TrendingCarousel = dynamic(() => import("./b2b-cards"));
+const OurProcessStepper = dynamic(() => import("./how-we-work"));
 
 const icons = [
   { src: "/images/home/logos/logo (1).png", alt: "logo 1" },
@@ -31,6 +32,7 @@ export default function Home() {
       <CardSection />
       <TrendingCarousel />
       <ClientsSlider icons={icons} />
+      <OurProcessStepper />
       <SpecialOccasions />
       <WhyKevasiya />
     </div>
