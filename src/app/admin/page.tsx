@@ -12,9 +12,9 @@ async function getStats() {
   try {
     // Fetch all data in parallel to be efficient.
     const [catRes, subCatRes, prodRes] = await Promise.all([
-      fetch(`${apiUrl}/categories`, { cache: "no-store" }),
-      fetch(`${apiUrl}/subcategories`, { cache: "no-store" }),
-      fetch(`${apiUrl}/products`, { cache: "no-store" }),
+      fetch(`${apiUrl}/categories`, { next: { revalidate: 60 } }),
+      fetch(`${apiUrl}/subcategories`, { next: { revalidate: 60 } }),
+      fetch(`${apiUrl}/products`, { next: { revalidate: 60 } }),
     ]);
 
     // Check if all requests were successful

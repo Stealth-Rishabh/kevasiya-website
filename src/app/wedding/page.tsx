@@ -34,7 +34,7 @@ async function getWeddingProducts(): Promise<Product[]> {
 
     const prodRes = await fetch(
       `${apiUrl}/products?category_id=${category.id}`,
-      { cache: "no-store" }
+      { next: { revalidate: 60 } }
     );
     if (!prodRes.ok) throw new Error("Failed to fetch wedding products");
 

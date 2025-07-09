@@ -59,7 +59,7 @@ async function getFestivalPageData() {
     // 3. Fetch all products for the parent category in one go
     const prodRes = await fetch(
       `${apiUrl}/products?category_id=${category.id}`,
-      { cache: "no-store" } // Products might change more often
+      { next: { revalidate: 60 } } // Products might change more often
     );
     if (!prodRes.ok) throw new Error("Failed to fetch products");
     const products: Product[] = await prodRes.json();
