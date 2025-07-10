@@ -4,12 +4,14 @@ import { motion, Variants } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import React from "react";
 import { FiTruck, FiGift, FiCheckSquare, FiSmile } from "react-icons/fi"; // Example icons
+import Image from "next/image";
 
 interface Benefit {
   id: string;
   title: string;
   description: string;
   icon: React.ElementType;
+  image: string;
 }
 
 const benefitsData: Benefit[] = [
@@ -18,24 +20,28 @@ const benefitsData: Benefit[] = [
     title: "Pan India Shipping",
     description: "Delivering smiles across the nation, wherever you are.",
     icon: FiTruck,
+    image: "/images/home/why-kevasiya/truck.png",
   },
   {
     id: "personalized",
     title: "Personalized Gifts",
     description: "Unique, custom-made gifts that tell a personal story.",
     icon: FiGift,
+    image: "/images/home/why-kevasiya/gift.png",
   },
   {
     id: "selection",
     title: "Diverse Selection",
     description: "A wide array of choices to suit every taste and occasion.",
     icon: FiCheckSquare,
+    image: "/images/home/why-kevasiya/select.png",
   },
   {
     id: "expectations",
     title: "Exceed Expectations",
     description: "Committed to quality and service that goes above and beyond.",
     icon: FiSmile,
+    image: "/images/home/why-kevasiya/smiley.png",
   },
 ];
 
@@ -104,7 +110,7 @@ const WhyKevasiya: React.FC = () => {
           variants={containerVariants}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
-          {benefitsData.map((benefit) => {
+          {benefitsData.map((benefit, index) => {
             const IconComponent = benefit.icon;
             return (
               <motion.div
@@ -112,9 +118,25 @@ const WhyKevasiya: React.FC = () => {
                 variants={itemVariants}
                 className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:shadow-kevasiya-gold/20 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center"
               >
-                <div className="p-4 bg-kevasiya-gold/10 rounded-full mb-6">
-                  <IconComponent className="w-10 h-10 text-kevasiya-gold" />
-                </div>
+                <motion.div 
+                  className="p-4 bg-kevasiya-gold/10 h-36 "
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{
+                    duration: 2,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    delay: (index || 0) * 0.5 // 0.5 second delay based on index
+                  }}
+                >
+                  <Image
+                    src={benefit.image}
+                    alt={benefit.title}
+                    width={100}
+                    height={100}
+                    className="mix-blend-multiply h-full w-full object-contain"
+                  />
+                </motion.div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   {benefit.title}
                 </h3>
