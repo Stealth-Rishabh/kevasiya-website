@@ -102,7 +102,7 @@ export default function OurProcessStepper() {
 
           <motion.h2
             variants={itemVariants}
-            className="text-4xl md:text-5xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight"
+            className="text-4xl md:text-5xl lg:text-5xl font-bold font-serif text-[#3a5a40] mb-6 leading-tight"
           >
             How We Make
             <span className="block bg-gradient-to-r from-[#AE8F65] to-[#4A674F] bg-clip-text text-transparent">
