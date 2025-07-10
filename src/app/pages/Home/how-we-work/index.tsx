@@ -23,7 +23,7 @@ const steps = [
   {
     number: 2,
     icon: Pen,
-    label: "Fill the Form",
+    label: "Fill the Contact Form",
     description: "Share your gifting needs—and leave the rest to us.",
   },
   {
@@ -105,21 +105,25 @@ export default function OurProcessStepper() {
             className="text-4xl md:text-5xl lg:text-5xl font-bold font-serif text-[#3a5a40] mb-6 leading-tight"
           >
             How We Make
-            <span className="block bg-gradient-to-r from-[#AE8F65] to-[#4A674F] bg-clip-text text-transparent">
-              Corporate Gifting
+            <span className="ml-2 inline-block bg-gradient-to-r from-[#AE8F65] to-[#4A674F] bg-clip-text text-transparent">
+              Gifting
             </span>
-            <span className="block">Effortless</span>
+            <span className="ml-2 inline">Effortless</span>
           </motion.h2>
 
           <motion.p
             variants={itemVariants}
-            className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+            className="text-lg md:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed"
           >
             From selection to delivery, our streamlined process ensures your
             corporate gifting experience is seamless, personalized, and
             memorable for every recipient.
           </motion.p>
+          <motion.div className="flex justify-center ">
+          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full mt-8"></div>
         </motion.div>
+        </motion.div>
+        
 
         {/* Desktop Layout */}
         <div className="hidden lg:block">
@@ -270,22 +274,6 @@ export default function OurProcessStepper() {
                   className={`relative transition-colors duration-500`}
                   aria-current={isActive ? "step" : undefined}
                 >
-                  {/* Progress Line */}
-                  {index < steps.length - 1 && (
-                    <div className="absolute left-8 top-20 w-0.5 h-16 -ml-px">
-                      <div
-                        className={`
-                          w-full h-full transition-all duration-500 rounded-full
-                          ${
-                            isCompleted || isActive
-                              ? "bg-gradient-to-b from-[#AE8F65] to-[#4A674F]"
-                              : "bg-gray-300"
-                          }
-                        `}
-                      />
-                    </div>
-                  )}
-
                   <motion.div
                     initial={false}
                     animate={{ opacity: isActive ? 1 : 0.7 }}

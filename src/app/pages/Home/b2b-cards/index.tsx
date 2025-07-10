@@ -216,7 +216,7 @@ export default function TrendingCarousel() {
           </motion.h2>
           <motion.p
             variants={itemVariants}
-            className="text-lg text-[#5a6d5c] max-w-2xl mx-auto"
+            className="text-lg text-[#5a6d5c] max-w-3xl mx-auto"
           >
             Discover what corporate leaders are choosing. Data-driven selections
             that deliver impact.
@@ -405,7 +405,7 @@ export default function TrendingCarousel() {
 
                               {/* Company Example */}
                               {product.companyExample && (
-                                <div className="mb-4">
+                                <div className="mb-4 hidden">
                                   <Badge
                                     variant="outline"
                                     className={`text-xs border backdrop-blur-sm ${

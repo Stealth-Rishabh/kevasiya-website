@@ -5,6 +5,8 @@ import { useInView } from "react-intersection-observer";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ShoppingBagIcon } from "lucide-react";
 
 const cardVariants: Variants = {
   hidden: (custom: number) => {
@@ -104,7 +106,7 @@ function MobileCard({
       initial={{ opacity: 0 }}
       animate={inView ? { opacity: 1 } : { opacity: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`relative group overflow-hidden rounded-xl shadow-lg flex-shrink-0 ${className}`}
+      className={`relative group overflow-hidden rounded-sm shadow-lg flex-shrink-0 ${className}`}
     >
       <Image
         src={image}
@@ -115,7 +117,7 @@ function MobileCard({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
       <div className="absolute bottom-0 left-0 p-6 text-white">
-        <h3 className="text-xl font-semibold font-serif">{title}</h3>
+        <h3 className="text-xl font-semibold font-sans">{title}</h3>
         <p className="text-gray-200 mt-1 text-sm">{description}</p>
       </div>
     </motion.div>
@@ -272,14 +274,26 @@ export default function CardSection() {
               className="flex gap-4"
             >
               {cardData.map((card, index) => (
-                <Link key={index} href={card.path} className="block">
-                  <MobileCard
-                    image={card.image}
-                    title={card.title}
-                    description={card.description}
-                    className="w-[280px] h-[400px]"
-                  />
-                </Link>
+                <div key={index} className="flex flex-col items-center">
+                  <Link href={card.path} className="block">
+                    <MobileCard
+                      image={card.image}
+                      title={card.title}
+                      description={card.description}
+                      className="w-[280px] h-[400px]"
+                    />
+                  </Link>
+                  <div className="mt-4 w-full">
+                    <Link href={card.path} passHref>
+                      <Button
+                        variant="outline"
+                        className="border-2 w-full bg-[#AE8F65] hover:text-white transition-colors duration-300 rounded-sm text-white text-md font-semibold animate-pulse"
+                      >
+                        Let's Explore <ShoppingBagIcon className="ml-2 h-4 w-4 mt-0.5 transition-transform duration-300 " />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               ))}
             </motion.div>
           </div>

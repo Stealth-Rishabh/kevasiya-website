@@ -14,6 +14,7 @@ const nextConfig = {
       },
     ];
   },
+  
   images: {
     remotePatterns: [
       {
@@ -26,6 +27,11 @@ const nextConfig = {
         protocol: "https",
         hostname: "kevasiya.com",
         pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
       },
     ],
   },

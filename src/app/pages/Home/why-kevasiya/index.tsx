@@ -76,7 +76,7 @@ const WhyKevasiya: React.FC = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-white text-gray-900">
+    <section className="py-10 md:py-24 bg-white text-gray-900">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Animated Heading */}
         <motion.div
@@ -118,7 +118,7 @@ const WhyKevasiya: React.FC = () => {
                 variants={itemVariants}
                 className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:shadow-kevasiya-gold/20 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center"
               >
-                <motion.div 
+                <motion.div
                   className="p-4 bg-kevasiya-gold/10 h-36 "
                   animate={{ y: [0, -10, 0] }}
                   transition={{
@@ -126,7 +126,7 @@ const WhyKevasiya: React.FC = () => {
                     ease: "easeInOut",
                     repeat: Infinity,
                     repeatType: "reverse",
-                    delay: (index || 0) * 0.5 // 0.5 second delay based on index
+                    delay: (index || 0) * 0.5, // 0.5 second delay based on index
                   }}
                 >
                   <Image
