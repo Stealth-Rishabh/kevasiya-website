@@ -240,16 +240,16 @@ export default function TrendingCarousel() {
               align: "start",
               loop: true,
             }}
-            className="w-full   justify-center items-center"
+            className="w-full carousel-container justify-center items-center"
           >
-            <CarouselContent className="-ml-2 md:-ml-4">
+            <CarouselContent className="carousel-content -ml-2 md:-ml-4">
               {trendingProducts.map((product) => (
                 <CarouselItem
                   key={product.id}
-                  className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                  className="carousel-item pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
                 >
                   <Card
-                    className={`group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 overflow-hidden h-[500px] sm:h-[400px] py-0 ${
+                    className={`carousel-card group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 overflow-hidden h-[500px] sm:h-[400px] py-0 ${
                       hoveredCard === product.id
                         ? "ring-2 ring-white shadow-2xl"
                         : ""

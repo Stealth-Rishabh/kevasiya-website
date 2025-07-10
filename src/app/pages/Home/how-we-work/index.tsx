@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Gift,
@@ -46,6 +46,20 @@ export default function OurProcessStepper() {
 
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isInView) {
+      interval = setInterval(() => {
+        setActiveStep((prevActiveStep) => (prevActiveStep % steps.length) + 1);
+      }, 3000);
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isInView]);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -127,18 +141,13 @@ export default function OurProcessStepper() {
                     variants={itemVariants}
                     className={`flex-1 group transition-colors duration-500`}
                     aria-current={isActive ? "step" : undefined}
-                    tabIndex={0}
-                    role="button"
-                    onClick={() => setActiveStep(step.number)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        setActiveStep(step.number);
-                      }
-                    }}
                   >
-                    <div
+                    <motion.div
+                      initial={false}
+                      animate={{ opacity: isActive ? 1 : 0.7 }}
+                      transition={{ duration: 0.5 }}
                       className={`
-                        relative rounded-2xl p-6 transition-all duration-300 cursor-pointer
+                        relative rounded-2xl p-6 transition-all duration-300
                         min-h-[220px] flex flex-col transform hover:scale-105
                         ${
                           isActive
@@ -201,7 +210,7 @@ export default function OurProcessStepper() {
                       >
                         {step.description}
                       </p>
-                    </div>
+                    </motion.div>
                   </motion.li>
 
                   {/* Connector Arrow */}
@@ -277,9 +286,12 @@ export default function OurProcessStepper() {
                     </div>
                   )}
 
-                  <div
+                  <motion.div
+                    initial={false}
+                    animate={{ opacity: isActive ? 1 : 0.7 }}
+                    transition={{ duration: 0.5 }}
                     className={`
-                      relative rounded-2xl p-5 transition-all duration-300 cursor-pointer
+                      relative rounded-2xl p-5 transition-all duration-300
                       min-h-[140px] flex flex-col transform hover:scale-[1.02]
                       ${
                         isActive
@@ -287,14 +299,6 @@ export default function OurProcessStepper() {
                           : "bg-white text-gray-700 shadow-lg border border-gray-100"
                       }
                     `}
-                    tabIndex={0}
-                    role="button"
-                    onClick={() => setActiveStep(step.number)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        setActiveStep(step.number);
-                      }
-                    }}
                   >
                     {/* Floating Badge */}
                     {isActive && (
@@ -345,7 +349,7 @@ export default function OurProcessStepper() {
                     >
                       {step.description}
                     </p>
-                  </div>
+                  </motion.div>
                 </motion.li>
               );
             })}
