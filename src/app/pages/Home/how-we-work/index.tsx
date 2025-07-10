@@ -120,10 +120,9 @@ export default function OurProcessStepper() {
             memorable for every recipient.
           </motion.p>
           <motion.div className="flex justify-center ">
-          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full mt-8"></div>
+            <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#AE8F65] to-transparent rounded-full mt-8"></div>
+          </motion.div>
         </motion.div>
-        </motion.div>
-        
 
         {/* Desktop Layout */}
         <div className="hidden lg:block">
@@ -262,7 +261,7 @@ export default function OurProcessStepper() {
             role="list"
             className="space-y-6"
           >
-            {steps.map((step, index) => {
+            {steps.map((step) => {
               const Icon = step.icon;
               const isActive = step.number === activeStep;
               const isCompleted = step.number < activeStep;
@@ -286,6 +285,7 @@ export default function OurProcessStepper() {
                           ? "bg-gradient-to-br from-[#AE8F65] to-[#4A674F] text-white shadow-xl shadow-[#AE8F65]/25"
                           : "bg-white text-gray-700 shadow-lg border border-gray-100"
                       }
+                      ${isCompleted ? "ring-2 ring-[#4A674F]/20" : ""}
                     `}
                   >
                     {/* Floating Badge */}

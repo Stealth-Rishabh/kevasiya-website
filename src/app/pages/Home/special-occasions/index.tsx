@@ -3,21 +3,12 @@
 import type React from "react";
 
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import {
-  FaBirthdayCake,
-  FaHeart,
-  FaHome,
-  FaBaby,
-  FaGift,
-  FaArrowRight,
-  FaShoppingBag,
-} from "react-icons/fa";
+import { FaArrowRight, FaShoppingBag } from "react-icons/fa";
 import Lenis from "lenis";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface Occasion {
   id: string;
@@ -100,7 +91,7 @@ const OccasionCard = ({
 }: {
   occasion: Occasion;
   index: number;
-  scrollYProgress: any;
+  scrollYProgress: MotionValue<number>;
   total: number;
 }) => {
   // const IconComponent = occasion.icon;

@@ -289,7 +289,8 @@ export default function CardSection() {
                         variant="outline"
                         className="border-2 w-full bg-[#AE8F65] hover:text-white transition-colors duration-300 rounded-sm text-white text-md font-semibold animate-pulse"
                       >
-                        Let's Explore <ShoppingBagIcon className="ml-2 h-4 w-4 mt-0.5 transition-transform duration-300 " />
+                        Let&apos;s Explore{" "}
+                        <ShoppingBagIcon className="ml-2 h-4 w-4 mt-0.5 transition-transform duration-300 " />
                       </Button>
                     </Link>
                   </div>
