@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, useInView, AnimatePresence, Variants } from "framer-motion";
 
 const faqData = [
   "How do I place an order?",
@@ -19,7 +19,7 @@ export default function Component() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
-  const sectionFadeInUp = {
+  const sectionFadeInUp: Variants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
@@ -33,7 +33,7 @@ export default function Component() {
     },
   };
 
-  const titleFadeInUp = {
+  const titleFadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
@@ -42,7 +42,7 @@ export default function Component() {
     },
   };
 
-  const listContainerFadeInUp = {
+  const listContainerFadeInUp: Variants = {
     hidden: { opacity: 0, y: 40 },
     visible: {
       opacity: 1,
@@ -51,7 +51,7 @@ export default function Component() {
     },
   };
 
-  const faqItemFadeInUp = {
+  const faqItemFadeInUp: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
@@ -60,7 +60,7 @@ export default function Component() {
     },
   };
 
-  const answerReveal = {
+  const answerReveal: Variants = {
     hidden: { opacity: 0, height: 0, y: -10 },
     visible: {
       opacity: 1,

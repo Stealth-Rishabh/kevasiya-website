@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, Variants } from "framer-motion";
 import Container from "../../components/Container";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,7 +9,7 @@ const GiftCategories = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
-  const sectionSlideInLeft = {
+  const sectionSlideInLeft: Variants = {
     hidden: { opacity: 0, x: -100 },
     visible: {
       opacity: 1,
@@ -23,7 +23,7 @@ const GiftCategories = () => {
     },
   };
 
-  const titleFadeInUp = {
+  const titleFadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
@@ -32,7 +32,7 @@ const GiftCategories = () => {
     },
   };
 
-  const cardSlideIn = {
+  const cardSlideIn: Variants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
@@ -41,11 +41,11 @@ const GiftCategories = () => {
     },
   };
 
-  const imageHoverEffect = {
+  const imageHoverEffect: Variants = {
     hover: { scale: 1.05 },
   };
 
-  const textFadeIn = {
+  const textFadeIn: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.5, delay: 0.3 } },
   };
@@ -87,7 +87,8 @@ const GiftCategories = () => {
                   variants={textFadeIn}
                   className="text-white text-3xl font-serif"
                 >
-                  Corporate<br />
+                  Corporate
+                  <br />
                   Diwali
                 </motion.h2>
               </div>

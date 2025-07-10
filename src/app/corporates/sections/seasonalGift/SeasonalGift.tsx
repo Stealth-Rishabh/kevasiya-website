@@ -1,14 +1,14 @@
-"use client"
-import React, { useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import Container from "../../components/Container"
-import Image from "next/image"
+"use client";
+import React, { useRef } from "react";
+import { motion, useInView, Variants } from "framer-motion";
+import Container from "../../components/Container";
+import Image from "next/image";
 
 const SeasonalGift = () => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.1 })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
 
-  const sectionScaleUp = {
+  const sectionScaleUp: Variants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
       opacity: 1,
@@ -20,25 +20,25 @@ const SeasonalGift = () => {
         staggerChildren: 0.3,
       },
     },
-  }
+  };
 
-  const titleFadeInUp = {
+  const titleFadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
       transition: { duration: 0.5, ease: "easeOut" },
     },
-  }
+  };
 
-  const imageContainerScaleUp = {
+  const imageContainerScaleUp: Variants = {
     hidden: { opacity: 0, scale: 0.9 },
     visible: {
       opacity: 1,
       scale: 1,
       transition: { duration: 0.7, ease: "easeOut" },
     },
-  }
+  };
 
   return (
     <motion.div
@@ -68,7 +68,7 @@ const SeasonalGift = () => {
         </motion.div>
       </Container>
     </motion.div>
-  )
-}
+  );
+};
 
-export default SeasonalGift
+export default SeasonalGift;

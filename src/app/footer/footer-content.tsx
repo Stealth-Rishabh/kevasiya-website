@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
   FiInstagram,
@@ -30,7 +30,7 @@ export function FooterContent() {
     setIsMounted(true);
   }, []);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -41,7 +41,7 @@ export function FooterContent() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
@@ -254,7 +254,10 @@ export function FooterContent() {
                   {[
                     { name: "All Gifts", href: "/collections" },
                     { name: "Baby Hampers", href: "/collections/baby-hampers" },
-                    { name: "Corporate Hampers", href: "/collections/corporates" },
+                    {
+                      name: "Corporate Hampers",
+                      href: "/collections/corporates",
+                    },
                     { name: "Festival Hampers", href: "/collections/festival" },
                     { name: "Wedding Hampers", href: "/collections/wedding" },
                     // {

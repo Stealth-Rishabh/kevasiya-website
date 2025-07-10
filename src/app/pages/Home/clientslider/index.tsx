@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import IconMarquee from "@/components/ui/IconMarquee";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
@@ -17,7 +17,7 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
     rootMargin: "-50px 0px",
   });
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -28,7 +28,7 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
@@ -103,7 +103,7 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
             className="mt-16 text-center animate-bounce "
           >
             <button className="px-8 py-3 bg-[#3a5a40] text-white rounded-lg hover:bg-[#2d3a2e]  shadow-md hover:shadow-lg flex items-center justify-center gap-2 hover:scale-105 cursor-pointer  transition-all duration-300">
-              Become a Partner  
+              Become a Partner
               <Handshake className="w-4 h-4 mt-1" />
             </button>
           </motion.div>

@@ -1,14 +1,14 @@
-"use client"
-import React, { useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import QueryForm from "./query-form"
-import Image from "next/image"
+"use client";
+import React, { useRef } from "react";
+import { motion, useInView, Variants } from "framer-motion";
+import QueryForm from "./query-form";
+import Image from "next/image";
 
 export default function Form() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.1 })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
 
-  const sectionFadeIn = {
+  const sectionFadeIn: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -19,34 +19,34 @@ export default function Form() {
         staggerChildren: 0.3,
       },
     },
-  }
+  };
 
-  const formSlideInLeft = {
+  const formSlideInLeft: Variants = {
     hidden: { opacity: 0, x: -50 },
     visible: {
       opacity: 1,
       x: 0,
       transition: { duration: 0.7, ease: "easeOut" },
     },
-  }
+  };
 
-  const gridFadeInUp = {
+  const gridFadeInUp: Variants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
       y: 0,
       transition: { duration: 0.7, ease: "easeOut", staggerChildren: 0.15 },
     },
-  }
+  };
 
-  const imageScaleUp = {
+  const imageScaleUp: Variants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
       opacity: 1,
       scale: 1,
       transition: { duration: 0.5, ease: "easeOut" },
     },
-  }
+  };
 
   return (
     <motion.div
@@ -94,5 +94,5 @@ export default function Form() {
         ))}
       </motion.div>
     </motion.div>
-  )
+  );
 }

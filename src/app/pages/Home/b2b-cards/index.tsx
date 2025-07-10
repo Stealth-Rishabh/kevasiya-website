@@ -14,7 +14,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import Link from "next/link";
 
 interface TrendingProduct {
@@ -190,7 +190,7 @@ export default function TrendingCarousel() {
       ? "bg-black/70 text-white"
       : "bg-white/90 text-gray-900";
   };
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,

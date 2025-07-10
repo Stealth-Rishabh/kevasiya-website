@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, Variants } from "framer-motion";
 import Container from "../../components/Container";
 import Image from "next/image";
 import Button from "../../components/Button";
@@ -8,12 +8,12 @@ import { MorphingText } from "@/components/magicui/morphing-text";
 import Link from "next/link";
 
 const GiftOcassion = () => {
-  const texts = [ "Anniversary", "Onboarding", "Rewards", "Diwali"];
+  const texts = ["Anniversary", "Onboarding", "Rewards", "Diwali"];
 
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
-  const sectionSlideInRight = {
+  const sectionSlideInRight: Variants = {
     hidden: { opacity: 0, x: 100 },
     visible: {
       opacity: 1,
@@ -27,7 +27,7 @@ const GiftOcassion = () => {
     },
   };
 
-  const contentBlockFadeInUp = {
+  const contentBlockFadeInUp: Variants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
@@ -36,7 +36,7 @@ const GiftOcassion = () => {
     },
   };
 
-  const textElementFadeInUp = {
+  const textElementFadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
@@ -45,7 +45,7 @@ const GiftOcassion = () => {
     },
   };
 
-  const imageScaleUp = {
+  const imageScaleUp: Variants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
       opacity: 1,

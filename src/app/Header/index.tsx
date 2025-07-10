@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 // import { Festive } from "next/font/google";
 
 export default function Nav() {
@@ -20,12 +20,12 @@ export default function Nav() {
     // { name: "Contact", href: "/contact" },
   ];
 
-  const menuVariants = {
+  const menuVariants: Variants = {
     hidden: { x: "-100%" },
     visible: { x: 0, transition: { duration: 0.5, ease: "easeInOut" } },
   };
 
-  const linkVariants = {
+  const linkVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
       opacity: 1,

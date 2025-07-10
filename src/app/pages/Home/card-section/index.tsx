@@ -1,12 +1,12 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, Variants } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: (custom: number) => {
     switch (custom) {
       case 0:
@@ -167,12 +167,12 @@ const getFloatingAnimation = (index: number) => {
     transition: {
       duration: 3,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   };
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { y: 30, opacity: 0 },
   visible: {
     y: 0,

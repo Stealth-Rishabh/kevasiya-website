@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import React from "react";
 import { FiTruck, FiGift, FiCheckSquare, FiSmile } from "react-icons/fi"; // Example icons
@@ -45,7 +45,7 @@ const WhyKevasiya: React.FC = () => {
     threshold: 0.1,
   });
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -56,7 +56,7 @@ const WhyKevasiya: React.FC = () => {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
@@ -72,19 +72,19 @@ const WhyKevasiya: React.FC = () => {
   return (
     <section className="py-16 md:py-24 bg-white text-gray-900">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-         {/* Animated Heading */}
-         <motion.div
+        {/* Animated Heading */}
+        <motion.div
           variants={itemVariants}
           className="text-center mb-5 md:mb-5"
         >
           <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#3a5a40] mb-4">
-          Why Choose <span className="text-kevasiya-gold">Kevasiya</span>?
+            Why Choose <span className="text-kevasiya-gold">Kevasiya</span>?
           </h2>
           <motion.p
             variants={itemVariants}
             className="text-lg text-[#5a6d5c] max-w-2xl mx-auto"
           >
-          Experience the difference with our commitment to quality and
+            Experience the difference with our commitment to quality and
             customer satisfaction.
           </motion.p>
         </motion.div>

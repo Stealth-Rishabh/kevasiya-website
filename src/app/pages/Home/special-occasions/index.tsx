@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import {
   FaBirthdayCake,
@@ -76,7 +76,7 @@ const AnimatedCard = ({
     rootMargin: "-50px 0px",
   });
 
-  const variants = {
+  const variants: Variants = {
     hidden: { opacity: 0, y: 50, scale: 0.95 },
     visible: {
       opacity: 1,
@@ -121,7 +121,7 @@ const AnimatedCard = ({
   );
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { y: 30, opacity: 0 },
   visible: {
     y: 0,
@@ -137,19 +137,19 @@ const SpecialOccasions: React.FC = () => {
   return (
     <section className="py-16 md:py-24 bg-slate-50">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-             {/* Animated Heading */}
-             <motion.div
+        {/* Animated Heading */}
+        <motion.div
           variants={itemVariants}
           className="text-center mb-5 md:mb-5"
         >
           <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#3a5a40] mb-4">
-          Special Occasions
+            Special Occasions
           </h2>
           <motion.p
             variants={itemVariants}
             className="text-lg text-[#5a6d5c] max-w-2xl mx-auto"
           >
-          Making every celebration memorable with the perfect gift.
+            Making every celebration memorable with the perfect gift.
           </motion.p>
         </motion.div>
 

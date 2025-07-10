@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, Variants } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -8,7 +8,7 @@ const Services = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
-  const sectionFadeInUp = {
+  const sectionFadeInUp: Variants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
@@ -22,7 +22,7 @@ const Services = () => {
     },
   };
 
-  const titleFadeInUp = {
+  const titleFadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
@@ -31,7 +31,7 @@ const Services = () => {
     },
   };
 
-  const cardGroupFadeInUp = {
+  const cardGroupFadeInUp: Variants = {
     hidden: { opacity: 0, y: 40 },
     visible: {
       opacity: 1,
@@ -40,7 +40,7 @@ const Services = () => {
     },
   };
 
-  const cardItemFadeInUp = {
+  const cardItemFadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
@@ -49,7 +49,7 @@ const Services = () => {
     },
   };
 
-  const textFadeIn = {
+  const textFadeIn: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.4, delay: 0.2 } },
   };
