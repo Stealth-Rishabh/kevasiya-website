@@ -111,7 +111,7 @@ const WhyKevasiya: React.FC = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           {benefitsData.map((benefit, index) => {
-            const IconComponent = benefit.icon;
+            // const IconComponent = benefit.icon;
             return (
               <motion.div
                 key={benefit.id}
