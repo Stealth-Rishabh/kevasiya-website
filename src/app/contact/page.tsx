@@ -103,6 +103,19 @@ function ContactForm() {
     }
   };
 
+  useEffect(() => {
+    // Scroll to top immediately
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    // After 3 seconds, scroll down based on inner height for responsive behavior
+    const timer = setTimeout(() => {
+      const scrollAmount = Math.min(window.innerHeight * (window.innerWidth < 768 ? 1.3 : 1.2)); // Responsive scroll amount based on viewport height
+      window.scrollTo({ top: scrollAmount, behavior: "smooth" });
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -278,7 +291,7 @@ function ContactForm() {
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-200 focus:border-[#3A5A40]"
                           } transition-all duration-200`}
-                          placeholder="John"
+                          placeholder="Enter your first name"
                         />
                         {errors.firstName && (
                           <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -305,7 +318,7 @@ function ContactForm() {
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-200 focus:border-[#3A5A40]"
                           } transition-all duration-200`}
-                          placeholder="Doe"
+                          placeholder="Enter your last name"
                         />
                         {errors.lastName && (
                           <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -337,7 +350,7 @@ function ContactForm() {
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-200 focus:border-[#3A5A40]"
                           } transition-all duration-200`}
-                          placeholder="john.doe@example.com"
+                          placeholder="john.@example.com"
                         />
                         {errors.email && (
                           <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -365,7 +378,7 @@ function ContactForm() {
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-200 focus:border-[#3A5A40]"
                           } transition-all duration-200`}
-                          placeholder="+1 (555) 123-4567"
+                          placeholder="9876543210"
                         />
                         {errors.phone && (
                           <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -470,7 +483,12 @@ function ContactForm() {
                         <h4 className="font-semibold text-[#3A5A40] text-lg">
                           Email Address
                         </h4>
-                        <p className="text-gray-600">kevesiya@gmail.com</p>
+                        <a
+                          href="mailto:kevesiya@gmail.com"
+                          className="text-gray-600 cursor-pointer"
+                        >
+                          kevesiya@gmail.com
+                        </a>
                         <p className="text-sm text-gray-500">
                           We respond within 2 hours
                         </p>
@@ -487,7 +505,12 @@ function ContactForm() {
                         <h4 className="font-semibold text-[#3A5A40] text-lg">
                           Phone Number
                         </h4>
-                        <p className="text-gray-600">+91 9220229789</p>
+                        <a
+                          href="tel:+919220229789"
+                          className="text-gray-600 cursor-pointer"
+                        >
+                          +91 9220229789
+                        </a>
                         <p className="text-sm text-gray-500">
                           Available 9 AM - 6 PM IST
                         </p>
