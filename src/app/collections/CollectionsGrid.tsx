@@ -43,7 +43,7 @@ export default function CollectionsGrid({ collections }: CollectionsGridProps) {
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent rounded-lg" />
           <div className="absolute bottom-0 left-0 p-4">
-            <h3 className="text-xl font-semibold text-white">
+            <h3 className="text-2xl font-serif font-bold text-white">
               
                 <span aria-hidden="true" className="absolute inset-0" />
                 {collection.name}

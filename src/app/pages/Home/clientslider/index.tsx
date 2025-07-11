@@ -90,7 +90,7 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
             <IconMarquee
               icons={icons}
               speed={40}
-              iconClassName="grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110"
+              iconClassName="sm:grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110"
               containerClassName="gap-12 px-4"
             />
           </div>
