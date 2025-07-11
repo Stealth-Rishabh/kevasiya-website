@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState,useEffect, useRef } from "react";
 import {
   MapPin,
   Phone,
@@ -109,6 +109,20 @@ export default function ContactPage() {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
+
+
+  useEffect(() => {
+    // Scroll down 100vh after 3 seconds
+    const timer = setTimeout(() => {
+      window.scrollTo({
+        top: window.innerHeight*1.2,
+        behavior: 'smooth'
+      });
+     
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -253,6 +267,7 @@ export default function ContactPage() {
                         <Input
                           id="firstName"
                           value={formData.firstName}
+                          autoFocus
                           onChange={(e) =>
                             handleInputChange("firstName", e.target.value)
                           }

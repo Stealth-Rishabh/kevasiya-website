@@ -137,9 +137,10 @@ export default function ProductDetailsClient({
                   : product.price}
               </p>
               <div className="grid grid-cols-1 gap-4">
+                <Link href="/contact">  
                 <button className="w-full bg-black text-white py-4 rounded-md font-semibold hover:bg-gray-800 transition-colors text-lg flex items-center justify-center">
                   Book Your Gift <GiftIcon className="w-5 h-5 ml-2" />
-                </button>
+                </button></Link>
                 
               </div>
             </div>

@@ -89,7 +89,7 @@ export function ClientsSlider({ icons }: ClientsSliderProps) {
           <div className="py-6 md:py-8 bg-white rounded-xl shadow-sm border border-gray-100">
             <IconMarquee
               icons={icons}
-              speed={50}
+              speed={40}
               iconClassName="grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110"
               containerClassName="gap-12 px-4"
             />

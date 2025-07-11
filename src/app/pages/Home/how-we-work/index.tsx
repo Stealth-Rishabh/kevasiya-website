@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { motion, useInView, Variants } from "framer-motion";
+import Link from "next/link";
 
 const steps = [
   {
@@ -352,17 +353,16 @@ export default function OurProcessStepper() {
           <Button
             size="lg"
             className="group relative overflow-hidden bg-gradient-to-r from-[#AE8F65] to-[#4A674F] hover:from-[#4A674F] hover:to-[#AE8F65] text-white px-8 py-4 text-base font-semibold min-h-[52px] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-            onClick={() => {
-              console.log("Start Your Corporate Order clicked");
-            }}
+           
           >
+            <Link href="/contact">
             <span className="relative z-10 flex items-center gap-2">
-              Start Your Corporate Order
+              Start Your Gifting Journey
               <ChevronRight
                 size={18}
-                className="transition-transform duration-300 group-hover:translate-x-1"
+                className="transition-transform duration-300 group-hover:translate-x-1 mt-1"
               />
-            </span>
+            </span></Link>
             <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
           </Button>
         </motion.div>
