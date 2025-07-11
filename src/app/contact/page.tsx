@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   MapPin,
@@ -43,7 +43,7 @@ interface FormErrors {
   productDetails?: string;
 }
 
-export default function ContactPage() {
+function ContactForm() {
   const searchParams = useSearchParams();
 
   const [formData, setFormData] = useState<FormData>({
@@ -102,18 +102,6 @@ export default function ContactPage() {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
-
-  useEffect(() => {
-    // Scroll down 100vh after 3 seconds
-    const timer = setTimeout(() => {
-      window.scrollTo({
-        top: window.innerHeight * 1.2,
-        behavior: "smooth",
-      });
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -663,14 +651,6 @@ export default function ContactPage() {
               >
                 Facebook
               </Button>
-              {/* <Button
-                size="lg"
-                variant="outline"
-                className="bg-white/10 border-[#AE8F65]/50 text-white hover:bg-[#AE8F65]/20 hover:border-[#AE8F65] transition-all duration-300 px-8 py-4 text-lg hover:cursor-pointer"
-                onClick={() => window.open("https://linkedin.com", "_blank")}
-              >
-                LinkedIn
-              </Button> */}
               <Button
                 size="lg"
                 variant="outline"
@@ -689,5 +669,13 @@ export default function ContactPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ContactForm />
+    </Suspense>
   );
 }
