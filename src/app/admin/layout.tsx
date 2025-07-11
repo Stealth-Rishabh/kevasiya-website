@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, Package2, Boxes } from "lucide-react";
+import { Home, Package, Package2, Boxes, MessageSquare } from "lucide-react";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function AdminLayout({
   children,
@@ -14,6 +15,7 @@ export default function AdminLayout({
   const isDashboardActive = pathname === "/admin";
   const isCategoriesActive = pathname.startsWith("/admin/categories");
   const isProductsActive = pathname.startsWith("/admin/products");
+  const isSubmissionsActive = pathname.startsWith("/admin/submissions");
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -60,6 +62,17 @@ export default function AdminLayout({
                 <Package className="h-4 w-4" />
                 Products{" "}
               </Link>
+              <Link
+                href="/admin/submissions"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                  isSubmissionsActive
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Submissions
+              </Link>
             </nav>
           </div>
         </div>
@@ -69,6 +82,7 @@ export default function AdminLayout({
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           {children}
         </main>
+        <Toaster />
       </div>
     </div>
   );

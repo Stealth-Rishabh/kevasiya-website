@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   MapPin,
   Phone,
@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { getApiUrl } from "@/lib/utils";
 
 interface FormData {
   firstName: string;
@@ -29,6 +30,7 @@ interface FormData {
   email: string;
   phone: string;
   message: string;
+  productDetails: string;
 }
 
 interface FormErrors {
@@ -37,6 +39,7 @@ interface FormErrors {
   email?: string;
   phone?: string;
   message?: string;
+  productDetails?: string;
 }
 
 export default function ContactPage() {
@@ -46,6 +49,7 @@ export default function ContactPage() {
     email: "",
     phone: "",
     message: "",
+    productDetails: "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -64,22 +68,6 @@ export default function ContactPage() {
       newErrors.firstName = "First name can only contain letters";
     }
 
-    // Last name validation
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = "Last name must be at least 2 characters";
-    } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
-      newErrors.lastName = "Last name can only contain letters";
-    }
-
-    // Email validation
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
     // Phone validation
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
@@ -87,15 +75,6 @@ export default function ContactPage() {
       !/^[+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-$$$$]/g, ""))
     ) {
       newErrors.phone = "Please enter a valid phone number";
-    }
-
-    // Message validation
-    if (!formData.message.trim()) {
-      newErrors.message = "Message is required";
-    } else if (formData.message.trim().length < 10) {
-      newErrors.message = "Message must be at least 10 characters";
-    } else if (formData.message.trim().length > 500) {
-      newErrors.message = "Message must be less than 500 characters";
     }
 
     setErrors(newErrors);
@@ -110,17 +89,15 @@ export default function ContactPage() {
     }
   };
 
-
   useEffect(() => {
     // Scroll down 100vh after 3 seconds
     const timer = setTimeout(() => {
       window.scrollTo({
-        top: window.innerHeight*1.2,
-        behavior: 'smooth'
+        top: window.innerHeight * 1.2,
+        behavior: "smooth",
       });
-     
     }, 3000);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -133,23 +110,46 @@ export default function ContactPage() {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-
-    // Reset form after success
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        message: "",
+    try {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/contact-submissions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
-    }, 3000);
+
+      if (!response.ok) {
+        // Handle error from backend
+        const errorData = await response.json();
+        console.error("Submission failed:", errorData);
+        // Maybe show an error message to the user
+        alert(`Error: ${errorData.error || "Failed to send message."}`);
+        setIsSubmitting(false);
+        return;
+      }
+
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+
+      // Reset form after success
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          message: "",
+          productDetails: "",
+        });
+      }, 3000);
+    } catch (error) {
+      console.error("An error occurred:", error);
+      alert("An unexpected error occurred. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -192,8 +192,8 @@ export default function ContactPage() {
               </h1>
             </div>
             <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-              Ready to find the perfect gift? Let&apos;s discuss your
-              gifting needs and create something extraordinary together.
+              Ready to find the perfect gift? Let&apos;s discuss your gifting
+              needs and create something extraordinary together.
             </p>
 
             {/* Stats Section */}
@@ -242,8 +242,8 @@ export default function ContactPage() {
                   Let&apos;s Start a Conversation
                 </h2>
                 <p className="text-xl text-gray-600 max-w-2xl">
-                  Fill out the form below with your Query, and
-                  we&apos;ll get back to you with a personalized solution.
+                  Fill out the form below with your Query, and we&apos;ll get
+                  back to you with a personalized solution.
                 </p>
               </div>
 
@@ -290,7 +290,7 @@ export default function ContactPage() {
                           htmlFor="lastName"
                           className="text-sm font-semibold text-[#3A5A40]"
                         >
-                          Last Name *
+                          Last Name
                         </Label>
                         <Input
                           id="lastName"
@@ -321,7 +321,7 @@ export default function ContactPage() {
                           htmlFor="email"
                           className="text-sm font-semibold text-[#3A5A40]"
                         >
-                          Email Address *
+                          Email Address
                         </Label>
                         <Input
                           id="email"
@@ -374,13 +374,32 @@ export default function ContactPage() {
                       </div>
                     </div>
 
+                    {/* productDetails Field */}
+                    <div className="space-y-3">
+                      <Label
+                        htmlFor="productDetails"
+                        className="text-sm font-semibold text-[#3A5A40]"
+                      >
+                        Product Details
+                      </Label>
+                      <Input
+                        id="productDetails"
+                        value={formData.productDetails}
+                        onChange={(e) =>
+                          handleInputChange("productDetails", e.target.value)
+                        }
+                        className={`h-14 text-lg border-gray-200 focus:border-[#3A5A40] transition-all duration-200`}
+                        placeholder="Enter product details..."
+                      />
+                    </div>
+
                     {/* Message Field */}
                     <div className="space-y-3">
                       <Label
                         htmlFor="message"
                         className="text-sm font-semibold text-[#3A5A40]"
                       >
-                        Gift Details *
+                        Gift Details
                       </Label>
                       <Textarea
                         id="message"
@@ -388,24 +407,13 @@ export default function ContactPage() {
                         onChange={(e) =>
                           handleInputChange("message", e.target.value)
                         }
-                        className={`min-h-40 text-lg resize-none ${
-                          errors.message
-                            ? "border-red-500 focus:border-red-500"
-                            : "border-gray-200 focus:border-[#3A5A40]"
-                        } transition-all duration-200`}
+                        className={`min-h-40 text-lg resize-none border-gray-200 focus:border-[#3A5A40] transition-all duration-200`}
                         placeholder="Tell us about your gift choice, budget, and any specific requirements..."
                       />
                       <div className="flex justify-between items-center">
-                        {errors.message ? (
-                          <div className="flex items-center gap-2 text-red-600 text-sm">
-                            <AlertCircle className="w-4 h-4" />
-                            {errors.message}
-                          </div>
-                        ) : (
-                          <div className="text-sm text-gray-500">
-                            Minimum 10 characters required
-                          </div>
-                        )}
+                        <div className="text-sm text-gray-500 invisible">
+                          Minimum 10 characters required
+                        </div>
                         <span
                           className={`text-sm ${
                             formData.message.length > 450
