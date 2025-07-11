@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   MapPin,
   Phone,
@@ -43,6 +44,8 @@ interface FormErrors {
 }
 
 export default function ContactPage() {
+  const searchParams = useSearchParams();
+
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -55,6 +58,17 @@ export default function ContactPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Auto-fill product details from URL parameter
+  useEffect(() => {
+    const productParam = searchParams.get("product");
+    if (productParam) {
+      setFormData((prev) => ({
+        ...prev,
+        productDetails: productParam,
+      }));
+    }
+  }, [searchParams]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
