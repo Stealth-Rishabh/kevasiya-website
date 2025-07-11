@@ -1,7 +1,6 @@
 "use client";
 import React, { useRef } from "react";
 import { motion, useInView, Variants } from "framer-motion";
-import Link from "next/link";
 import Image from "next/image";
 
 const Services = () => {
@@ -76,23 +75,21 @@ const Services = () => {
           variants={cardGroupFadeInUp}
           className="relative w-full h-64 md:h-80 mb-6 overflow-hidden rounded-t-sm"
         >
-          <Link href="/catalogue">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
-            <Image
-              src="/images/serviceImage/services (1).webp"
-              alt="Our catalogue of gift items including decorative boxes and gourmet foods"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute bottom-8 left-0 right-0 text-center z-20">
-              <motion.h3
-                variants={textFadeIn}
-                className="text-[#f5e9d5] text-3xl font-serif"
-              >
-                Our Catalogue
-              </motion.h3>
-            </div>
-          </Link>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
+          <Image
+            src="/images/serviceImage/services (1).webp"
+            alt="Our catalogue of gift items including decorative boxes and gourmet foods"
+            fill
+            className="object-cover"
+          />
+          <div className="absolute bottom-8 left-0 right-0 text-center z-20">
+            <motion.h3
+              variants={textFadeIn}
+              className="text-[#f5e9d5] text-3xl font-serif"
+            >
+              Our Catalogue
+            </motion.h3>
+          </div>
         </motion.div>
 
         {/* Three Cards Row */}
@@ -105,23 +102,21 @@ const Services = () => {
             variants={cardItemFadeInUp}
             className="relative w-full h-52 md:h-64 overflow-hidden rounded-bl-sm"
           >
-            <Link href="/custom-gifts">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
-              <Image
-                src="/images/serviceImage/services (2).webp"
-                alt="Custom curated gift sets with decorative items"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute bottom-6 left-0 right-0 text-center z-20">
-                <motion.h3
-                  variants={textFadeIn}
-                  className="text-[#f5e9d5] text-2xl font-serif"
-                >
-                  Custom Curated Gifts
-                </motion.h3>
-              </div>
-            </Link>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
+            <Image
+              src="/images/serviceImage/services (2).webp"
+              alt="Custom curated gift sets with decorative items"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute bottom-6 left-0 right-0 text-center z-20">
+              <motion.h3
+                variants={textFadeIn}
+                className="text-[#f5e9d5] text-2xl font-serif"
+              >
+                Custom Curated Gifts
+              </motion.h3>
+            </div>
           </motion.div>
 
           {/* Gifting Consultation */}
@@ -129,23 +124,21 @@ const Services = () => {
             variants={cardItemFadeInUp}
             className="relative w-full h-52 md:h-64 overflow-hidden"
           >
-            <Link href="/consultation">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
-              <Image
-                src="/images/serviceImage/services (3).webp"
-                alt="Gifting consultation service with a professional"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute bottom-6 left-0 right-0 text-center z-20">
-                <motion.h3
-                  variants={textFadeIn}
-                  className="text-[#f5e9d5] text-2xl font-serif"
-                >
-                  Gifting Consultation
-                </motion.h3>
-              </div>
-            </Link>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
+            <Image
+              src="/images/serviceImage/services (3).webp"
+              alt="Gifting consultation service with a professional"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute bottom-6 left-0 right-0 text-center z-20">
+              <motion.h3
+                variants={textFadeIn}
+                className="text-[#f5e9d5] text-2xl font-serif"
+              >
+                Gifting Consultation
+              </motion.h3>
+            </div>
           </motion.div>
 
           {/* Promotional Gifts */}
@@ -153,23 +146,21 @@ const Services = () => {
             variants={cardItemFadeInUp}
             className="relative w-full h-52 md:h-64 overflow-hidden rounded-br-sm"
           >
-            <Link href="/packaging">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
-              <Image
-                src="/images/serviceImage/services (4).webp"
-                alt="Custom packaging and branding with company logos"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute bottom-6 left-0 right-0 text-center z-20">
-                <motion.h3
-                  variants={textFadeIn}
-                  className="text-[#f5e9d5] text-2xl font-serif"
-                >
-                  Custom Packaging & Branding
-                </motion.h3>
-              </div>
-            </Link>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/0 transition-colors z-10"></div>
+            <Image
+              src="/images/serviceImage/services (4).webp"
+              alt="Custom packaging and branding with company logos"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute bottom-6 left-0 right-0 text-center z-20">
+              <motion.h3
+                variants={textFadeIn}
+                className="text-[#f5e9d5] text-2xl font-serif"
+              >
+                Custom Packaging & Branding
+              </motion.h3>
+            </div>
           </motion.div>
         </motion.div>
       </div>
