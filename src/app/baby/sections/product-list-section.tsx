@@ -151,7 +151,7 @@ export function ProductListSection({ products }: ProductListSectionProps) {
                       alt={product.name}
                       width={200}
                       height={200}
-                      className="w-full h-60 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                      className="w-full aspect-square  object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div className="flex items-center justify-between mt-auto">

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Hero from "./hero";
+import Image from "next/image";
 
 const CardSection = dynamic(() => import("./card-section"));
 const ClientsSlider = dynamic(() =>
@@ -35,6 +36,23 @@ export default function Home() {
       <OurProcessStepper />
       <SpecialOccasions />
       <WhyKevasiya />
+
+      {/* WhatsApp CTA Button */}
+      <a
+        href="https://wa.me/919310010810?text=Hello!%20I%27m%20interested%20in%20your%20services.%20Can%20you%20help%20me%3F"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 animate-bounce"
+        aria-label="Contact us on WhatsApp"
+      >
+        <Image
+          src="/images/whatsappIcon.png"
+          alt="WhatsApp"
+          width={48}
+          height={48}
+          className="w-16 h-16"
+        />
+      </a>
     </div>
   );
 }

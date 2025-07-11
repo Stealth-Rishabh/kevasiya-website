@@ -82,13 +82,12 @@ function ContactForm() {
       newErrors.firstName = "First name can only contain letters";
     }
 
-    // Phone validation
+    // Phone validation - Updated to only accept 10 digits starting with 6-9
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
-    } else if (
-      !/^[+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-$$$$]/g, ""))
-    ) {
-      newErrors.phone = "Please enter a valid phone number";
+    } else if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/[\s\-]/g, ""))) {
+      newErrors.phone =
+        "Please enter a valid 10-digit phone number starting with 6-9";
     }
 
     setErrors(newErrors);
@@ -106,13 +105,15 @@ function ContactForm() {
   useEffect(() => {
     // Scroll to top immediately
     window.scrollTo({ top: 0, behavior: "smooth" });
-    
+
     // After 3 seconds, scroll down based on inner height for responsive behavior
     const timer = setTimeout(() => {
-      const scrollAmount = Math.min(window.innerHeight * (window.innerWidth < 768 ? 1.3 : 1.2)); // Responsive scroll amount based on viewport height
+      const scrollAmount = Math.min(
+        window.innerHeight * (window.innerWidth < 768 ? 1.3 : 1.2)
+      ); // Responsive scroll amount based on viewport height
       window.scrollTo({ top: scrollAmount, behavior: "smooth" });
     }, 3000);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -378,7 +379,7 @@ function ContactForm() {
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-200 focus:border-[#3A5A40]"
                           } transition-all duration-200`}
-                          placeholder="9876543210"
+                          placeholder="987xxxxxxx0"
                         />
                         {errors.phone && (
                           <div className="flex items-center gap-2 text-red-600 text-sm">
