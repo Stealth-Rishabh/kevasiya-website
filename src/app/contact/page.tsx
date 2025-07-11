@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState,useEffect, useRef } from "react";
+import { useState,useEffect } from "react";
 import {
   MapPin,
   Phone,
@@ -192,8 +192,8 @@ export default function ContactPage() {
               </h1>
             </div>
             <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-              Ready to bring your vision to life? Let&apos;s discuss your
-              project and create something extraordinary together.
+              Ready to find the perfect gift? Let&apos;s discuss your
+              gifting needs and create something extraordinary together.
             </p>
 
             {/* Stats Section */}
@@ -242,7 +242,7 @@ export default function ContactPage() {
                   Let&apos;s Start a Conversation
                 </h2>
                 <p className="text-xl text-gray-600 max-w-2xl">
-                  Fill out the form below with your project details, and
+                  Fill out the form below with your Query, and
                   we&apos;ll get back to you with a personalized solution.
                 </p>
               </div>
@@ -380,7 +380,7 @@ export default function ContactPage() {
                         htmlFor="message"
                         className="text-sm font-semibold text-[#3A5A40]"
                       >
-                        Project Details *
+                        Gift Details *
                       </Label>
                       <Textarea
                         id="message"
@@ -393,7 +393,7 @@ export default function ContactPage() {
                             ? "border-red-500 focus:border-red-500"
                             : "border-gray-200 focus:border-[#3A5A40]"
                         } transition-all duration-200`}
-                        placeholder="Tell us about your project, timeline, budget, and any specific requirements..."
+                        placeholder="Tell us about your gift choice, budget, and any specific requirements..."
                       />
                       <div className="flex justify-between items-center">
                         {errors.message ? (
@@ -625,7 +625,7 @@ export default function ContactPage() {
             <div className="space-y-6">
               <h3 className="text-4xl lg:text-5xl font-bold">Stay Connected</h3>
               <p className="text-xl text-white/80 max-w-3xl mx-auto">
-                Follow us on social media for the latest updates, project
+                Follow us on social media for the latest updates, Gift
                 showcases, and industry insights
               </p>
             </div>
